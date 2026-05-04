@@ -25,6 +25,16 @@
           reapack = pkgs.callPackage ./packages/reapack {};
           sws = pkgs.callPackage ./packages/sws {};
         };
+
+        devShells.default = pkgs.mkShell {
+          name = "reaper-flake dev shell";
+          packages = with pkgs; [
+            nixd
+            alejandra
+            bash-language-server
+            prettierd
+          ];
+        };
       };
     };
 }
