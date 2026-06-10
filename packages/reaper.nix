@@ -22,32 +22,59 @@
   jackLibrary ? libjack2, # Another option is "pipewire.jack"
   pulseaudioSupport ? config.pulseaudio or stdenv.hostPlatform.isLinux,
   libpulseaudio,
-}: let
-  url_for_platform = version: arch:
-    if stdenv.hostPlatform.isDarwin
-    then "https://www.reaper.fm/files/${lib.versions.major version}.x/reaper${
-      builtins.replaceStrings ["."] [""] version
-    }_universal.dmg"
-    else "https://www.reaper.fm/files/${lib.versions.major version}.x/reaper${
-      builtins.replaceStrings ["."] [""] version
-    }_linux_${arch}.tar.xz";
+  pythonSupport ? false,
+  python3,
+  waylandSwellSupport ? false,
+  swell-wayland ? null,
+}:
+assert waylandSwellSupport -> swell-wayland != null; let
+  inherit (stdenv) hostPlatform;
+  urlForPlatform = version: arch: let
+    majorVersion = lib.versions.major version;
+    compactVersion = builtins.replaceStrings ["."] [""] version;
+    baseUrl = "https://www.reaper.fm/files/${majorVersion}.x/reaper${compactVersion}";
+  in
+    if hostPlatform.isDarwin
+    then "${baseUrl}_universal.dmg"
+    else "${baseUrl}_linux_${arch}.tar.xz";
+
+  pythonRuntimeInputs = lib.optional pythonSupport python3;
+  pythonBinPath = lib.makeBinPath pythonRuntimeInputs;
+  pythonLibraryPath = lib.makeLibraryPath pythonRuntimeInputs;
+  darwinPythonWrapperArgs =
+    lib.optionalString pythonSupport
+    "--prefix PATH : ${lib.escapeShellArg pythonBinPath} --prefix DYLD_LIBRARY_PATH : ${lib.escapeShellArg pythonLibraryPath}";
+
+  wrapperPath = [xdg-utils] ++ pythonRuntimeInputs;
+  wrapperLibraryPath =
+    [
+      curl
+      lame
+      libxml2_13
+      ffmpeg_4-headless
+      vlc
+      xdotool
+      stdenv.cc.cc
+      openssl
+    ]
+    ++ pythonRuntimeInputs;
 in
   stdenv.mkDerivation (finalAttrs: {
     pname = "reaper";
-    version = "7.71";
+    version = "7.74";
 
     src = fetchurl {
-      url = url_for_platform finalAttrs.version stdenv.hostPlatform.qemuArch;
+      url = urlForPlatform finalAttrs.version stdenv.hostPlatform.qemuArch;
       hash =
-        if stdenv.hostPlatform.isDarwin
-        then "sha256-obsp3zSJ71nfmY8TEnFrs1v545klBSUZcruIb39/BnM="
+        if hostPlatform.isDarwin
+        then "sha256-QxmAag1tPB3bjz68lFsxSlMim06IfjWUTa++rE4fudE="
         else
           {
-            x86_64-linux = "sha256-OozJHud6PMOkFU2wMmdOYS0PKfyaAV+HHhROJfSr0GM=";
-            aarch64-linux = "sha256-XYMeykqf9QCzD6jHU/9Lrx266A3pBq3YePKDP2Sjfhc=";
+            x86_64-linux = "sha256-4Mf2q/eJz8djJv5JlrGGAWjivjEriRrkbrfKXd/iS6w=";
+            aarch64-linux = "sha256-zQ4XmFrACfUD04UWs0fYWW+m4L4B1xxe4Rg18xCUemc=";
           }
         .${
-            stdenv.hostPlatform.system
+            hostPlatform.system
           };
     };
 
@@ -55,12 +82,12 @@ in
       [
         makeWrapper
       ]
-      ++ lib.optionals stdenv.hostPlatform.isLinux [
+      ++ lib.optionals hostPlatform.isLinux [
         which
         autoPatchelfHook
         xdg-utils # Required for install script
       ]
-      ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      ++ lib.optionals hostPlatform.isDarwin [
         undmg
       ];
 
@@ -70,13 +97,13 @@ in
       [
         (lib.getLib stdenv.cc.cc) # reaper and libSwell need libstdc++.so.6
       ]
-      ++ lib.optionals stdenv.hostPlatform.isLinux [
+      ++ lib.optionals hostPlatform.isLinux [
         gtk3
         alsa-lib
       ];
 
     runtimeDependencies =
-      lib.optionals stdenv.hostPlatform.isLinux [
+      lib.optionals hostPlatform.isLinux [
         gtk3 # libSwell needs libgdk-3.so.0
       ]
       ++ lib.optional jackSupport jackLibrary
@@ -86,12 +113,12 @@ in
     dontStrip = true;
 
     installPhase =
-      if stdenv.hostPlatform.isDarwin
+      if hostPlatform.isDarwin
       then ''
         runHook preInstall
         mkdir -p "$out/Applications/Reaper.app"
         cp -r * "$out/Applications/Reaper.app/"
-        makeWrapper "$out/Applications/Reaper.app/Contents/MacOS/REAPER" "$out/bin/reaper"
+        makeWrapper "$out/Applications/Reaper.app/Contents/MacOS/REAPER" "$out/bin/reaper" ${darwinPythonWrapperArgs}
         runHook postInstall
       ''
       else ''
@@ -102,6 +129,11 @@ in
           --integrate-user-desktop
         rm $out/opt/REAPER/uninstall-reaper.sh
 
+        ${lib.optionalString waylandSwellSupport ''
+          rm -f $out/opt/REAPER/libSwell.so
+          ln -s ${swell-wayland}/lib/libSwell.so $out/opt/REAPER/libSwell.so
+        ''}
+
         # Dynamic loading of plugin dependencies does not adhere to rpath of
         # reaper executable that gets modified with runtimeDependencies.
         # Patching each plugin with DT_NEEDED is cumbersome and requires
@@ -111,19 +143,8 @@ in
         # We opt for wrapping the executable with LD_LIBRARY_PATH prefix.
         # Note that libcurl and libxml2_13 are needed for ReaPack to run.
         wrapProgram $out/opt/REAPER/reaper \
-          --prefix PATH : "${lib.makeBinPath [xdg-utils]}" \
-          --prefix LD_LIBRARY_PATH : "${
-          lib.makeLibraryPath [
-            curl
-            lame
-            libxml2_13
-            ffmpeg_4-headless
-            vlc
-            xdotool
-            stdenv.cc.cc
-            openssl
-          ]
-        }"
+          --prefix PATH : "${lib.makeBinPath wrapperPath}" \
+          --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath wrapperLibraryPath}"
 
         mkdir $out/bin
         ln -s $out/opt/REAPER/reaper $out/bin/
