@@ -1,4 +1,5 @@
 {
+  lib,
   stdenv,
   fetchFromGitHub,
   pkg-config,
@@ -40,4 +41,6 @@ stdenv.mkDerivation {
     cp libSwell.so $out/lib/
     runHook postInstall
   '';
+
+  meta.platforms = lib.platforms.linux;
 }

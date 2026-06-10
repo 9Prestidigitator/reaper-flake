@@ -13,7 +13,7 @@ in {
   ];
   options.programs.reaper = {
     enable = lib.mkEnableOption ''
-      Declarative configuration options for the digital audio workstation, Reaper.
+      Declarative configuration options for the digital audio workstation REAPER.
     '';
 
     package = mkOption {
