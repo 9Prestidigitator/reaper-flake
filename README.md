@@ -1,21 +1,36 @@
-# reaper-flake
+<p align="center">
+  <img src="https://www.reaper.fm/v5img/logo.jpg" alt="REAPER logo" width="220">
+</p>
 
-Declare your REAPER configuration with Nix.
+<h1 align="center">reaper-flake</h1>
 
-# Packages
+<p align="center">
+  REAPER packages and Home Manager configuration, patched into a Nix flake.
+</p>
 
-- REAPER: `7.74`
-- ReaPack: `1.2.6`
-- SWS: `2.14.0.7`
-- Reapertips Theme: `1.90`
+<p align="center">
+  <a href="https://www.reaper.fm/"><img alt="REAPER 7.74" src="https://img.shields.io/badge/REAPER-7.74-2b9bd8?style=for-the-badge"></a>
+  <a href="https://reapack.com/"><img alt="ReaPack 1.2.6" src="https://img.shields.io/badge/ReaPack-1.2.6-69c72f?style=for-the-badge"></a>
+  <a href="https://www.sws-extension.org/"><img alt="SWS 2.14.0.7" src="https://img.shields.io/badge/SWS-2.14.0.7-bb6b5b?style=for-the-badge"></a>
+</p>
 
-Package derivations originally from nixpkgs with updated hashes and small tweaks.
+## Track List
 
-# Home Manager Module
+| Track            | Version    | Output                            |
+| ---------------- | ---------- | --------------------------------- |
+| REAPER           | `7.74`     | `packages.reaper`                 |
+| ReaPack          | `1.2.6`    | `packages.reapack`                |
+| SWS              | `2.14.0.7` | `packages.sws`                    |
+| Reapertips Theme | `1.90`     | `packages.reapertips-theme`       |
+| SWELL Wayland    | `1.1.0w`   | `packages.swell-wayland` on Linux |
 
-Declare your own REAPER configuration using Home Manager.
+Package derivations are originally from nixpkgs with updated hashes and small tweaks.
 
-## Example
+## Home Manager
+
+Declare REAPER, seed its resource path, and link extensions from Nix-built packages.
+
+### Example
 
 ```nix
 {
@@ -23,6 +38,8 @@ Declare your own REAPER configuration using Home Manager.
 
   programs.reaper = {
     enable = true;
+    configPath = "${config.xdg.configHome}/reaper-flake";
+
     extensions = {
       reapack.enable = true;
       sws.enable = true;
@@ -31,11 +48,17 @@ Declare your own REAPER configuration using Home Manager.
 }
 ```
 
-# TODO
+> [!NOTE]
+> As of now you have to specify the configuration path when launching REAPER if you aren't using the default, even with home manager: `reaper -cfgfile ~/.config/reaper-flake`.
+
+## Roadmap
 
 Create a script that takes the final Nix options and applies them to the existing REAPER INI files without overriding stateful data. Plasma Manager does this with a Python activation script, so this will likely follow a similar approach.
 
-# Inspirations
+> [!NOTE]
+> If you are using something like impermanence or preservation you will want to persist the specified configPath manually. This is because REAPER has a stateful configuration model.
+
+## Inspirations
 
 - [plasma-manager](https://github.com/nix-community/plasma-manager)
 - [audio.nix](https://github.com/polygon/audio.nix)
