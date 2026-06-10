@@ -18,15 +18,19 @@ Declare your own REAPER configuration using Home Manager.
 ## Example
 
 ```nix
-imports = [inputs.reaper-flake.homeModules.reaper];
+{
+  imports = [inputs.reaper-flake.homeModules.reaper];
 
-programs.reaper = {
-  enable = true;
-  extensions = {
-    reapack.enable = true;
-    sws.enable = true;
+  programs.reaper = {
+    enable = true;
+    extensions = {
+      reapack.enable = true;
+      sws.enable = true;
+    };
+
+    pythonSupport.enable = true;
   };
-};
+}
 ```
 
 # TODO
