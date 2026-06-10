@@ -4,10 +4,10 @@ Declare your REAPER configuration with Nix.
 
 # Packages
 
-- REAPER: 7.74
-- ReaPack: 1.2.6
-- SWS: 2.14.0.7
-- Reapertips Theme: 1.90
+- REAPER: `7.74`
+- ReaPack: `1.2.6`
+- SWS: `2.14.0.7`
+- Reapertips Theme: `1.90`
 
 Package derivations originally from nixpkgs with updated hashes and small tweaks.
 
@@ -27,8 +27,6 @@ Declare your own REAPER configuration using Home Manager.
       reapack.enable = true;
       sws.enable = true;
     };
-
-    pythonSupport.enable = true;
   };
 }
 ```

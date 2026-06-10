@@ -61,7 +61,7 @@ in {
         defaultText = literalExpression "pkgs.python3";
         description = ''
           Python package made available to REAPER for Python ReaScripts when
-          using the module's default `programs.reaper.package`.
+          using the module's default `programs.reaper.package` (BROKEN).
         '';
       };
     };
