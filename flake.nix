@@ -47,10 +47,6 @@
               (ps:
                 with ps; [
                   numpy
-                  pandas
-                  matplotlib
-                  scikit-learn
-                  # tools
                   black
                   debugpy
                 ]))
