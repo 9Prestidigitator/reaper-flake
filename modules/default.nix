@@ -41,7 +41,7 @@
       if [ "$has_cfgfile" -eq 1 ]; then
         exec ${lib.escapeShellArg "${cfg.basePackage}/bin/reaper"} "$@"
       else
-        exec ${lib.escapeShellArg "${cfg.basePackage}/bin/reaper"} -cfgfile ${lib.escapeShellArg "${cfg.resourcePath}/reaper.ini"} "$@"
+        exec ${lib.escapeShellArg "${cfg.basePackage}/bin/reaper"} -cfgfile ${lib.escapeShellArg "${cfg.configPath}/reaper.ini"} "$@"
       fi
       EOF
       chmod +x "$out/bin/reaper"
@@ -65,7 +65,7 @@ in {
       default = homeWrappedReaperPackage;
       defaultText = literalExpression ''
         config.programs.reaper.basePackage wrapper that launches REAPER with
-        -cfgfile config.programs.reaper.resourcePath/reaper.ini unless -cfgfile is
+        -cfgfile config.programs.reaper.configPath/reaper.ini unless -cfgfile is
         supplied
       '';
       description = "REAPER package that is installed to home.packages.";
