@@ -5,11 +5,54 @@
   ...
 }: let
   inherit (lib) mkEnableOption mkIf mkOption literalExpression types optional hm optionalString;
+
   cfg = config.programs.reaper;
+
+  # Base Reaper package that comes with this flake
+  defaultBaseReaperPackage = pkgs.callPackage ../packages/reaper.nix {
+    pythonSupport = cfg.pythonSupport.enable;
+    python3 = cfg.pythonSupport.package;
+    waylandSwellSupport = cfg.experimental.swell-wayland.enable;
+    swell-wayland =
+      if pkgs.stdenv.hostPlatform.isLinux
+      then pkgs.callPackage ../packages/swell-wayland.nix {}
+      else null;
+  };
+
+  # Parallel Reaper hm-package that uses the home-managed configuration
+  # directory by default
+  homeWrappedReaperPackage = pkgs.symlinkJoin {
+    name = "${cfg.basePackage.pname or "REAPER"}-config-wrapper";
+    paths = [cfg.basePackage];
+    postBuild = ''
+      mkdir -p "$out/bin"
+      rm -f "$out/bin/reaper"
+      cat > "$out/bin/reaper" <<'EOF'
+      #!${pkgs.runtimeShell}
+      has_cfgfile=0
+      for arg in "$@"; do
+        case "$arg" in
+          -cfgfile|--cfgfile|-cfgfile=*|--cfgfile=*)
+            has_cfgfile=1
+            ;;
+        esac
+      done
+
+      if [ "$has_cfgfile" -eq 1 ]; then
+        exec ${lib.escapeShellArg "${cfg.basePackage}/bin/reaper"} "$@"
+      else
+        exec ${lib.escapeShellArg "${cfg.basePackage}/bin/reaper"} -cfgfile ${lib.escapeShellArg "${cfg.resourcePath}/reaper.ini"} "$@"
+      fi
+      EOF
+      chmod +x "$out/bin/reaper"
+    '';
+    meta = cfg.basePackage.meta or {};
+  };
 in {
   imports = [
     ./sws.nix
     ./reapack.nix
+    ./ini.nix
   ];
 
   options.programs.reaper = {
@@ -19,17 +62,25 @@ in {
 
     package = mkOption {
       type = types.package;
-      default = pkgs.callPackage ../packages/reaper.nix {
-        pythonSupport = cfg.pythonSupport.enable;
-        python3 = cfg.pythonSupport.package;
-        waylandSwellSupport = cfg.experimental.swell-wayland.enable;
-        swell-wayland =
-          if pkgs.stdenv.hostPlatform.isLinux
-          then pkgs.callPackage ../packages/swell-wayland.nix {}
-          else null;
-      };
-      defaultText = literalExpression "inputs.reaper-flake.packages.${pkgs.system}.reaper";
-      description = "REAPER package to use.";
+      default = homeWrappedReaperPackage;
+      defaultText = literalExpression ''
+        config.programs.reaper.basePackage wrapper that launches REAPER with
+        -cfgfile config.programs.reaper.resourcePath/reaper.ini unless -cfgfile is
+        supplied
+      '';
+      description = "REAPER package that is installed to home.packages.";
+    };
+    
+    basePackage = mkOption {
+      type = types.package;
+      default = defaultBaseReaperPackage;
+      defaultText = literalExpression ''
+        inputs.reaper-flake.packages.${pkgs.system}.reaper.override {
+          pythonSupport = config.programs.reaper.pythonSupport.enable;
+          python3 = config.programs.reaper.pythonSupport.package;
+        }
+      '';
+      description = "Unwrapped REAPER package to use.";
     };
 
     configPath = mkOption {
