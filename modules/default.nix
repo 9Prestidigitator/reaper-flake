@@ -52,7 +52,7 @@ in {
   imports = [
     ./sws.nix
     ./reapack.nix
-    ./ini.nix
+    # ./ini.nix
   ];
 
   options.programs.reaper = {
