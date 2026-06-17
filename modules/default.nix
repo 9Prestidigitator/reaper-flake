@@ -53,6 +53,7 @@ in {
     ./sws.nix
     ./reapack.nix
     ./ini.nix
+    ./plugins.nix
   ];
 
   options.programs.reaper = {
