@@ -221,7 +221,7 @@ in {
     writerPackage = pkgs.writeShellApplication {
       name = "write-config";
       runtimeInputs = [pkgs.python3];
-      text = ''exec python3 ${./scripts/write_config.py} "$@"'';
+      text = ''exec python3 ${../scripts/write_config.py} "$@"'';
     };
   };
 }
