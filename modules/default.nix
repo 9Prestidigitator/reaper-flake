@@ -289,7 +289,7 @@ in {
               continue
             fi
 
-            ${cfg.ini.writerPackage}/bin/write-reaper-ini "$target_ini" "$state_ini" ${lib.escapeShellArg cfg.ini.emptyPayloadFile} --remove-empty-state
+            ${cfg.ini.writerPackage}/bin/write-config "$target_ini" "$state_ini" ${lib.escapeShellArg cfg.ini.emptyPayloadFile} --remove-empty-state
           done
         }
 
