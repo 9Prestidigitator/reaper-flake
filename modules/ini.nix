@@ -219,9 +219,9 @@ in {
       cfg.ini.generatedFiles;
 
     writerPackage = pkgs.writeShellApplication {
-      name = "write-reaper-ini";
+      name = "write-config";
       runtimeInputs = [pkgs.python3];
-      text = ''exec python3 ${./scripts/write_reaper_ini.py} "$@"'';
+      text = ''exec python3 ${./scripts/write_config.py} "$@"'';
     };
   };
 }
