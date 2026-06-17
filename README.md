@@ -30,6 +30,9 @@ Package derivations are originally from nixpkgs with updated hashes and small tw
 
 Declare REAPER, seed its resource path, and link extensions from Nix-built packages.
 
+> [!NOTE]
+> If you are using something like impermanence or preservation you will want to persist the specified configPath manually. This is because REAPER has a stateful configuration model.
+
 ### Example
 
 ```nix
@@ -44,6 +47,17 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
       reapack.enable = true;
       sws.enable = true;
     };
+
+    preferences = {
+      plugIns = {
+        vst.searchPaths = ["~/Document/VSTs"];
+        clap.searchPaths = ["~/Downloads/claps"];
+        lv2 = {
+          searchPaths = ["~/.lv2-experimental"];
+          enableUserPaths = false;
+        };
+      };
+    };
   };
 }
 ```
@@ -53,10 +67,7 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
 
 ## Roadmap
 
-Create a script that takes the final Nix options and applies them to the existing REAPER INI files without overriding stateful data. Plasma Manager does this with a Python activation script, so this will likely follow a similar approach.
-
-> [!NOTE]
-> If you are using something like impermanence or preservation you will want to persist the specified configPath manually. This is because REAPER has a stateful configuration model.
+Continue studying Reaper configuration model to allow for options I use most to be set. Found this [site](https://mespotin.uber.space/Ultraschall/Reaper_Config_Variables.html) as a good reference.
 
 ## Inspirations
 
