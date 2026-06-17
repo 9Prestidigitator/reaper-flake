@@ -60,6 +60,7 @@ in {
     ./reapack.nix
     ./ini.nix
     ./plugins.nix
+    ./line-files.nix
   ];
 
   options.programs.reaper = {
