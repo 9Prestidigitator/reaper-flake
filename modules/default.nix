@@ -93,10 +93,11 @@ in {
       description = "Unwrapped REAPER package to use.";
     };
 
+    # Want to put the default path in a place that doesn't automatically overwrite the original REAPER configuration path
     configPath = mkOption {
       type = types.str;
-      default = "${config.xdg.configHome}/REAPER";
-      defaultText = literalExpression ''"''${config.xdg.configHome}/REAPER"'';
+      default = "${config.xdg.configHome}/reaper-flake";
+      defaultText = literalExpression ''"''${config.xdg.configHome}/reaper-flake"'';
     };
 
     installPackage = mkOption {

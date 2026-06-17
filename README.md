@@ -41,7 +41,7 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
 
   programs.reaper = {
     enable = true;
-    configPath = "${config.xdg.configHome}/reaper-flake";
+    configPath = "${config.xdg.configHome}/HOME-REAPER";
 
     extensions = {
       reapack.enable = true;
