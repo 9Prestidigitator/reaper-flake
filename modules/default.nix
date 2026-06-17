@@ -62,6 +62,7 @@ in {
     ./plugins.nix
     ./line-files.nix
     ./resources.nix
+    ./python.nix
   ];
 
   options.programs.reaper = {
@@ -110,20 +111,6 @@ in {
       description = ''
         Whether to seed REAPER's stock first-run resources from `$out/opt/REAPER/InstallData`.
       '';
-    };
-
-    pythonSupport = {
-      enable = mkEnableOption "Python support in REAPER";
-
-      package = mkOption {
-        type = types.package;
-        default = pkgs.python3;
-        defaultText = literalExpression "pkgs.python3";
-        description = ''
-          Python package made available to REAPER for Python ReaScripts when
-          using the module's default `programs.reaper.package` (BROKEN).
-        '';
-      };
     };
 
     experimental.swell-wayland.enable = mkEnableOption "EXTREMELY EXPERIMENTAL AND BROKEN: Reaper on native wayland.";

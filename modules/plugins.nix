@@ -22,9 +22,25 @@
     "${nixSystemRoot}/lib/lv2"
   ];
 
-  vstSearchPaths = unique (nixSystemVstPaths ++ cfg.vst.searchPaths);
-  clapSearchPaths = unique (nixSystemClapPaths ++ cfg.clap.searchPaths);
-  lv2SearchPaths = unique (nixSystemLv2Paths ++ cfg.lv2.searchPaths);
+  userVstPaths = optionals cfg.vst.enableUserPaths [
+    "~/.vst"
+    "~/.vst3"
+  ];
+  userClapPaths = optionals cfg.clap.enableUserPaths [
+    "/usr/local/lib/clap"
+    "/usr/lib/clap"
+    "~/.clap"
+    "%CLAP_PATH%"
+  ];
+  userLv2Paths = optionals cfg.lv2.enableUserPaths [
+    "/usr/lib/lv2"
+    "/usr/local/lib/lv2"
+    "~/.lv2"
+  ];
+
+  vstSearchPaths = unique (nixSystemVstPaths ++ userVstPaths ++ cfg.vst.searchPaths);
+  clapSearchPaths = unique (nixSystemClapPaths ++ userClapPaths ++ cfg.clap.searchPaths);
+  lv2SearchPaths = unique (nixSystemLv2Paths ++ userLv2Paths ++ cfg.lv2.searchPaths);
 in {
   options.programs.reaper.preferences.plugIns = {
     nixSystemPaths = {
@@ -44,23 +60,44 @@ in {
       };
     };
 
-    vst.searchPaths = mkOption {
-      type = types.listOf types.str;
-      default = [];
-      example = ["~/.vst" "~/.vst3"];
-      description = ''Additional VST(3) search paths appended to `[reaper].vstpath`.'';
+    vst = {
+      searchPaths = mkOption {
+        type = types.listOf types.str;
+        default = [];
+        example = ["~/Documents/vsts" "~/Downloads/vst3"];
+        description = ''Additional VST(3) search paths appended to `[reaper].vstpath`.'';
+      };
+      enableUserPaths = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''Whether to include default ~/.vst(3) paths in searchPaths'';
+      };
     };
-    lv2.searchPaths = mkOption {
-      type = types.listOf types.str;
-      default = [];
-      example = ["~/.lv2"];
-      description = ''Additional LV2 search paths appended to `[reaper].lv2path_linux`.'';
+    lv2 = {
+      searchPaths = mkOption {
+        type = types.listOf types.str;
+        default = [];
+        example = ["~/.lv2"];
+        description = ''Additional LV2 search paths appended to `[reaper].lv2path_linux`.'';
+      };
+      enableUserPaths = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''Whether to include default ~/.lv2 paths in searchPaths'';
+      };
     };
-    clap.searchPaths = mkOption {
-      type = types.listOf types.str;
-      default = [];
-      example = ["~/.clap"];
-      description = ''Additional CLAP search paths appended to REAPER's Linux Clap path.'';
+    clap = {
+      searchPaths = mkOption {
+        type = types.listOf types.str;
+        default = [];
+        example = ["~/.clap"];
+        description = ''Additional CLAP search paths appended to REAPER's Linux Clap path.'';
+      };
+      enableUserPaths = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''Whether to include default ~/.clap paths in searchPaths'';
+      };
     };
   };
 
