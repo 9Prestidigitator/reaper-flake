@@ -210,7 +210,7 @@ in {
           target_ini="$reaper_resource_path/$file_name"
           state_ini="$reaper_resource_path/.nix-managed/$file_name"
           mkdir -p "$(dirname "$target_ini")" "$(dirname "$state_ini")"
-          ${cfg.ini.writerPackage}/bin/write-config "$target_init" "$state_ini" "$payload"
+          ${cfg.ini.writerPackage}/bin/write-config "$target_ini" "$state_ini" "$payload"
         }
 
         merge_line_file() {
