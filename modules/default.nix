@@ -61,6 +61,7 @@ in {
     ./ini.nix
     ./plugins.nix
     ./line-files.nix
+    ./resources.nix
   ];
 
   options.programs.reaper = {
