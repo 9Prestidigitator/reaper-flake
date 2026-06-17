@@ -253,7 +253,7 @@ in {
 
         is_current_ini_file() {
           file_name=$1
-          ${currentFilePredicate (builtins.attrNames cfg.lineFiles.generatedFiles)}
+          ${currentFilePredicate (builtins.attrNames cfg.ini.generatedPayloadFiles)}
           return 1
         }
 
