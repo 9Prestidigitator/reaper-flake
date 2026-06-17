@@ -49,7 +49,7 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
 ```
 
 > [!NOTE]
-> As of now you have to specify the configuration path when launching REAPER if you aren't using the default, even with home manager: `reaper -cfgfile ~/.config/reaper-flake/reaper.ini`.
+> If you are using the raw default package exposed by the flake you have to specify the configuration path when launching REAPER: `reaper -cfgfile ~/.config/reaper-flake/reaper.ini`.
 
 ## Roadmap
 

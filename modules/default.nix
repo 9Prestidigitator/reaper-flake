@@ -52,7 +52,7 @@ in {
   imports = [
     ./sws.nix
     ./reapack.nix
-    # ./ini.nix
+    ./ini.nix
   ];
 
   options.programs.reaper = {
@@ -70,7 +70,7 @@ in {
       '';
       description = "REAPER package that is installed to home.packages.";
     };
-    
+
     basePackage = mkOption {
       type = types.package;
       default = defaultBaseReaperPackage;

@@ -20,6 +20,7 @@
         };
         swellWayland = pkgs.callPackage ./packages/swell-wayland.nix {};
       in {
+        devShells.default = pkgs.callPackage ./devshell.nix {};
         packages =
           rec {
             default = reaper;
@@ -36,27 +37,6 @@
           // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
             swell-wayland = swellWayland;
           };
-
-        devShells.default = pkgs.mkShell {
-          name = "reaper-flake dev shell";
-          packages = with pkgs; [
-            nixd
-            alejandra
-
-            (python3.withPackages
-              (ps:
-                with ps; [
-                  numpy
-                  black
-                  debugpy
-                ]))
-            basedpyright
-            ruff
-
-            bash-language-server
-            prettierd
-          ];
-        };
       };
 
       flake.homeModules.reaper = ./modules;
