@@ -1,10 +1,4 @@
-{
-  reaperWindows = {
-    transport = {
-      belowArranger = 0;
-      aboveRuler = 1;
-      bottomOfMainWindow = 2;
-      topOfMainWindow = 3;
-    };
-  };
+{lib}: {
+  reaperWindows = import ./windows.nix {inherit lib;};
+  reaperMouse = import ./mouse.nix {inherit lib;};
 }

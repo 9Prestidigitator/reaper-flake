@@ -62,6 +62,7 @@ in {
     ./ini.nix
     ./preferences/plugins.nix
     ./preferences/windows.nix
+    ./preferences/mouse.nix
     ./line-files.nix
     ./resources.nix
     ./python.nix
