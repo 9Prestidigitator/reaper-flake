@@ -7,7 +7,7 @@
   inherit (lib) concatStringsSep mapAttrsToList mkEnableOption mkIf mkMerge mkOption literalExpression types optional hm optionalString;
 
   cfg = config.programs.reaper;
-  reaperLib = import ./lib;
+  reaperLib = import ./lib {inherit lib;};
 
   # Base Reaper package that comes with this flake
   defaultBaseReaperPackage = pkgs.callPackage ../packages/reaper.nix {
@@ -123,6 +123,7 @@ in {
   config = mkMerge [
     {
       _module.args.reaperWindows = reaperLib.reaperWindows;
+      _module.args.reaperMouse = reaperLib.reaperMouse;
     }
     (mkIf cfg.enable {
       assertions = [

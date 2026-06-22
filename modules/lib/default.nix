@@ -1,4 +1,4 @@
 {lib}: {
-  reaperWindows = import ./windows.nix {inherit lib;};
+  reaperWindows = import ./windows.nix;
   reaperMouse = import ./mouse.nix {inherit lib;};
 }

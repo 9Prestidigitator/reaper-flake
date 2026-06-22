@@ -4,9 +4,9 @@
   ...
 }: let
   inherit (lib) literalExpression mkOption optionalAttrs types;
-  reaperLib = import ../lib;
+  reaperLib = import ../lib {inherit lib;};
   cfg = config.programs.reaper.preferences.windows;
-  transport_dock_position = cfg.transportDockPosition;
+  transportDockPosition = cfg.transportDockPosition;
 in {
   options.programs.reaper.preferences.windows = {
     transportDockPosition = mkOption {
@@ -20,18 +20,21 @@ in {
     };
     mixer = {
       show = mkOption {
-        type = types.nullor types.bool;
-        default = true;
+        type = types.nullOr types.bool;
+        default = null;
         example = false;
         description = ''
-          If set to true mixer panel will be show, otherwise it is hidden.
+          If set to true the mixer panel will be shown, otherwise it is hidden.
         '';
       };
     };
   };
 
-  config.programs.reaper.ini.sections.reaper = optionalAttrs (transport_dock_position != null) {
-    transport_dock_pos = transport_dock_position;
-    mixwin_vis = cfg.mixer.hidden;
-  };
+  config.programs.reaper.ini.sections.reaper =
+    optionalAttrs (transportDockPosition != null) {
+      transport_dock_pos = transportDockPosition;
+    }
+    // optionalAttrs (cfg.mixer.show != null) {
+      mixwin_vis = cfg.mixer.show;
+    };
 }
