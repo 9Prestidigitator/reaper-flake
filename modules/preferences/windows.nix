@@ -10,7 +10,7 @@
 in {
   options.programs.reaper.preferences.windows = {
     transportDockPosition = mkOption {
-      type = types.nullOr (types.enum builtins.attrValues reaperLib.reaperWindows.transport);
+      type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperWindows.transport));
       default = null;
       example = literalExpression "reaperWindows.transport.topOfMainWindow";
       description = ''
