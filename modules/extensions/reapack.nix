@@ -10,7 +10,7 @@ in {
 
     package = mkOption {
       type = types.package;
-      default = pkgs.callPackage ../packages/reapack {};
+      default = pkgs.callPackage ../../packages/reapack {};
       defaultText = literalExpression "inputs.reaper-flake.packages.${pkgs.system}.reapack";
       description = "Package that provides ReaPack files under `UserPlugins`.";
     };
