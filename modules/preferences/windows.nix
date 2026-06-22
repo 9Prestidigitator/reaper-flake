@@ -6,7 +6,6 @@
   inherit (lib) literalExpression mkOption optionalAttrs types;
   reaperLib = import ../lib {inherit lib;};
   cfg = config.programs.reaper.preferences.windows;
-  transportDockPosition = cfg.transportDockPosition;
 in {
   options.programs.reaper.preferences.windows = {
     transportDockPosition = mkOption {
@@ -31,10 +30,6 @@ in {
   };
 
   config.programs.reaper.ini.sections.reaper =
-    optionalAttrs (transportDockPosition != null) {
-      transport_dock_pos = transportDockPosition;
-    }
-    // optionalAttrs (cfg.mixer.show != null) {
-      mixwin_vis = cfg.mixer.show;
-    };
+    optionalAttrs (cfg.transportDockPosition != null) {transport_dock_pos = cfg.transportDockPosition;}
+    // optionalAttrs (cfg.mixer.show != null) {mixwin_vis = cfg.mixer.show;};
 }

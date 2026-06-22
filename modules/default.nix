@@ -63,6 +63,7 @@ in {
     ./preferences/plugins.nix
     ./preferences/windows.nix
     ./preferences/mouse.nix
+    ./preferences/appearance.nix
     ./line-files.nix
     ./resources.nix
     ./python.nix
@@ -124,6 +125,7 @@ in {
     {
       _module.args.reaperWindows = reaperLib.reaperWindows;
       _module.args.reaperMouse = reaperLib.reaperMouse;
+      _module.args.reaperAppearance = reaperLib.reaperAppearance;
     }
     (mkIf cfg.enable {
       assertions = [
