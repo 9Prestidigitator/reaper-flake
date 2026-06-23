@@ -65,6 +65,7 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
         envelopeLaneVerticalZoom = 0.4;
         horizontalZoomCenter = reaperAppearance.zoomScrollOffset.zoomCenter.horizontal.mouseCursor;
         limitHorizontalZoomScrollToProjectStart = false;
+        disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView = true;
 
         verticalScrollStep = {
           unit = reaperAppearance.zoomScrollOffset.verticalScrollStep.units.trackHeight;

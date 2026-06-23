@@ -21,16 +21,19 @@
   scroll = cfg.zoomScrollOffset;
   verticalScrollStep = scroll.verticalScrollStep;
 
-  # vscrollflag is shared by at least two Zoom/Scroll/Offset controls.
-  # Mask 1 is inverted: checked "limit to project start" is 0, unchecked is 1.
-  # Mask 2 selects "% of arrange view height" for the vertical scroll step.
+  # vscrollflag is shared by Zoom/Scroll/Offset controls.
+  # Mask 1 selects "% of arrange view height" for the vertical scroll step.
+  # Mask 2 enables "limit horizontal zoom/scroll to project start".
+  # Mask 4 disables mousewheel vertical zoom for pinned arrange-view tracks.
 
   vscrollflagMask =
-    (if scroll.limitHorizontalZoomScrollToProjectStart != null then 1 else 0)
-    + (if verticalScrollStep.unit != null then 2 else 0);
+    (if verticalScrollStep.unit != null then 1 else 0)
+    + (if scroll.limitHorizontalZoomScrollToProjectStart != null then 2 else 0)
+    + (if scroll.disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView != null then 4 else 0);
   vscrollflagValue =
-    (if scroll.limitHorizontalZoomScrollToProjectStart == false then 1 else 0)
-    + (if verticalScrollStep.unit == reaperLib.reaperAppearance.zoomScrollOffset.verticalScrollStep.units.arrangeViewHeight then 2 else 0);
+    (if verticalScrollStep.unit == reaperLib.reaperAppearance.zoomScrollOffset.verticalScrollStep.units.arrangeViewHeight then 1 else 0)
+    + (if scroll.limitHorizontalZoomScrollToProjectStart == true then 2 else 0)
+    + (if scroll.disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView == true then 4 else 0);
   overlap = scroll.overlappingMediaItems;
   overlapMask =
     (if overlap.offset != null then 255 else 0)
@@ -83,6 +86,14 @@ in {
         example = false;
         description = ''
           Whether horizontal zoom and scroll are limited to the project start. Null default is checked.
+        '';
+      };
+      disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        example = true;
+        description = ''
+          Whether mousewheel vertical zoom is disabled for tracks pinned in arrange view.
         '';
       };
       verticalScrollStep = {
