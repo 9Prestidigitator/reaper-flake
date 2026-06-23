@@ -37,6 +37,16 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
 
 ```nix
 {
+  config,
+  inputs,
+  reaperAppearance,
+  reaperMouse,
+  reaperWindows,
+  ...
+}: let
+  mouse = reaperMouse;
+  appearance = reaperAppearance;
+in {
   imports = [inputs.reaper-flake.homeModules.reaper];
 
   programs.reaper = {
@@ -49,6 +59,47 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
     };
 
     preferences = {
+      appearance.zoomScrollOffset = {
+        verticalZoomCenter = appearance.zoomScrollOffset.zoomCenter.vertical.lastSelectedTrack;
+        maximumVerticalZoom = 0.80;
+        envelopeLaneVerticalZoom = 0.4;
+        horizontalZoomCenter = appearance.zoomScrollOffset.zoomCenter.horizontal.mouseCursor;
+        limitHorizontalZoomScrollToProjectStart = false;
+
+        verticalScrollStep = {
+          unit = appearance.zoomScrollOffset.verticalScrollStep.units.trackHeight;
+          trackHeight = 0.5;
+          arrangeViewHeight = 0.1;
+        };
+
+        overlappingMediaItems = {
+          offset = 100;
+          drawAsOpaque = false;
+          arrangeInCreationOrder = false;
+        };
+      };
+
+      windows = {
+        transportDockPosition = reaperWindows.transport.topOfMainWindow;
+        mixer.show = false;
+      };
+
+      mouse = {
+        importedContexts = [
+          mouse.contexts.arrange.middleDrag
+          mouse.contexts.midiPianoRoll.leftClick
+        ];
+
+        contexts = with reaperMouse; merge [
+          # Arrange view middle-drag: hand scroll/pan.
+          (set contexts.arrange.middleDrag modifiers.none (mouse 7))
+
+          # MIDI piano roll single-click: insert a note.
+          # This uses REAPER's action text until this flake has named mouse-action enums.
+          (set contexts.midiPianoRoll.leftClick modifiers.none (mouse 4))
+        ];
+      };
+
       plugIns = {
         vst.searchPaths = ["~/Document/VSTs"];
         clap.searchPaths = ["~/Downloads/claps"];
