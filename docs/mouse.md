@@ -7,18 +7,14 @@ Use `programs.reaper.preferences.mouse.importedContexts` to mark REAPER mouse co
 ## Basic Shape
 
 ```nix
-{ reaperMouse, ... }:
-
-let
-  mouse = reaperMouse;
-in {
-  programs.reaper.preferences.mouse = {
+{ reaperMouse, ... }: {
+  programs.reaper.preferences.reaperMouse = {
     importedContexts = [
-      mouse.contexts.arrange.middleDrag
+      reaperMouse.contexts.arrange.middleDrag
     ];
 
-    contexts = mouse.context mouse.contexts.arrange.middleDrag {
-      ${mouse.modifiers.none} = mouse.mouse 9;
+    contexts = reaperMouse.context reaperMouse.contexts.arrange.middleDrag {
+      ${reaperMouse.modifiers.none} = reaperMouse.mouse 9;
     };
   };
 }
@@ -85,12 +81,12 @@ or a structured value:
 
 Use these helpers to format action values:
 
-| Helper                | Output      | Use                          |
-| --------------------- | ----------- | ---------------------------- |
-| `mouse.mouse 9`       | `"9 m"`     | REAPER mouse modifier action |
-| `mouse.command 40044` | `"40044 c"` | REAPER command/action id     |
-| `mouse.text "9 m"`    | `"9 m"`     | Pass a literal string        |
-| `mouse.raw "9 m"`     | `"9 m"`     | Pass a literal string        |
+| Helper                      | Output      | Use                                |
+| --------------------------- | ----------- | ---------------------------------- |
+| `reaperMouse.mouse 9`       | `"9 m"`     | REAPER reaperMouse modifier action |
+| `reaperMouse.command 40044` | `"40044 c"` | REAPER command/action id           |
+| `reaperMouse.text "9 m"`    | `"9 m"`     | Pass a literal string              |
+| `reaperMouse.raw "9 m"`     | `"9 m"`     | Pass a literal string              |
 
 The suffix matters:
 
@@ -105,7 +101,7 @@ Once a value is known, prefer adding a named helper or enum to the library so fu
 
 ## Modifiers
 
-Use `mouse.modifiers.*` for common modifier keys.
+Use `reaperMouse.modifiers.*` for common modifier keys.
 
 | Name                                     | REAPER key |
 | ---------------------------------------- | ---------- |
@@ -122,22 +118,22 @@ Use `mouse.modifiers.*` for common modifier keys.
 For combinations not listed above, use `mouse.modifier`.
 
 ```nix
-${mouse.modifier ["ctrl" "alt"]} = mouse.command 40044;
+${reaperMouse.modifier ["ctrl" "alt"]} = mouse.command 40044;
 ```
 
 Accepted modifier names are `shift`, `ctrl`, `control`, `alt`, `option`, `win`, `super`, `meta`, `cmd`, and `command`.
 
 ## Context Helpers
 
-`mouse.set`
+`reaperMouse.set`
 
 Set one binding.
 
 ```nix
-mouse.set
-  mouse.contexts.arrange.middleDrag
-  mouse.modifiers.none
-  (mouse.mouse 9)
+reaperMouse.set
+  reaperMouse.contexts.arrange.middleDrag
+  reaperMouse.modifiers.none
+  (reaperMouse.mouse 9)
 ```
 
 `mouse.context`
@@ -145,9 +141,9 @@ mouse.set
 Set several bindings in one context.
 
 ```nix
-mouse.context mouse.contexts.mediaItem.leftClick {
-  ${mouse.modifiers.none} = mouse.mouse 1;
-  ${mouse.modifiers.alt} = mouse.mouse 2;
+reaperMouse.context reaperMouse.contexts.mediaItem.leftClick {
+  ${reaperMouse.modifiers.none} = reaperMouse.reaperMouse 1;
+  ${reaperMouse.modifiers.alt} = reaperMouse.reaperMouse 2;
 }
 ```
 
@@ -156,11 +152,9 @@ mouse.context mouse.contexts.mediaItem.leftClick {
 Merge several `mouse.set` or `mouse.context` blocks.
 
 ```nix
-contexts = mouse.merge [
-  (mouse.set mouse.contexts.arrange.middleDrag mouse.modifiers.none (mouse.mouse 9))
-  (mouse.context mouse.contexts.mediaItem.leftClick {
-    ${mouse.modifiers.none} = mouse.mouse 1;
-  })
+contexts = with reaperMouse; merge [
+  (set contexts.arrange.middleDrag modifiers.none (mouse 9))
+  (context contexts.mediaItem.leftClick {${modifiers.none} = mouse 1;})
 ];
 ```
 
@@ -169,20 +163,13 @@ contexts = mouse.merge [
 Middle-click drag in the arrange view to zoom and pan:
 
 ```nix
-{ reaperMouse, ... }:
-
-let
-  mouse = reaperMouse;
-in {
+{ reaperMouse, ... }: {
   programs.reaper.preferences.mouse = {
     importedContexts = [
-      mouse.contexts.arrange.middleDrag
+      reaperMouse.contexts.arrange.middleDrag
     ];
 
-    contexts = mouse.set
-      mouse.contexts.arrange.middleDrag
-      mouse.modifiers.none
-      (mouse.mouse 9);
+    contexts = reaperMouse.set reaperMouse.contexts.arrange.middleDrag reaperMouse.modifiers.none (reaperMouse.mouse 9);
   };
 }
 ```
@@ -190,29 +177,25 @@ in {
 Several arrange bindings:
 
 ```nix
-{ reaperMouse, ... }:
-
-let
-  mouse = reaperMouse;
-in {
+{ reaperMouse, ... }: {
   programs.reaper.preferences.mouse = {
-    importedContexts = [
-      mouse.contexts.arrange.middleDrag
-      mouse.contexts.arrange.middleClick
-      mouse.contexts.arrange.rightDrag
+    importedContexts = with reaperMouse; [
+      contexts.arrange.middleDrag
+      contexts.arrange.middleClick
+      contexts.arrange.rightDrag
     ];
 
-    contexts = mouse.merge [
-      (mouse.set mouse.contexts.arrange.middleDrag mouse.modifiers.none (mouse.mouse 9))
+    contexts = with reaperMouse; merge [
+      (set contexts.arrange.middleDrag modifiers.none (mouse 9))
 
-      (mouse.context mouse.contexts.arrange.middleClick {
-        ${mouse.modifiers.none} = mouse.mouse 1;
-        ${mouse.modifiers.shift} = mouse.mouse 2;
+      (context contexts.arrange.middleClick {
+        ${modifiers.none} = mouse 1;
+        ${modifiers.shift} = mouse 2;
       })
 
-      (mouse.context mouse.contexts.arrange.rightDrag {
-        ${mouse.modifiers.none} = mouse.raw "3 m";
-        ${mouse.modifier ["ctrl" "alt"]} = mouse.command 40044;
+      (context mouse.contexts.arrange.rightDrag {
+        ${modifiers.none} = raw "3 m";
+        ${modifier ["ctrl" "alt"]} = command 40044;
       })
     ];
   };
@@ -241,94 +224,94 @@ Raw configuration without helpers:
 
 | Library path                                            | REAPER context                    |
 | ------------------------------------------------------- | --------------------------------- |
-| `mouse.contexts.areaSelection.leftDrag`                 | `MM_CTX_AREASEL`                  |
-| `mouse.contexts.areaSelection.leftClick`                | `MM_CTX_AREASEL_CLK`              |
-| `mouse.contexts.areaSelection.edgeLeftDrag`             | `MM_CTX_AREASEL_EDGE`             |
-| `mouse.contexts.areaSelectionEnvelope.leftDrag`         | `MM_CTX_AREASEL_ENV`              |
-| `mouse.contexts.arrange.altA`                           | `MM_CTX_ARRANGE_A`                |
-| `mouse.contexts.arrange.altB`                           | `MM_CTX_ARRANGE_B`                |
-| `mouse.contexts.arrange.altC`                           | `MM_CTX_ARRANGE_C`                |
-| `mouse.contexts.arrange.altD`                           | `MM_CTX_ARRANGE_D`                |
-| `mouse.contexts.arrange.middleDrag`                     | `MM_CTX_ARRANGE_MMOUSE`           |
-| `mouse.contexts.arrange.middleClick`                    | `MM_CTX_ARRANGE_MMOUSE_CLK`       |
-| `mouse.contexts.arrange.rightDrag`                      | `MM_CTX_ARRANGE_RMOUSE`           |
-| `mouse.contexts.crossfade.leftDrag`                     | `MM_CTX_CROSSFADE`                |
-| `mouse.contexts.crossfade.leftClick`                    | `MM_CTX_CROSSFADE_CLK`            |
-| `mouse.contexts.crossfade.doubleClick`                  | `MM_CTX_CROSSFADE_DBLCLK`         |
-| `mouse.contexts.editCursorHandle.leftDrag`              | `MM_CTX_CURSORHANDLE`             |
-| `mouse.contexts.envelopeControlPanel.doubleClick`       | `MM_CTX_ENVCP_DBLCLK`             |
-| `mouse.contexts.envelopeLane.leftDrag`                  | `MM_CTX_ENVLANE`                  |
-| `mouse.contexts.envelopeLane.doubleClick`               | `MM_CTX_ENVLANE_DBLCLK`           |
-| `mouse.contexts.envelopePoint.leftDrag`                 | `MM_CTX_ENVPT`                    |
-| `mouse.contexts.envelopePoint.doubleClick`              | `MM_CTX_ENVPT_DBLCLK`             |
-| `mouse.contexts.envelopeSegment.leftDrag`               | `MM_CTX_ENVSEG`                   |
-| `mouse.contexts.envelopeSegment.doubleClick`            | `MM_CTX_ENVSEG_DBLCLK`            |
-| `mouse.contexts.fader.mouseWheel`                       | `MM_CTX_FADER_MOUSEWHEEL`         |
-| `mouse.contexts.fixedLaneTab.leftClick`                 | `MM_CTX_FIXEDLANETAB_CLK`         |
-| `mouse.contexts.fixedLaneTab.doubleClick`               | `MM_CTX_FIXEDLANETAB_DBLCLK`      |
-| `mouse.contexts.mediaItem.leftDrag`                     | `MM_CTX_ITEM`                     |
-| `mouse.contexts.mediaItem.leftClick`                    | `MM_CTX_ITEM_CLK`                 |
-| `mouse.contexts.mediaItem.doubleClick`                  | `MM_CTX_ITEM_DBLCLK`              |
-| `mouse.contexts.mediaItemEdge.leftDrag`                 | `MM_CTX_ITEMEDGE`                 |
-| `mouse.contexts.mediaItemEdge.doubleClick`              | `MM_CTX_ITEMEDGE_DBLCLK`          |
-| `mouse.contexts.mediaItemFade.leftDrag`                 | `MM_CTX_ITEMFADE`                 |
-| `mouse.contexts.mediaItemFade.leftClick`                | `MM_CTX_ITEMFADE_CLK`             |
-| `mouse.contexts.mediaItemFade.doubleClick`              | `MM_CTX_ITEMFADE_DBLCLK`          |
-| `mouse.contexts.mediaItemLowerHalf.leftDrag`            | `MM_CTX_ITEMLOWER`                |
-| `mouse.contexts.mediaItemLowerHalf.leftClick`           | `MM_CTX_ITEMLOWER_CLK`            |
-| `mouse.contexts.mediaItemLowerHalf.doubleClick`         | `MM_CTX_ITEMLOWER_DBLCLK`         |
-| `mouse.contexts.mediaItemStretchMarker.leftDrag`        | `MM_CTX_ITEMSTRETCHMARKER`        |
-| `mouse.contexts.mediaItemStretchMarker.doubleClick`     | `MM_CTX_ITEMSTRETCHMARKER_DBLCLK` |
-| `mouse.contexts.mediaItemStretchMarkerRate.leftDrag`    | `MM_CTX_ITEMSTRETCHMARKERRATE`    |
-| `mouse.contexts.mediaItemTakeMarker.leftDrag`           | `MM_CTX_ITEMTAKEMARKER`           |
-| `mouse.contexts.mediaItemTakeMarker.leftClick`          | `MM_CTX_ITEMTAKEMARKER_CLK`       |
-| `mouse.contexts.mediaItemTakeMarker.doubleClick`        | `MM_CTX_ITEMTAKEMARKER_DBLCLK`    |
-| `mouse.contexts.linkedLane.leftDrag`                    | `MM_CTX_LINKEDLANE`               |
-| `mouse.contexts.linkedLane.leftClick`                   | `MM_CTX_LINKEDLANE_CLK`           |
-| `mouse.contexts.linkedLane.doubleClick`                 | `MM_CTX_LINKEDLANE_DBLCLK`        |
-| `mouse.contexts.marker.leftDrag`                        | `MM_CTX_MARKER`                   |
-| `mouse.contexts.markerLane.leftDrag`                    | `MM_CTX_MARKERLANES`              |
-| `mouse.contexts.markerRegionEdge.leftDrag`              | `MM_CTX_MARKER_REGIONEDGE`        |
-| `mouse.contexts.mixerControlPanel.doubleClick`          | `MM_CTX_MCP_DBLCLK`               |
-| `mouse.contexts.mixerControlPanel.faderMouseWheel`      | `MM_CTX_MCP_FADER_MOUSEWHEEL`     |
-| `mouse.contexts.mixerControlPanel.horizontalMouseWheel` | `MM_CTX_MCP_MOUSEHWHEEL`          |
-| `mouse.contexts.mixerControlPanel.mouseWheel`           | `MM_CTX_MCP_MOUSEWHEEL`           |
-| `mouse.contexts.midiCcEvent.leftDrag`                   | `MM_CTX_MIDI_CCEVT`               |
-| `mouse.contexts.midiCcEvent.doubleClick`                | `MM_CTX_MIDI_CCEVT_DBLCLK`        |
-| `mouse.contexts.midiCcLane.leftDrag`                    | `MM_CTX_MIDI_CCLANE`              |
-| `mouse.contexts.midiCcLane.doubleClick`                 | `MM_CTX_MIDI_CCLANE_DBLCLK`       |
-| `mouse.contexts.midiCcSegment.leftDrag`                 | `MM_CTX_MIDI_CCSEG`               |
-| `mouse.contexts.midiCcSegment.doubleClick`              | `MM_CTX_MIDI_CCSEG_DBLCLK`        |
-| `mouse.contexts.midiEndPointer.leftDrag`                | `MM_CTX_MIDI_ENDPTR`              |
-| `mouse.contexts.midiMarkerLane.leftDrag`                | `MM_CTX_MIDI_MARKERLANES`         |
-| `mouse.contexts.midiNote.leftDrag`                      | `MM_CTX_MIDI_NOTE`                |
-| `mouse.contexts.midiNote.leftClick`                     | `MM_CTX_MIDI_NOTE_CLK`            |
-| `mouse.contexts.midiNote.doubleClick`                   | `MM_CTX_MIDI_NOTE_DBLCLK`         |
-| `mouse.contexts.midiNoteEdge.leftDrag`                  | `MM_CTX_MIDI_NOTEEDGE`            |
-| `mouse.contexts.midiPianoRoll.leftDrag`                 | `MM_CTX_MIDI_PIANOROLL`           |
-| `mouse.contexts.midiPianoRoll.leftClick`                | `MM_CTX_MIDI_PIANOROLL_CLK`       |
-| `mouse.contexts.midiPianoRoll.doubleClick`              | `MM_CTX_MIDI_PIANOROLL_DBLCLK`    |
-| `mouse.contexts.midiPianoRoll.rightDrag`                | `MM_CTX_MIDI_RMOUSE`              |
-| `mouse.contexts.midiRuler.leftDrag`                     | `MM_CTX_MIDI_RULER`               |
-| `mouse.contexts.midiRuler.leftClick`                    | `MM_CTX_MIDI_RULER_CLK`           |
-| `mouse.contexts.midiRuler.doubleClick`                  | `MM_CTX_MIDI_RULER_DBLCLK`        |
-| `mouse.contexts.pooledAutomationItem.leftDrag`          | `MM_CTX_POOLEDENV`                |
-| `mouse.contexts.pooledAutomationItem.doubleClick`       | `MM_CTX_POOLEDENV_DBLCLK`         |
-| `mouse.contexts.pooledAutomationItemEdge.leftDrag`      | `MM_CTX_POOLEDENVEDGE`            |
-| `mouse.contexts.region.leftDrag`                        | `MM_CTX_REGION`                   |
-| `mouse.contexts.regionMarker.leftClick`                 | `MM_CTX_REGION_MARKER_CLK`        |
-| `mouse.contexts.regionMarker.doubleClick`               | `MM_CTX_REGION_MARKER_DBLCLK`     |
-| `mouse.contexts.ruler.leftDrag`                         | `MM_CTX_RULER`                    |
-| `mouse.contexts.ruler.leftClick`                        | `MM_CTX_RULER_CLK`                |
-| `mouse.contexts.ruler.doubleClick`                      | `MM_CTX_RULER_DBLCLK`             |
-| `mouse.contexts.rulerLaneHeader.doubleClick`            | `MM_CTX_RULERLANE_HDR_DBLCLK`     |
-| `mouse.contexts.sampleEdit.leftDrag`                    | `MM_CTX_SAMPLEEDIT`               |
-| `mouse.contexts.tempoMarker.leftDrag`                   | `MM_CTX_TEMPOMARKER`              |
-| `mouse.contexts.track.leftDrag`                         | `MM_CTX_TRACK`                    |
-| `mouse.contexts.track.leftClick`                        | `MM_CTX_TRACK_CLK`                |
-| `mouse.contexts.track.doubleClick`                      | `MM_CTX_TRACK_DBLCLK`             |
-| `mouse.contexts.trackControlPanel.doubleClick`          | `MM_CTX_TCP_DBLCLK`               |
-| `mouse.contexts.trackControlPanel.faderMouseWheel`      | `MM_CTX_TCP_FADER_MOUSEWHEEL`     |
-| `mouse.contexts.trackControlPanel.horizontalMouseWheel` | `MM_CTX_TCP_MOUSEHWHEEL`          |
-| `mouse.contexts.trackControlPanel.mouseWheel`           | `MM_CTX_TCP_MOUSEWHEEL`           |
+| `reaperMouse.contexts.areaSelection.leftDrag`                 | `MM_CTX_AREASEL`                  |
+| `reaperMouse.contexts.areaSelection.leftClick`                | `MM_CTX_AREASEL_CLK`              |
+| `reaperMouse.contexts.areaSelection.edgeLeftDrag`             | `MM_CTX_AREASEL_EDGE`             |
+| `reaperMouse.contexts.areaSelectionEnvelope.leftDrag`         | `MM_CTX_AREASEL_ENV`              |
+| `reaperMouse.contexts.arrange.altA`                           | `MM_CTX_ARRANGE_A`                |
+| `reaperMouse.contexts.arrange.altB`                           | `MM_CTX_ARRANGE_B`                |
+| `reaperMouse.contexts.arrange.altC`                           | `MM_CTX_ARRANGE_C`                |
+| `reaperMouse.contexts.arrange.altD`                           | `MM_CTX_ARRANGE_D`                |
+| `reaperMouse.contexts.arrange.middleDrag`                     | `MM_CTX_ARRANGE_MMOUSE`           |
+| `reaperMouse.contexts.arrange.middleClick`                    | `MM_CTX_ARRANGE_MMOUSE_CLK`       |
+| `reaperMouse.contexts.arrange.rightDrag`                      | `MM_CTX_ARRANGE_RMOUSE`           |
+| `reaperMouse.contexts.crossfade.leftDrag`                     | `MM_CTX_CROSSFADE`                |
+| `reaperMouse.contexts.crossfade.leftClick`                    | `MM_CTX_CROSSFADE_CLK`            |
+| `reaperMouse.contexts.crossfade.doubleClick`                  | `MM_CTX_CROSSFADE_DBLCLK`         |
+| `reaperMouse.contexts.editCursorHandle.leftDrag`              | `MM_CTX_CURSORHANDLE`             |
+| `reaperMouse.contexts.envelopeControlPanel.doubleClick`       | `MM_CTX_ENVCP_DBLCLK`             |
+| `reaperMouse.contexts.envelopeLane.leftDrag`                  | `MM_CTX_ENVLANE`                  |
+| `reaperMouse.contexts.envelopeLane.doubleClick`               | `MM_CTX_ENVLANE_DBLCLK`           |
+| `reaperMouse.contexts.envelopePoint.leftDrag`                 | `MM_CTX_ENVPT`                    |
+| `reaperMouse.contexts.envelopePoint.doubleClick`              | `MM_CTX_ENVPT_DBLCLK`             |
+| `reaperMouse.contexts.envelopeSegment.leftDrag`               | `MM_CTX_ENVSEG`                   |
+| `reaperMouse.contexts.envelopeSegment.doubleClick`            | `MM_CTX_ENVSEG_DBLCLK`            |
+| `reaperMouse.contexts.fader.mouseWheel`                       | `MM_CTX_FADER_MOUSEWHEEL`         |
+| `reaperMouse.contexts.fixedLaneTab.leftClick`                 | `MM_CTX_FIXEDLANETAB_CLK`         |
+| `reaperMouse.contexts.fixedLaneTab.doubleClick`               | `MM_CTX_FIXEDLANETAB_DBLCLK`      |
+| `reaperMouse.contexts.mediaItem.leftDrag`                     | `MM_CTX_ITEM`                     |
+| `reaperMouse.contexts.mediaItem.leftClick`                    | `MM_CTX_ITEM_CLK`                 |
+| `reaperMouse.contexts.mediaItem.doubleClick`                  | `MM_CTX_ITEM_DBLCLK`              |
+| `reaperMouse.contexts.mediaItemEdge.leftDrag`                 | `MM_CTX_ITEMEDGE`                 |
+| `reaperMouse.contexts.mediaItemEdge.doubleClick`              | `MM_CTX_ITEMEDGE_DBLCLK`          |
+| `reaperMouse.contexts.mediaItemFade.leftDrag`                 | `MM_CTX_ITEMFADE`                 |
+| `reaperMouse.contexts.mediaItemFade.leftClick`                | `MM_CTX_ITEMFADE_CLK`             |
+| `reaperMouse.contexts.mediaItemFade.doubleClick`              | `MM_CTX_ITEMFADE_DBLCLK`          |
+| `reaperMouse.contexts.mediaItemLowerHalf.leftDrag`            | `MM_CTX_ITEMLOWER`                |
+| `reaperMouse.contexts.mediaItemLowerHalf.leftClick`           | `MM_CTX_ITEMLOWER_CLK`            |
+| `reaperMouse.contexts.mediaItemLowerHalf.doubleClick`         | `MM_CTX_ITEMLOWER_DBLCLK`         |
+| `reaperMouse.contexts.mediaItemStretchMarker.leftDrag`        | `MM_CTX_ITEMSTRETCHMARKER`        |
+| `reaperMouse.contexts.mediaItemStretchMarker.doubleClick`     | `MM_CTX_ITEMSTRETCHMARKER_DBLCLK` |
+| `reaperMouse.contexts.mediaItemStretchMarkerRate.leftDrag`    | `MM_CTX_ITEMSTRETCHMARKERRATE`    |
+| `reaperMouse.contexts.mediaItemTakeMarker.leftDrag`           | `MM_CTX_ITEMTAKEMARKER`           |
+| `reaperMouse.contexts.mediaItemTakeMarker.leftClick`          | `MM_CTX_ITEMTAKEMARKER_CLK`       |
+| `reaperMouse.contexts.mediaItemTakeMarker.doubleClick`        | `MM_CTX_ITEMTAKEMARKER_DBLCLK`    |
+| `reaperMouse.contexts.linkedLane.leftDrag`                    | `MM_CTX_LINKEDLANE`               |
+| `reaperMouse.contexts.linkedLane.leftClick`                   | `MM_CTX_LINKEDLANE_CLK`           |
+| `reaperMouse.contexts.linkedLane.doubleClick`                 | `MM_CTX_LINKEDLANE_DBLCLK`        |
+| `reaperMouse.contexts.marker.leftDrag`                        | `MM_CTX_MARKER`                   |
+| `reaperMouse.contexts.markerLane.leftDrag`                    | `MM_CTX_MARKERLANES`              |
+| `reaperMouse.contexts.markerRegionEdge.leftDrag`              | `MM_CTX_MARKER_REGIONEDGE`        |
+| `reaperMouse.contexts.mixerControlPanel.doubleClick`          | `MM_CTX_MCP_DBLCLK`               |
+| `reaperMouse.contexts.mixerControlPanel.faderMouseWheel`      | `MM_CTX_MCP_FADER_MOUSEWHEEL`     |
+| `reaperMouse.contexts.mixerControlPanel.horizontalMouseWheel` | `MM_CTX_MCP_MOUSEHWHEEL`          |
+| `reaperMouse.contexts.mixerControlPanel.mouseWheel`           | `MM_CTX_MCP_MOUSEWHEEL`           |
+| `reaperMouse.contexts.midiCcEvent.leftDrag`                   | `MM_CTX_MIDI_CCEVT`               |
+| `reaperMouse.contexts.midiCcEvent.doubleClick`                | `MM_CTX_MIDI_CCEVT_DBLCLK`        |
+| `reaperMouse.contexts.midiCcLane.leftDrag`                    | `MM_CTX_MIDI_CCLANE`              |
+| `reaperMouse.contexts.midiCcLane.doubleClick`                 | `MM_CTX_MIDI_CCLANE_DBLCLK`       |
+| `reaperMouse.contexts.midiCcSegment.leftDrag`                 | `MM_CTX_MIDI_CCSEG`               |
+| `reaperMouse.contexts.midiCcSegment.doubleClick`              | `MM_CTX_MIDI_CCSEG_DBLCLK`        |
+| `reaperMouse.contexts.midiEndPointer.leftDrag`                | `MM_CTX_MIDI_ENDPTR`              |
+| `reaperMouse.contexts.midiMarkerLane.leftDrag`                | `MM_CTX_MIDI_MARKERLANES`         |
+| `reaperMouse.contexts.midiNote.leftDrag`                      | `MM_CTX_MIDI_NOTE`                |
+| `reaperMouse.contexts.midiNote.leftClick`                     | `MM_CTX_MIDI_NOTE_CLK`            |
+| `reaperMouse.contexts.midiNote.doubleClick`                   | `MM_CTX_MIDI_NOTE_DBLCLK`         |
+| `reaperMouse.contexts.midiNoteEdge.leftDrag`                  | `MM_CTX_MIDI_NOTEEDGE`            |
+| `reaperMouse.contexts.midiPianoRoll.leftDrag`                 | `MM_CTX_MIDI_PIANOROLL`           |
+| `reaperMouse.contexts.midiPianoRoll.leftClick`                | `MM_CTX_MIDI_PIANOROLL_CLK`       |
+| `reaperMouse.contexts.midiPianoRoll.doubleClick`              | `MM_CTX_MIDI_PIANOROLL_DBLCLK`    |
+| `reaperMouse.contexts.midiPianoRoll.rightDrag`                | `MM_CTX_MIDI_RMOUSE`              |
+| `reaperMouse.contexts.midiRuler.leftDrag`                     | `MM_CTX_MIDI_RULER`               |
+| `reaperMouse.contexts.midiRuler.leftClick`                    | `MM_CTX_MIDI_RULER_CLK`           |
+| `reaperMouse.contexts.midiRuler.doubleClick`                  | `MM_CTX_MIDI_RULER_DBLCLK`        |
+| `reaperMouse.contexts.pooledAutomationItem.leftDrag`          | `MM_CTX_POOLEDENV`                |
+| `reaperMouse.contexts.pooledAutomationItem.doubleClick`       | `MM_CTX_POOLEDENV_DBLCLK`         |
+| `reaperMouse.contexts.pooledAutomationItemEdge.leftDrag`      | `MM_CTX_POOLEDENVEDGE`            |
+| `reaperMouse.contexts.region.leftDrag`                        | `MM_CTX_REGION`                   |
+| `reaperMouse.contexts.regionMarker.leftClick`                 | `MM_CTX_REGION_MARKER_CLK`        |
+| `reaperMouse.contexts.regionMarker.doubleClick`               | `MM_CTX_REGION_MARKER_DBLCLK`     |
+| `reaperMouse.contexts.ruler.leftDrag`                         | `MM_CTX_RULER`                    |
+| `reaperMouse.contexts.ruler.leftClick`                        | `MM_CTX_RULER_CLK`                |
+| `reaperMouse.contexts.ruler.doubleClick`                      | `MM_CTX_RULER_DBLCLK`             |
+| `reaperMouse.contexts.rulerLaneHeader.doubleClick`            | `MM_CTX_RULERLANE_HDR_DBLCLK`     |
+| `reaperMouse.contexts.sampleEdit.leftDrag`                    | `MM_CTX_SAMPLEEDIT`               |
+| `reaperMouse.contexts.tempoMarker.leftDrag`                   | `MM_CTX_TEMPOMARKER`              |
+| `reaperMouse.contexts.track.leftDrag`                         | `MM_CTX_TRACK`                    |
+| `reaperMouse.contexts.track.leftClick`                        | `MM_CTX_TRACK_CLK`                |
+| `reaperMouse.contexts.track.doubleClick`                      | `MM_CTX_TRACK_DBLCLK`             |
+| `reaperMouse.contexts.trackControlPanel.doubleClick`          | `MM_CTX_TCP_DBLCLK`               |
+| `reaperMouse.contexts.trackControlPanel.faderMouseWheel`      | `MM_CTX_TCP_FADER_MOUSEWHEEL`     |
+| `reaperMouse.contexts.trackControlPanel.horizontalMouseWheel` | `MM_CTX_TCP_MOUSEHWHEEL`          |
+| `reaperMouse.contexts.trackControlPanel.mouseWheel`           | `MM_CTX_TCP_MOUSEWHEEL`           |
 

@@ -11,8 +11,8 @@
 
   # Base Reaper package that comes with this flake
   defaultBaseReaperPackage = pkgs.callPackage ../packages/reaper.nix {
-    pythonSupport = cfg.pythonSupport.enable;
-    python3 = cfg.pythonSupport.package;
+    pythonSupport = cfg.preferences.plugIns.reascript.python.enable;
+    python3 = cfg.preferences.plugIns.reascript.python.package;
     waylandSwellSupport = cfg.experimental.swell-wayland.enable;
     swell-wayland =
       if pkgs.stdenv.hostPlatform.isLinux
@@ -57,16 +57,16 @@
       fileNames);
 in {
   imports = [
+    ./ini.nix
+    ./line-files.nix
+    ./resources.nix
+    ./actions.nix
     ./extensions/sws.nix
     ./extensions/reapack.nix
-    ./ini.nix
     ./preferences/plugins.nix
     ./preferences/windows.nix
     ./preferences/mouse.nix
     ./preferences/appearance.nix
-    ./line-files.nix
-    ./resources.nix
-    ./python.nix
   ];
 
   options.programs.reaper = {
@@ -90,8 +90,8 @@ in {
       default = defaultBaseReaperPackage;
       defaultText = literalExpression ''
         inputs.reaper-flake.packages.${pkgs.system}.reaper.override {
-          pythonSupport = config.programs.reaper.pythonSupport.enable;
-          python3 = config.programs.reaper.pythonSupport.package;
+          pythonSupport = config.programs.reaper.preferences.plugIns.reascript.python.enable;
+          python3 = config.programs.reaper.preferences.plugIns.reascript.python.package;
         }
       '';
       description = "Unwrapped REAPER package to use.";
@@ -126,6 +126,7 @@ in {
       _module.args.reaperWindows = reaperLib.reaperWindows;
       _module.args.reaperMouse = reaperLib.reaperMouse;
       _module.args.reaperAppearance = reaperLib.reaperAppearance;
+      _module.args.reaperActions = reaperLib.reaperActions;
     }
     (mkIf cfg.enable {
       assertions = [

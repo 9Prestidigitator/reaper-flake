@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  inherit (lib) optionals types mkOption optionalAttrs unique;
+  inherit (lib) optionals mkEnableOption types mkOption optionalAttrs literalExpression unique;
 
   cfg = config.programs.reaper.preferences.plugIns;
   nixSystemRoot = cfg.nixSystemPaths.root;
@@ -99,10 +99,27 @@ in {
         description = ''Whether to include default ~/.clap paths in searchPaths'';
       };
     };
+    reascript.python = {
+      enable = mkEnableOption "Python support in REAPER";
+
+      package = mkOption {
+        type = types.package;
+        default = pkgs.python3;
+        defaultText = literalExpression "pkgs.python3";
+        description = ''
+          Python package made available to REAPER for Python ReaScripts when
+          using the module's default `programs.reaper.package` (BROKEN).
+        '';
+      };
+    };
   };
 
   config.programs.reaper.ini.sections.reaper =
     optionalAttrs (vstSearchPaths != []) {vstpath = vstSearchPaths;}
     // optionalAttrs (clapSearchPaths != []) {${clapPathKey} = clapSearchPaths;}
-    // optionalAttrs (lv2SearchPaths != []) {lv2path_linux = lv2SearchPaths;};
+    // optionalAttrs (lv2SearchPaths != []) {lv2path_linux = lv2SearchPaths;}
+    // optionalAttrs cfg.reascript.python.enable {
+      pythonlibpath64 = "${cfg.reascript.python.package}/lib";
+      pythonlibdll64 = "libpython${cfg.reascript.python.package.pythonVersion}.so";
+    };
 }

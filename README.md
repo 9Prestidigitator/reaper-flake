@@ -24,7 +24,9 @@
 | Reapertips Theme | `1.90`     | `packages.reapertips-theme`       |
 | SWELL Wayland    | `1.1.0w`   | `packages.swell-wayland` on Linux |
 
-Package derivations are originally from nixpkgs with updated hashes and small tweaks.
+Most package derivations are originally from nixpkgs with updated hashes and small tweaks.
+
+The SWELL wayland derivation was inspired by this [post](https://forum.cockos.com/showthread.php?t=305832).
 
 ## Home Manager
 
@@ -39,14 +41,12 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
 {
   config,
   inputs,
+  reaperActions,
   reaperAppearance,
   reaperMouse,
   reaperWindows,
   ...
-}: let
-  mouse = reaperMouse;
-  appearance = reaperAppearance;
-in {
+}: {
   imports = [inputs.reaper-flake.homeModules.reaper];
 
   programs.reaper = {
@@ -60,14 +60,14 @@ in {
 
     preferences = {
       appearance.zoomScrollOffset = {
-        verticalZoomCenter = appearance.zoomScrollOffset.zoomCenter.vertical.lastSelectedTrack;
+        verticalZoomCenter = reaperAppearance.zoomScrollOffset.zoomCenter.vertical.lastSelectedTrack;
         maximumVerticalZoom = 0.80;
         envelopeLaneVerticalZoom = 0.4;
-        horizontalZoomCenter = appearance.zoomScrollOffset.zoomCenter.horizontal.mouseCursor;
+        horizontalZoomCenter = reaperAppearance.zoomScrollOffset.zoomCenter.horizontal.mouseCursor;
         limitHorizontalZoomScrollToProjectStart = false;
 
         verticalScrollStep = {
-          unit = appearance.zoomScrollOffset.verticalScrollStep.units.trackHeight;
+          unit = reaperAppearance.zoomScrollOffset.verticalScrollStep.units.trackHeight;
           trackHeight = 0.5;
           arrangeViewHeight = 0.1;
         };
@@ -85,9 +85,9 @@ in {
       };
 
       mouse = {
-        importedContexts = [
-          mouse.contexts.arrange.middleDrag
-          mouse.contexts.midiPianoRoll.leftClick
+        importedContexts = with reaperMouse; [
+          contexts.arrange.middleDrag
+          contexts.midiPianoRoll.leftClick
         ];
 
         contexts = with reaperMouse; merge [
@@ -101,6 +101,8 @@ in {
       };
 
       plugIns = {
+        reascript.python.enable = true;
+
         vst.searchPaths = ["~/Document/VSTs"];
         clap.searchPaths = ["~/Downloads/claps"];
         lv2 = {
@@ -109,9 +111,43 @@ in {
         };
       };
     };
+
+    actions = {
+      scripts = [
+        {
+          path = "User/toggle-click.lua";
+          source = ./scripts/toggle-click.lua;
+          commandId = "RS_toggle_click";
+          description = "Custom: toggle click";
+        }
+      ];
+
+      keyBindings = with reaperActions; bindings [
+        (shortcut {
+          shortcut = "Space";
+          command = commands.transport.play;
+          actionName = "Transport: Play";
+        })
+
+        (shortcut {
+          shortcut = "Ctrl+Alt+C";
+          command = "RS_toggle_click";
+          actionName = "Custom: toggle click";
+        })
+
+        (globalShortcut {
+          shortcut = "Ctrl+Alt+Space";
+          command = commands.transport.stop;
+          scope = "global";
+          actionName = "Transport: Stop";
+        })
+      ];
+    };
   };
 }
 ```
+
+The default configuration path is `~/.config/reaper-flake` instead of `~/.config/REAPER` to avoid overwriting original GUI configurations, this can be changed with `programs.reaper.configPath`.
 
 > [!NOTE]
 > If you are using the raw default package exposed by the flake you have to specify the configuration path when launching REAPER: `reaper -cfgfile ~/.config/reaper-flake/reaper.ini`.
