@@ -179,11 +179,27 @@
       else 0
     );
   tinttcpMask =
-    (if trackControlPanels.setTrackLabelBackgroundToCustomTrackColors != null then 1 else 0)
-    + (if trackControlPanels.tintTrackPanelBackgrounds != null then 2 else 0);
+    (
+      if trackControlPanels.setTrackLabelBackgroundToCustomTrackColors != null
+      then 1
+      else 0
+    )
+    + (
+      if trackControlPanels.tintTrackPanelBackgrounds != null
+      then 2
+      else 0
+    );
   tinttcpValue =
-    (if trackControlPanels.setTrackLabelBackgroundToCustomTrackColors == true then 1 else 0)
-    + (if trackControlPanels.tintTrackPanelBackgrounds == true then 2 else 0);
+    (
+      if trackControlPanels.setTrackLabelBackgroundToCustomTrackColors == true
+      then 1
+      else 0
+    )
+    + (
+      if trackControlPanels.tintTrackPanelBackgrounds == true
+      then 2
+      else 0
+    );
 in {
   options.programs.reaper.preferences.appearance = {
     help = {

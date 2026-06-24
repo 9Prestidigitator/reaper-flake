@@ -176,7 +176,7 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
 
 The default configuration path is `~/.config/reaper-flake` instead of `~/.config/REAPER` to avoid overwriting original GUI configurations, this can be changed with `programs.reaper.configPath`.
 
-When removing an option from your configuration that was instantiated with the flake, the the module will automatically clean up the option in the ini. Reseting it to whatever the default reaper value. That is the purpose of the `.nix-managed` directory in the config directory.
+When removing an option from your configuration that was instantiated with the flake, the the module will automatically clean up the option in the ini. Reseting it to whatever the default reaper value. That is the purpose of the `.nix-managed` directory in the config directory. For bitfields it will just clean the managed bit mask.
 
 > [!NOTE]
 > If you are using the raw default package exposed by the flake you have to specify the configuration path when launching REAPER: `reaper -cfgfile ~/.config/reaper-flake/reaper.ini`.
