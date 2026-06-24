@@ -67,6 +67,7 @@ in {
     ./preferences/windows.nix
     ./preferences/mouse.nix
     ./preferences/appearance.nix
+    ./preferences/project.nix
   ];
 
   options.programs.reaper = {

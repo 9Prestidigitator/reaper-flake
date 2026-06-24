@@ -59,6 +59,60 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
     };
 
     preferences = {
+      project = {
+        backups = {
+          whenSaving = {
+            preservePreviousVersionAsRppBak = true;
+            preserveAllPreviousVersionsInOneRppBak = false;
+            preservePreviouslySavedVersionOfProjectAsRppBak = {
+              enable = true;
+              saveTimestampedBackupsToProjectBackupsSubdirectory = true;
+
+              limitAutoSavedBackupsToMostRecent = {
+                enable = true;
+                count = 50;
+                unit = "copies";
+              };
+            };
+          };
+
+          autoSave = {
+            autoSaveToTimestampedFileInProjectDirectory = {
+              enable = true;
+              saveBackupsToProjectAutoSavesSubdirectory = true;
+
+              limitAutoSavedBackupsToMostRecent = {
+                enable = true;
+                count = 50;
+                unit = "copies";
+              };
+            };
+
+            autoSaveToTimestampedFileInAdditionalDirectory = {
+              enable = false;
+              path = "/tmp/reaper-projects";
+              limitAutoSavedBackupsToMostRecent = {
+                enable = false;
+                count = 50;
+                mode = "copiesForCurrentProject";
+              };
+            };
+
+            autoSaveToProjectFile = false;
+            autoSaveUnsavedProjectsToTemporaryFile = true;
+
+            autoSaveInterval = {
+              minutes = 10;
+              mode = "whenNotRecording";
+            };
+
+            autoSavePathForUnsavedProjects = {
+              path = "/tmp/reaper-unsaved";
+            };
+          };
+        };
+      };
+
       appearance = {
         trackControlPanels = {
           setTrackLabelBackgroundToCustomTrackColors = true;
@@ -106,11 +160,6 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
         };
       };
 
-      windows = {
-        transportDockPosition = reaperWindows.transport.topOfMainWindow;
-        mixer.show = false;
-      };
-
       mouse = {
         importedContexts = with reaperMouse; [
           contexts.arrange.middleDrag
@@ -136,6 +185,11 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
           searchPaths = ["~/.lv2-experimental"];
           enableUserPaths = false;
         };
+      };
+
+      windows = {
+        transportDockPosition = reaperWindows.transport.topOfMainWindow;
+        mixer.show = false;
       };
     };
 

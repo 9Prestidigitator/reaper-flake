@@ -444,6 +444,7 @@ in {
       };
     };
   };
+
   config.programs.reaper.ini.sections.reaper =
     optionalAttrs (cfg.zoomScrollOffset.verticalZoomCenter != null) {vzoommode = cfg.zoomScrollOffset.verticalZoomCenter;}
     // optionalAttrs (cfg.zoomScrollOffset.maximumVerticalZoom != null) {maxvzoom = cfg.zoomScrollOffset.maximumVerticalZoom;}
