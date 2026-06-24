@@ -378,7 +378,7 @@ in {
       savebackuplimit = timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.count;
     }
     // optionalAttrs (autoSaveBackupLimitCount != null) {autosavebackuplimit = autoSaveBackupLimitCount;}
-    // optionalAttrs (autoSaveInterval.minutes != null) {autosaveint = autoSaveInterval.minutes * 60;}
+    // optionalAttrs (autoSaveInterval.minutes != null) {autosaveint = autoSaveInterval.minutes;}
     // optionalAttrs (autoSaveInterval.mode != null) {autosavemode = autoSaveIntervalModes.${autoSaveInterval.mode};}
     // optionalAttrs (additionalDirectoryAutoSave.path != null) {autosavedir = additionalDirectoryAutoSave.path;}
     // optionalAttrs (autoSave.autoSavePathForUnsavedProjects.path != null) {autosavedir_unsaved = autoSave.autoSavePathForUnsavedProjects.path;};
