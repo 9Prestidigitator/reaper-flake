@@ -1,4 +1,24 @@
 {
+  trackControlPanels = {
+    trackGroupingIndicators = {
+      ribbons = 0;
+      linesOnEdge = 1;
+      none = 2;
+    };
+
+    panFaderUnitDisplay = {
+      percent100 = 0;
+      percent90 = 1;
+    };
+
+    volumeFaderShape = {
+      default = -1.0;
+      linearDb = 1.0;
+      reaperV3 = 2.3;
+      maxPrecisionAt0Db = 4.0;
+    };
+  };
+
   zoomScrollOffset = {
     zoomCenter = {
       horizontal = {

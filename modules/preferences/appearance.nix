@@ -16,6 +16,13 @@
   envelopeVerticalZoom = boundedNumber "zoom percentage between 0 and 1000" 0 1000;
   scrollStep = boundedNumber "scroll step percentage between 0.01 and 1" 0.01 1;
   overlapOffset = types.ints.between 0 255;
+  sliderMinimum = boundedNumber "volume fader minimum between -160 and -6 dB" (-160) (-6);
+  sliderMaximum = boundedNumber "volume fader maximum between 0 and 60 dB" 0 60;
+  sliderShape =
+    (types.addCheck number (value: value == -1.0 || (value >= 0.25 && value <= 4.0)))
+    // {
+      description = "volume fader shape of -1 for REAPER default, or between 0.25 and 4";
+    };
   optionalBitfield = enabled: attrs:
     optionalAttrs enabled attrs;
   scroll = cfg.zoomScrollOffset;
@@ -27,22 +34,70 @@
   # Mask 4 disables mousewheel vertical zoom for pinned arrange-view tracks.
 
   vscrollflagMask =
-    (if verticalScrollStep.unit != null then 1 else 0)
-    + (if scroll.limitHorizontalZoomScrollToProjectStart != null then 2 else 0)
-    + (if scroll.disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView != null then 4 else 0);
+    (
+      if verticalScrollStep.unit != null
+      then 1
+      else 0
+    )
+    + (
+      if scroll.limitHorizontalZoomScrollToProjectStart != null
+      then 2
+      else 0
+    )
+    + (
+      if scroll.disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView != null
+      then 4
+      else 0
+    );
   vscrollflagValue =
-    (if verticalScrollStep.unit == reaperLib.reaperAppearance.zoomScrollOffset.verticalScrollStep.units.arrangeViewHeight then 1 else 0)
-    + (if scroll.limitHorizontalZoomScrollToProjectStart == true then 2 else 0)
-    + (if scroll.disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView == true then 4 else 0);
+    (
+      if verticalScrollStep.unit == reaperLib.reaperAppearance.zoomScrollOffset.verticalScrollStep.units.arrangeViewHeight
+      then 1
+      else 0
+    )
+    + (
+      if scroll.limitHorizontalZoomScrollToProjectStart == true
+      then 2
+      else 0
+    )
+    + (
+      if scroll.disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView == true
+      then 4
+      else 0
+    );
   overlap = scroll.overlappingMediaItems;
   overlapMask =
-    (if overlap.offset != null then 255 else 0)
-    + (if overlap.drawAsOpaque != null then 256 else 0)
-    + (if overlap.arrangeInCreationOrder != null then 512 else 0);
+    (
+      if overlap.offset != null
+      then 255
+      else 0
+    )
+    + (
+      if overlap.drawAsOpaque != null
+      then 256
+      else 0
+    )
+    + (
+      if overlap.arrangeInCreationOrder != null
+      then 512
+      else 0
+    );
   overlapValue =
-    (if overlap.offset != null then overlap.offset else 0)
-    + (if overlap.drawAsOpaque == true then 256 else 0)
-    + (if overlap.arrangeInCreationOrder == true then 512 else 0);
+    (
+      if overlap.offset != null
+      then overlap.offset
+      else 0
+    )
+    + (
+      if overlap.drawAsOpaque == true
+      then 256
+      else 0
+    )
+    + (
+      if overlap.arrangeInCreationOrder == true
+      then 512
+      else 0
+    );
   trackControlPanels = cfg.trackControlPanels;
   # tcpalign is partly a bitfield. The FX inserts toggle uses mask 14:
   # enabled stores 6, disabled stores 8.
@@ -100,9 +155,53 @@
       then 64
       else 0
     );
+  tinttcpMask =
+    (if trackControlPanels.setTrackLabelBackgroundToCustomTrackColors != null then 1 else 0)
+    + (if trackControlPanels.tintTrackPanelBackgrounds != null then 2 else 0);
+  tinttcpValue =
+    (if trackControlPanels.setTrackLabelBackgroundToCustomTrackColors == true then 1 else 0)
+    + (if trackControlPanels.tintTrackPanelBackgrounds == true then 2 else 0);
 in {
   options.programs.reaper.preferences.appearance = {
+    help = {
+      view = mkOption {
+        default = null;
+      };
+      showMouseEditingHelp = mkOption {
+        default = null;
+      };
+    };
+    rulerGrid = {
+      rulerLabelSpacing = mkOption {
+        default = null;
+      };
+      gridLines = mkOption {
+        default = null;
+      };
+      markerLines = mkOption {
+        default = null;
+      };
+      showInArrangeView = mkOption {
+        default = null;
+      };
+    };
     trackControlPanels = {
+      setTrackLabelBackgroundToCustomTrackColors = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        example = true;
+        description = ''
+          Whether track label backgrounds are set to custom track colors.
+        '';
+      };
+      tintTrackPanelBackgrounds = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        example = false;
+        description = ''
+          Whether track panel backgrounds are tinted.
+        '';
+      };
       alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed = mkOption {
         type = types.nullOr types.bool;
         default = null;
@@ -141,6 +240,49 @@ in {
         example = true;
         description = ''
           Whether FX parameters are grouped with their inserts.
+        '';
+      };
+      trackGroupingIndicators = mkOption {
+        type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.trackGroupingIndicators));
+        default = null;
+        example = literalExpression "reaperAppearance.trackControlPanels.trackGroupingIndicators.ribbons";
+        description = ''
+          Track grouping indicator display mode in Track Control Panel preferences.
+        '';
+      };
+      volumeFaderRange = {
+        minimum = mkOption {
+          type = types.nullOr sliderMinimum;
+          default = null;
+          example = -72;
+          description = ''
+            Minimum TCP volume fader range in dB.
+          '';
+        };
+        maximum = mkOption {
+          type = types.nullOr sliderMaximum;
+          default = null;
+          example = 12;
+          description = ''
+            Maximum TCP volume fader range in dB.
+          '';
+        };
+      };
+      volumeFaderShape = mkOption {
+        type = types.nullOr sliderShape;
+        default = null;
+        example = literalExpression "reaperAppearance.trackControlPanels.volumeFaderShape.default";
+        description = ''
+          TCP volume fader shape. Use `reaperAppearance.trackControlPanels.volumeFaderShape`
+          for REAPER's named choices, or a custom shape between `0.25` and `4.0`.
+        '';
+      };
+      panFaderUnitDisplay = mkOption {
+        type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.panFaderUnitDisplay));
+        default = null;
+        example = literalExpression "reaperAppearance.trackControlPanels.panFaderUnitDisplay.percent100";
+        description = ''
+          TCP pan fader unit display mode.
         '';
       };
     };
@@ -253,7 +395,12 @@ in {
     // optionalAttrs (cfg.zoomScrollOffset.envelopeLaneVerticalZoom != null) {envvzoomscale = cfg.zoomScrollOffset.envelopeLaneVerticalZoom;}
     // optionalAttrs (cfg.zoomScrollOffset.horizontalZoomCenter != null) {zoommode = cfg.zoomScrollOffset.horizontalZoomCenter;}
     // optionalAttrs (cfg.zoomScrollOffset.verticalScrollStep.trackHeight != null) {vscrollstep = cfg.zoomScrollOffset.verticalScrollStep.trackHeight;}
-    // optionalAttrs (cfg.zoomScrollOffset.verticalScrollStep.arrangeViewHeight != null) {vscrollstep2 = cfg.zoomScrollOffset.verticalScrollStep.arrangeViewHeight;};
+    // optionalAttrs (cfg.zoomScrollOffset.verticalScrollStep.arrangeViewHeight != null) {vscrollstep2 = cfg.zoomScrollOffset.verticalScrollStep.arrangeViewHeight;}
+    // optionalAttrs (trackControlPanels.trackGroupingIndicators != null) {groupdispmode = trackControlPanels.trackGroupingIndicators;}
+    // optionalAttrs (trackControlPanels.volumeFaderRange.minimum != null) {sliderminv = trackControlPanels.volumeFaderRange.minimum;}
+    // optionalAttrs (trackControlPanels.volumeFaderRange.maximum != null) {slidermaxv = trackControlPanels.volumeFaderRange.maximum;}
+    // optionalAttrs (trackControlPanels.volumeFaderShape != null) {slidershex = trackControlPanels.volumeFaderShape;}
+    // optionalAttrs (trackControlPanels.panFaderUnitDisplay != null) {pandispmode = trackControlPanels.panFaderUnitDisplay;};
 
   config.programs.reaper.ini.bitfields.reaper =
     optionalBitfield (vscrollflagMask != 0) {
@@ -272,6 +419,12 @@ in {
       tcpalign = {
         mask = tcpalignMask;
         value = tcpalignValue;
+      };
+    }
+    // optionalBitfield (tinttcpMask != 0) {
+      tinttcp = {
+        mask = tinttcpMask;
+        value = tinttcpValue;
       };
     };
 }

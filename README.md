@@ -59,24 +59,46 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
     };
 
     preferences = {
-      appearance.zoomScrollOffset = {
-        verticalZoomCenter = reaperAppearance.zoomScrollOffset.zoomCenter.vertical.lastSelectedTrack;
-        maximumVerticalZoom = 0.80;
-        envelopeLaneVerticalZoom = 0.4;
-        horizontalZoomCenter = reaperAppearance.zoomScrollOffset.zoomCenter.horizontal.mouseCursor;
-        limitHorizontalZoomScrollToProjectStart = false;
-        disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView = true;
+      appearance = {
+        trackControlPanels = {
+          setTrackLabelBackgroundToCustomTrackColors = true;
+          tintTrackPanelBackgrounds = false;
+          alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed = true;
 
-        verticalScrollStep = {
-          unit = reaperAppearance.zoomScrollOffset.verticalScrollStep.units.trackHeight;
-          trackHeight = 0.5;
-          arrangeViewHeight = 0.1;
+          showFxInserts = true;
+          showSends = true;
+          groupSendsWithFxInserts = false;
+          groupFxParametersWithInserts = true;
+
+          trackGroupingIndicators = reaperAppearance.trackControlPanels.trackGroupingIndicators.ribbons;
+
+          volumeFaderRange = {
+            minimum = -72;
+            maximum = 12;
+          };
+          volumeFaderShape = reaperAppearance.trackControlPanels.volumeFaderShape.default;
+          panFaderUnitDisplay = reaperAppearance.trackControlPanels.panFaderUnitDisplay.percent100;
         };
 
-        overlappingMediaItems = {
-          offset = 100;
-          drawAsOpaque = false;
-          arrangeInCreationOrder = false;
+        zoomScrollOffset = {
+          verticalZoomCenter = reaperAppearance.zoomScrollOffset.zoomCenter.vertical.lastSelectedTrack;
+          maximumVerticalZoom = 0.80;
+          envelopeLaneVerticalZoom = 0.4;
+          horizontalZoomCenter = reaperAppearance.zoomScrollOffset.zoomCenter.horizontal.mouseCursor;
+          limitHorizontalZoomScrollToProjectStart = false;
+          disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView = true;
+
+          verticalScrollStep = {
+            unit = reaperAppearance.zoomScrollOffset.verticalScrollStep.units.trackHeight;
+            trackHeight = 0.5;
+            arrangeViewHeight = 0.1;
+          };
+
+          overlappingMediaItems = {
+            offset = 100;
+            drawAsOpaque = false;
+            arrangeInCreationOrder = false;
+          };
         };
       };
 
