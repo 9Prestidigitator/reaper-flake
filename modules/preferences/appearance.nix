@@ -126,6 +126,16 @@
       if trackControlPanels.groupFxParametersWithInserts != null
       then 64
       else 0
+    )
+    + (
+      if trackControlPanels.folderCollapseButtonCyclesTrackHeights != null
+      then 256
+      else 0
+    )
+    + (
+      if trackControlPanels.fixedLaneCollapseButtonChangesDisplay != null
+      then 1024
+      else 0
     );
   tcpalignValue =
     (
@@ -153,6 +163,16 @@
     + (
       if trackControlPanels.groupFxParametersWithInserts == true
       then 64
+      else 0
+    )
+    + (
+      if trackControlPanels.folderCollapseButtonCyclesTrackHeights != null
+      then trackControlPanels.folderCollapseButtonCyclesTrackHeights
+      else 0
+    )
+    + (
+      if trackControlPanels.fixedLaneCollapseButtonChangesDisplay != null
+      then trackControlPanels.fixedLaneCollapseButtonChangesDisplay
       else 0
     );
   tinttcpMask =
@@ -240,6 +260,22 @@ in {
         example = true;
         description = ''
           Whether FX parameters are grouped with their inserts.
+        '';
+      };
+      folderCollapseButtonCyclesTrackHeights = mkOption {
+        type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights));
+        default = null;
+        example = literalExpression "reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights.normalSmallCollapsed";
+        description = ''
+          Track height cycle used by the folder collapse button.
+        '';
+      };
+      fixedLaneCollapseButtonChangesDisplay = mkOption {
+        type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay));
+        default = null;
+        example = literalExpression "reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay.bigSmallLanes";
+        description = ''
+          Fixed lane display mode toggled by the fixed lane collapse button.
         '';
       };
       trackGroupingIndicators = mkOption {

@@ -71,6 +71,10 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
           groupFxParametersWithInserts = true;
 
           trackGroupingIndicators = reaperAppearance.trackControlPanels.trackGroupingIndicators.ribbons;
+          folderCollapseButtonCyclesTrackHeights =
+            reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights.normalSmallCollapsed;
+          fixedLaneCollapseButtonChangesDisplay =
+            reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay.bigSmallLanes;
 
           volumeFaderRange = {
             minimum = -72;

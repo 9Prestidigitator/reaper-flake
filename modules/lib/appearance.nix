@@ -17,6 +17,16 @@
       reaperV3 = 2.3;
       maxPrecisionAt0Db = 4.0;
     };
+
+    folderCollapseButtonCyclesTrackHeights = {
+      normalSmallCollapsed = 0;
+      normalSmallHidden = 256;
+    };
+
+    fixedLaneCollapseButtonChangesDisplay = {
+      bigSmallLanes = 0;
+      oneManyLanes = 1024;
+    };
   };
 
   zoomScrollOffset = {
