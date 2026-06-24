@@ -21,6 +21,8 @@
     folderCollapseButtonCyclesTrackHeights = {
       normalSmallCollapsed = 0;
       normalSmallHidden = 256;
+      normalCollapsed = 512;
+      normalHidden = 768;
     };
 
     fixedLaneCollapseButtonChangesDisplay = {

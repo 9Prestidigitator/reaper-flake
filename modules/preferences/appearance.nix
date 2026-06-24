@@ -101,6 +101,9 @@
   trackControlPanels = cfg.trackControlPanels;
   # tcpalign is partly a bitfield. The FX inserts toggle uses mask 14:
   # enabled stores 6, disabled stores 8.
+  # Folder collapse height cycling uses mask 768:
+  # 0 = normal/small/collapsed, 256 = normal/small/hidden,
+  # 512 = normal/collapsed, 768 = normal/hidden.
   tcpalignMask =
     (
       if trackControlPanels.alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed != null
@@ -129,7 +132,7 @@
     )
     + (
       if trackControlPanels.folderCollapseButtonCyclesTrackHeights != null
-      then 256
+      then 768
       else 0
     )
     + (
