@@ -36,6 +36,10 @@
   additionalDirectoryAutoSave = autoSave.autoSaveToTimestampedFileInAdditionalDirectory;
   autoSaveInterval = autoSave.autoSaveInterval;
   autoSaveUnsavedProjectsToTemporaryFile = autoSave.autoSaveUnsavedProjectsToTemporaryFile;
+  autoSaveBackupLimitCount =
+    if projectDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count != null
+    then projectDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count
+    else additionalDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count;
 
   saveoptsMask =
     (
@@ -181,9 +185,9 @@
     );
 
   saveUndoStatesProjectMask =
-      if whenSaving.preserveAllPreviousVersionsInOneRppBak != null
-      then 512
-      else 0;
+    if whenSaving.preserveAllPreviousVersionsInOneRppBak != null
+    then 512
+    else 0;
   saveUndoStatesProjectValue =
     if whenSaving.preserveAllPreviousVersionsInOneRppBak == true
     then 512
@@ -373,11 +377,11 @@ in {
     optionalAttrs (timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.count != null) {
       savebackuplimit = timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.count;
     }
-    // optionalAttrs (projectDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count != null) {
-      autosavebackuplimit = projectDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count;
-    }
+    // optionalAttrs (autoSaveBackupLimitCount != null) {autosavebackuplimit = autoSaveBackupLimitCount;}
     // optionalAttrs (autoSaveInterval.minutes != null) {autosaveint = autoSaveInterval.minutes * 60;}
-    // optionalAttrs (autoSaveInterval.mode != null) {autosavemode = autoSaveIntervalModes.${autoSaveInterval.mode};};
+    // optionalAttrs (autoSaveInterval.mode != null) {autosavemode = autoSaveIntervalModes.${autoSaveInterval.mode};}
+    // optionalAttrs (additionalDirectoryAutoSave.path != null) {autosavedir = additionalDirectoryAutoSave.path;}
+    // optionalAttrs (autoSave.autoSavePathForUnsavedProjects.path != null) {autosavedir_unsaved = autoSave.autoSavePathForUnsavedProjects.path;};
 
   config.programs.reaper.ini.bitfields.reaper =
     optionalBitfield (saveoptsMask != 0) {
