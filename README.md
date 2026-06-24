@@ -62,7 +62,8 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
       project = {
         backups = {
           whenSaving = {
-            preservePreviousVersionAsRppBak = true;
+            # These next three top level options are mutually exclusive
+            preservePreviousVersionAsRppBak = false;
             preserveAllPreviousVersionsInOneRppBak = false;
             preservePreviouslySavedVersionOfProjectAsRppBak = {
               enable = true;
@@ -98,6 +99,7 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
               };
             };
 
+            # Not recommended
             autoSaveToProjectFile = false;
             autoSaveUnsavedProjectsToTemporaryFile = true;
 
