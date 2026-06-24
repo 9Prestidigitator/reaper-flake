@@ -43,8 +43,107 @@
     (if overlap.offset != null then overlap.offset else 0)
     + (if overlap.drawAsOpaque == true then 256 else 0)
     + (if overlap.arrangeInCreationOrder == true then 512 else 0);
+  trackControlPanels = cfg.trackControlPanels;
+  # tcpalign is partly a bitfield. The FX inserts toggle uses mask 14:
+  # enabled stores 6, disabled stores 8.
+  tcpalignMask =
+    (
+      if trackControlPanels.alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed != null
+      then 1
+      else 0
+    )
+    + (
+      if trackControlPanels.showFxInserts != null
+      then 14
+      else 0
+    )
+    + (
+      if trackControlPanels.showSends != null
+      then 16
+      else 0
+    )
+    + (
+      if trackControlPanels.groupSendsWithFxInserts != null
+      then 32
+      else 0
+    )
+    + (
+      if trackControlPanels.groupFxParametersWithInserts != null
+      then 64
+      else 0
+    );
+  tcpalignValue =
+    (
+      if trackControlPanels.alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed == true
+      then 1
+      else 0
+    )
+    + (
+      if trackControlPanels.showFxInserts == true
+      then 6
+      else if trackControlPanels.showFxInserts == false
+      then 8
+      else 0
+    )
+    + (
+      if trackControlPanels.showSends == true
+      then 16
+      else 0
+    )
+    + (
+      if trackControlPanels.groupSendsWithFxInserts == true
+      then 32
+      else 0
+    )
+    + (
+      if trackControlPanels.groupFxParametersWithInserts == true
+      then 64
+      else 0
+    );
 in {
   options.programs.reaper.preferences.appearance = {
+    trackControlPanels = {
+      alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        example = true;
+        description = ''
+          Whether TCP controls are aligned when track icons or fixed item lanes are used.
+        '';
+      };
+      showFxInserts = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        example = true;
+        description = ''
+          Whether FX inserts are shown in the track control panel when size permits.
+        '';
+      };
+      showSends = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        example = true;
+        description = ''
+          Whether sends are shown in the track control panel when size permits.
+        '';
+      };
+      groupSendsWithFxInserts = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        example = false;
+        description = ''
+          Whether sends are grouped with before/after FX inserts.
+        '';
+      };
+      groupFxParametersWithInserts = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        example = true;
+        description = ''
+          Whether FX parameters are grouped with their inserts.
+        '';
+      };
+    };
     zoomScrollOffset = {
       verticalZoomCenter = mkOption {
         type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.zoomScrollOffset.zoomCenter.vertical));
@@ -167,6 +266,12 @@ in {
       itemoverlap_offspct = {
         mask = overlapMask;
         value = overlapValue;
+      };
+    }
+    // optionalBitfield (tcpalignMask != 0) {
+      tcpalign = {
+        mask = tcpalignMask;
+        value = tcpalignValue;
       };
     };
 }
