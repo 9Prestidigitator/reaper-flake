@@ -58,6 +58,21 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
       sws.enable = true;
     };
 
+    swell.colortheme = {
+      enable = true;
+
+      # Use "stylix" here when Stylix is imported.
+      preset = "reapertips";
+
+      settings = {
+        default_font_face = "Liberation Sans";
+        default_font_size = 13;
+        menubar_height = 17;
+        scrollbar_width = 14;
+        focus_hilight = "#d1a660";
+      };
+    };
+
     preferences = {
       project = {
         backups = {
