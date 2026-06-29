@@ -40,10 +40,22 @@
     if projectDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count != null
     then projectDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count
     else additionalDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count;
+  configuredSaveBackupMode =
+    whenSaving.preservePreviousVersionAsRppBak
+    != null
+    || whenSaving.preserveAllPreviousVersionsInOneRppBak != null
+    || timestampedSaveBackups.enable != null;
+  enabledSaveBackupModes =
+    builtins.length
+    (builtins.filter (mode: mode) [
+      (whenSaving.preservePreviousVersionAsRppBak == true)
+      (whenSaving.preserveAllPreviousVersionsInOneRppBak == true)
+      (timestampedSaveBackups.enable == true)
+    ]);
 
   saveoptsMask =
     (
-      if whenSaving.preservePreviousVersionAsRppBak != null
+      if configuredSaveBackupMode
       then 1
       else 0
     )
@@ -114,7 +126,11 @@
     );
   saveoptsValue =
     (
-      if whenSaving.preservePreviousVersionAsRppBak == true
+      if
+        whenSaving.preservePreviousVersionAsRppBak
+        == true
+        || whenSaving.preserveAllPreviousVersionsInOneRppBak == true
+        || timestampedSaveBackups.enable == true
       then 1
       else 0
     )
@@ -372,6 +388,17 @@ in {
       };
     };
   };
+
+  config.assertions = [
+    {
+      assertion = enabledSaveBackupModes <= 1;
+      message = ''
+        programs.reaper.preferences.project.backups.whenSaving preservePreviousVersionAsRppBak,
+        preserveAllPreviousVersionsInOneRppBak, and preservePreviouslySavedVersionOfProjectAsRppBak.enable
+        are mutually exclusive.
+      '';
+    }
+  ];
 
   config.programs.reaper.ini.sections.reaper =
     optionalAttrs (timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.count != null) {
