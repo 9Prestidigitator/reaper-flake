@@ -205,6 +205,12 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
       };
 
       windows = {
+        tcpHelpBar = {
+          informationDisplay = reaperWindows.tcpHelpBar.informationDisplay.cpuRamUseTimeSinceLastSave;
+          showMouseEditingHelp = true;
+        };
+        performanceMeter.cpuUtilizationDisplay =
+          reaperWindows.performanceMeter.cpuUtilizationDisplay.allCoresFullyUtilized;
         transportDockPosition = reaperWindows.transport.topOfMainWindow;
         mixer.show = false;
       };
