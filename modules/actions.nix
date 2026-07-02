@@ -1,13 +1,13 @@
 {
   config,
   lib,
+  reaperLib,
   ...
 }: let
   inherit (lib) filter hasInfix hasPrefix length literalExpression mkOption nameValuePair types unique;
 
   cfg = config.programs.reaper.actions;
   reaperCfg = config.programs.reaper;
-  reaperLib = import ./lib {inherit lib;};
   inherit (reaperLib.reaperActions) formatKeyBinding formatScript;
 
   rawBindingType = types.submodule {

@@ -44,6 +44,7 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
   reaperActions,
   reaperAppearance,
   reaperMouse,
+  reaperGeneral,
   reaperWindows,
   ...
 }: {
@@ -74,58 +75,27 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
     };
 
     preferences = {
-      project = {
-        backups = {
-          whenSaving = {
-            # These next three top level options are mutually exclusive
-            preservePreviousVersionAsRppBak = false;
-            preserveAllPreviousVersionsInOneRppBak = false;
-            preservePreviouslySavedVersionOfProjectAsRppBak = {
-              enable = true;
-              saveTimestampedBackupsToProjectBackupsSubdirectory = true;
+      general.startupSettings = {
+        openProjectOnStartup = reaperGeneral.openProjectOnStartup.newProjectIgnoreDefaultTemplate;
+        showSplashScreenOnStartup = false;
+      };
 
-              limitAutoSavedBackupsToMostRecent = {
-                enable = true;
-                count = 50;
-                unit = "copies";
-              };
-            };
+      project.backups = {
+        whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak = {
+          enable = true;
+          saveTimestampedBackupsToProjectBackupsSubdirectory = true;
+        };
+
+        autoSave = {
+          autoSaveToTimestampedFileInProjectDirectory = {
+            enable = true;
+            saveBackupsToProjectAutoSavesSubdirectory = true;
           };
-
-          autoSave = {
-            autoSaveToTimestampedFileInProjectDirectory = {
-              enable = true;
-              saveBackupsToProjectAutoSavesSubdirectory = true;
-
-              limitAutoSavedBackupsToMostRecent = {
-                enable = true;
-                count = 50;
-                unit = "copies";
-              };
-            };
-
-            autoSaveToTimestampedFileInAdditionalDirectory = {
-              enable = false;
-              path = "/tmp/reaper-projects";
-              limitAutoSavedBackupsToMostRecent = {
-                enable = false;
-                count = 50;
-                mode = "copiesForCurrentProject";
-              };
-            };
-
-            # Not recommended
-            autoSaveToProjectFile = false;
-            autoSaveUnsavedProjectsToTemporaryFile = true;
-
-            autoSaveInterval = {
-              minutes = 10;
-              mode = "whenNotRecording";
-            };
-
-            autoSavePathForUnsavedProjects = {
-              path = "/tmp/reaper-unsaved";
-            };
+          autoSaveToProjectFile = false;
+          autoSaveUnsavedProjectsToTemporaryFile = true;
+          autoSaveInterval = {
+            minutes = 10;
+            mode = "whenNotRecording";
           };
         };
       };
@@ -140,40 +110,11 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
           showSends = true;
           groupSendsWithFxInserts = false;
           groupFxParametersWithInserts = true;
-
-          trackGroupingIndicators = reaperAppearance.trackControlPanels.trackGroupingIndicators.ribbons;
-          folderCollapseButtonCyclesTrackHeights =
-            reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights.normalSmallCollapsed;
-          fixedLaneCollapseButtonChangesDisplay =
-            reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay.bigSmallLanes;
-
-          volumeFaderRange = {
-            minimum = -72;
-            maximum = 12;
-          };
-          volumeFaderShape = reaperAppearance.trackControlPanels.volumeFaderShape.default;
-          panFaderUnitDisplay = reaperAppearance.trackControlPanels.panFaderUnitDisplay.percent100;
         };
 
         zoomScrollOffset = {
-          verticalZoomCenter = reaperAppearance.zoomScrollOffset.zoomCenter.vertical.lastSelectedTrack;
-          maximumVerticalZoom = 0.80;
-          envelopeLaneVerticalZoom = 0.4;
           horizontalZoomCenter = reaperAppearance.zoomScrollOffset.zoomCenter.horizontal.mouseCursor;
           limitHorizontalZoomScrollToProjectStart = false;
-          disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView = true;
-
-          verticalScrollStep = {
-            unit = reaperAppearance.zoomScrollOffset.verticalScrollStep.units.trackHeight;
-            trackHeight = 0.5;
-            arrangeViewHeight = 0.1;
-          };
-
-          overlappingMediaItems = {
-            offset = 100;
-            drawAsOpaque = false;
-            arrangeInCreationOrder = false;
-          };
         };
       };
 
@@ -195,24 +136,29 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
 
       plugIns = {
         reascript.python.enable = true;
-
-        vst.searchPaths = ["~/Document/VSTs"];
-        clap.searchPaths = ["~/Downloads/claps"];
-        lv2 = {
-          searchPaths = ["~/.lv2-experimental"];
-          enableUserPaths = false;
-        };
+        vst.searchPaths = ["~/Documents/VSTs"];
+        clap.searchPaths = ["~/Documents/CLAP"];
       };
 
       windows = {
         tcpHelpBar = {
-          informationDisplay = reaperWindows.tcpHelpBar.informationDisplay.cpuRamUseTimeSinceLastSave;
+          informationDisplay = reaperWindows.tcpHelpBar.informationDisplay.selectedTrackItemEnvelopeDetails;
           showMouseEditingHelp = true;
         };
-        performanceMeter.cpuUtilizationDisplay =
-          reaperWindows.performanceMeter.cpuUtilizationDisplay.allCoresFullyUtilized;
         transportDockPosition = reaperWindows.transport.topOfMainWindow;
-        mixer.show = false;
+
+        mixer = {
+          show = true;
+          autoArrangeTracks = true;
+          showFxInserts = true;
+          showSends = true;
+          allowEmptySlotsInFxLists = true;
+
+          master = {
+            showInMixer = true;
+            showOnRightSide = false;
+          };
+        };
       };
     };
 
@@ -250,6 +196,10 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
   };
 }
 ```
+
+The preferences option set is designed to be as faithful to the gui option windows and tabs as possible.
+
+A more exhaustive example, showing off more options can be found [here](./docs/EXAMPLE.md).
 
 The default configuration path is `~/.config/reaper-flake` instead of `~/.config/REAPER` to avoid overwriting original GUI configurations, this can be changed with `programs.reaper.configPath`.
 

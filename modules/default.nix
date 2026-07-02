@@ -65,10 +65,11 @@ in {
     ./extensions/sws.nix
     ./extensions/reapack.nix
     ./preferences/plugins.nix
+    ./preferences/general
     ./preferences/windows.nix
     ./preferences/mouse.nix
-    ./preferences/appearance.nix
-    ./preferences/project.nix
+    ./preferences/appearance
+    ./preferences/project
   ];
 
   options.programs.reaper = {
@@ -125,10 +126,13 @@ in {
 
   config = mkMerge [
     {
+      _module.args.reaperLib = reaperLib;
+      _module.args.reaperBitfield = reaperLib.reaperBitfield;
       _module.args.reaperWindows = reaperLib.reaperWindows;
       _module.args.reaperMouse = reaperLib.reaperMouse;
       _module.args.reaperAppearance = reaperLib.reaperAppearance;
       _module.args.reaperActions = reaperLib.reaperActions;
+      _module.args.reaperGeneral = reaperLib.reaperGeneral;
     }
     (mkIf cfg.enable {
       assertions = [
