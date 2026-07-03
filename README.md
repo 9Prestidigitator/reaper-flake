@@ -214,6 +214,10 @@ When removing an option from your configuration that was instantiated with the f
 
 Continue studying Reaper configuration model to allow for options I use most to be set. Found this [site](https://mespotin.uber.space/Ultraschall/Reaper_Config_Variables.html) as a good reference.
 
+<p align="center">
+  <img src="./docs/status.png" alt="REAPER preference coverage status">
+</p>
+
 ## Inspirations
 
 - [plasma-manager](https://github.com/nix-community/plasma-manager)
