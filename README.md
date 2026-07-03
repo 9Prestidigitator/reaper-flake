@@ -118,20 +118,22 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
         };
       };
 
-      mouse = {
-        importedContexts = with reaperMouse; [
-          contexts.arrange.middleDrag
-          contexts.midiPianoRoll.leftClick
-        ];
+      editingBehavior = {
+        mouseModifiers = {
+          importedContexts = with reaperMouse; [
+            contexts.arrange.middleDrag
+            contexts.midiPianoRoll.leftClick
+          ];
 
-        contexts = with reaperMouse; merge [
-          # Arrange view middle-drag: hand scroll/pan.
-          (set contexts.arrange.middleDrag modifiers.none (mouse 7))
+          contexts = with reaperMouse; merge [
+            # Arrange view middle-drag: hand scroll/pan.
+            (set contexts.arrange.middleDrag modifiers.none (mouse 7))
 
-          # MIDI piano roll single-click: insert a note.
-          # This uses REAPER's action text until this flake has named mouse-action enums.
-          (set contexts.midiPianoRoll.leftClick modifiers.none (mouse 4))
-        ];
+            # MIDI piano roll single-click: insert a note.
+            # This uses REAPER's action text until this flake has named mouse-action enums.
+            (set contexts.midiPianoRoll.leftClick modifiers.none (mouse 4))
+          ];
+        };
       };
 
       plugIns = {

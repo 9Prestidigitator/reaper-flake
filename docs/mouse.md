@@ -1,14 +1,14 @@
-# REAPER Mouse Preferences
+# REAPER Mouse Modifier Preferences
 
 This module writes `reaper-mouse.ini`.
 
-Use `programs.reaper.preferences.mouse.importedContexts` to mark REAPER mouse contexts as imported, and `programs.reaper.preferences.mouse.contexts` to bind modifiers inside those contexts.
+Use `programs.reaper.preferences.editingBehavior.mouseModifiers.importedContexts` to mark REAPER mouse contexts as imported, and `programs.reaper.preferences.editingBehavior.mouseModifiers.contexts` to bind modifiers inside those contexts.
 
 ## Basic Shape
 
 ```nix
 { reaperMouse, ... }: {
-  programs.reaper.preferences.reaperMouse = {
+  programs.reaper.preferences.editingBehavior.mouseModifiers = {
     importedContexts = [
       reaperMouse.contexts.arrange.middleDrag
     ];
@@ -83,7 +83,7 @@ Use these helpers to format action values:
 
 | Helper                      | Output      | Use                                |
 | --------------------------- | ----------- | ---------------------------------- |
-| `reaperMouse.mouse 9`       | `"9 m"`     | REAPER reaperMouse modifier action |
+| `reaperMouse.mouse 9`       | `"9 m"`     | REAPER mouse modifier action       |
 | `reaperMouse.command 40044` | `"40044 c"` | REAPER command/action id           |
 | `reaperMouse.text "9 m"`    | `"9 m"`     | Pass a literal string              |
 | `reaperMouse.raw "9 m"`     | `"9 m"`     | Pass a literal string              |
@@ -115,10 +115,10 @@ Use `reaperMouse.modifiers.*` for common modifier keys.
 | `shiftCtrlAlt`, `shiftControlOption`     | `mm_7`     |
 | `win`, `super`, `meta`, `cmd`, `command` | `mm_8`     |
 
-For combinations not listed above, use `mouse.modifier`.
+For combinations not listed above, use `reaperMouse.modifier`.
 
 ```nix
-${reaperMouse.modifier ["ctrl" "alt"]} = mouse.command 40044;
+${reaperMouse.modifier ["ctrl" "alt"]} = reaperMouse.command 40044;
 ```
 
 Accepted modifier names are `shift`, `ctrl`, `control`, `alt`, `option`, `win`, `super`, `meta`, `cmd`, and `command`.
@@ -136,20 +136,20 @@ reaperMouse.set
   (reaperMouse.mouse 9)
 ```
 
-`mouse.context`
+`reaperMouse.context`
 
 Set several bindings in one context.
 
 ```nix
 reaperMouse.context reaperMouse.contexts.mediaItem.leftClick {
-  ${reaperMouse.modifiers.none} = reaperMouse.reaperMouse 1;
-  ${reaperMouse.modifiers.alt} = reaperMouse.reaperMouse 2;
+  ${reaperMouse.modifiers.none} = reaperMouse.mouse 1;
+  ${reaperMouse.modifiers.alt} = reaperMouse.mouse 2;
 }
 ```
 
-`mouse.merge`
+`reaperMouse.merge`
 
-Merge several `mouse.set` or `mouse.context` blocks.
+Merge several `reaperMouse.set` or `reaperMouse.context` blocks.
 
 ```nix
 contexts = with reaperMouse; merge [
@@ -164,7 +164,7 @@ Middle-click drag in the arrange view to zoom and pan:
 
 ```nix
 { reaperMouse, ... }: {
-  programs.reaper.preferences.mouse = {
+  programs.reaper.preferences.editingBehavior.mouseModifiers = {
     importedContexts = [
       reaperMouse.contexts.arrange.middleDrag
     ];
@@ -178,7 +178,7 @@ Several arrange bindings:
 
 ```nix
 { reaperMouse, ... }: {
-  programs.reaper.preferences.mouse = {
+  programs.reaper.preferences.editingBehavior.mouseModifiers = {
     importedContexts = with reaperMouse; [
       contexts.arrange.middleDrag
       contexts.arrange.middleClick
@@ -193,7 +193,7 @@ Several arrange bindings:
         ${modifiers.shift} = mouse 2;
       })
 
-      (context mouse.contexts.arrange.rightDrag {
+      (context contexts.arrange.rightDrag {
         ${modifiers.none} = raw "3 m";
         ${modifier ["ctrl" "alt"]} = command 40044;
       })
@@ -206,7 +206,7 @@ Raw configuration without helpers:
 
 ```nix
 {
-  programs.reaper.preferences.mouse = {
+  programs.reaper.preferences.editingBehavior.mouseModifiers = {
     importedContexts = ["MM_CTX_ARRANGE_MMOUSE"];
 
     contexts.MM_CTX_ARRANGE_MMOUSE = {
@@ -314,4 +314,3 @@ Raw configuration without helpers:
 | `reaperMouse.contexts.trackControlPanel.faderMouseWheel`      | `MM_CTX_TCP_FADER_MOUSEWHEEL`     |
 | `reaperMouse.contexts.trackControlPanel.horizontalMouseWheel` | `MM_CTX_TCP_MOUSEHWHEEL`          |
 | `reaperMouse.contexts.trackControlPanel.mouseWheel`           | `MM_CTX_TCP_MOUSEWHEEL`           |
-

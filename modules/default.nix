@@ -64,12 +64,13 @@ in {
     ./actions.nix
     ./extensions/sws.nix
     ./extensions/reapack.nix
-    ./preferences/plugins.nix
-    ./preferences/general
     ./preferences/windows.nix
-    ./preferences/mouse.nix
-    ./preferences/appearance
+    ./preferences/general
     ./preferences/project
+    ./preferences/appearance
+    ./preferences/editing-behavior
+    ./preferences/media
+    ./preferences/plugins.nix
   ];
 
   options.programs.reaper = {

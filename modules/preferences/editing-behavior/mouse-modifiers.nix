@@ -5,7 +5,7 @@
 }: let
   inherit (lib) mapAttrs mkOption optionalString types;
 
-  cfg = config.programs.reaper.preferences.mouse;
+  cfg = config.programs.reaper.preferences.editingBehavior.mouseModifiers;
 
   bindingType = types.oneOf [
     types.str
@@ -31,7 +31,7 @@
     then value
     else "${toString value.action}${optionalString (value.mode != null) " ${value.mode}"}";
 in {
-  options.programs.reaper.preferences.mouse = {
+  options.programs.reaper.preferences.editingBehavior.mouseModifiers = {
     importedContexts = mkOption {
       type = types.listOf types.str;
       default = [];
