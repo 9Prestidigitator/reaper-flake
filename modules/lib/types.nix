@@ -25,4 +25,8 @@ in {
         description = "volume fader shape of -1 for REAPER default, or between 0.25 and 4";
       };
   };
+
+  general = {
+    uiScale = boundedNumber "UI scale between 0.3 and 3" 0.3 3;
+  };
 }

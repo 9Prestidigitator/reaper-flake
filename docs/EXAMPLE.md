@@ -38,9 +38,47 @@
     };
 
     preferences = {
-      general.startupSettings = {
-        openProjectOnStartup = reaperGeneral.openProjectOnStartup.newProjectIgnoreDefaultTemplate;
-        showSplashScreenOnStartup = false;
+      general = {
+        languagePack = "";
+
+        startupSettings = {
+          openProjectOnStartup = reaperGeneral.openProjectOnStartup.newProjectIgnoreDefaultTemplate;
+          automaticallyCheckForNewVersions = false;
+          createNewProjectTabWhenOpeningMedia = true;
+          showSplashScreenOnStartup = false;
+          skipAnimation = true;
+          checkForMultipleInstancesWhenLaunching = true;
+          checkForMultipleInstancesWhenLaunchingWithProjectMedia = true;
+        };
+
+        recentProjectList = {
+          maximumProjects = 50;
+          displayProjectTitle = false;
+          display = reaperGeneral.recentProjectListDisplay.fullPath;
+          addLoadedProjects = true;
+          addSaveCopyProjects = true;
+          removeOldProjectWhenSavingNewVersion = false;
+        };
+
+        warnWhenMemoryUseReachesMegabytes = 0;
+        preventOsScreensaverWhenAudioActiveOrRendering = true;
+
+        filenameAutoIncrement = {
+          suffix = "-001";
+          ensureAutoIncrementedFilenamesHaveHigherNumberThanSimilarNamedFiles = false;
+          treatUnderscoreAndDashAsInterchangeable = true;
+        };
+
+        unloadProjectsInBackgroundWhenQuitting = false;
+
+        advancedUiSystemTweaks = {
+          customSplashScreenImage = "/home/user/Pictures/reaper-splash.png";
+          uiScale = 1.0;
+          fontSizeAdjustment = 1.0;
+          allowSnapGridRoutingWindowsToStayOpen = false;
+          allowKeyboardCommandsEvenWhenMouseEditing = false;
+          modalWindowPositioning = reaperGeneral.modalWindowPositioning.lastWindowPosition;
+        };
       };
 
       project.backups = {
