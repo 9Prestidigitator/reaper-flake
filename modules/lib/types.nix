@@ -1,5 +1,5 @@
 {lib}: let
-  inherit (lib) types;
+  inherit (lib) mkOption types;
 
   number = types.either types.int types.float;
   boundedNumber = description: min: max:
@@ -9,6 +9,49 @@
     };
 in {
   inherit boundedNumber number;
+
+  iniValue = with types;
+    oneOf [
+      bool
+      int
+      float
+      str
+      (listOf str)
+    ];
+
+  layout = {
+    position = types.submodule {
+      options = {
+        x = mkOption {
+          type = types.int;
+          example = 0;
+          description = "Horizontal screen coordinate.";
+        };
+
+        y = mkOption {
+          type = types.int;
+          example = 0;
+          description = "Vertical screen coordinate.";
+        };
+      };
+    };
+
+    size = types.submodule {
+      options = {
+        width = mkOption {
+          type = types.ints.positive;
+          example = 1200;
+          description = "Window width in pixels.";
+        };
+
+        height = mkOption {
+          type = types.ints.positive;
+          example = 700;
+          description = "Window height in pixels.";
+        };
+      };
+    };
+  };
 
   percentage = {
     maxVerticalZoom = boundedNumber "zoom percentage between 0.125 and 8" 0.125 8;
