@@ -165,6 +165,18 @@
     ];
   };
 in {
+  imports = [
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "windows" "transportDockPosition"]
+      ["programs" "reaper" "layout" "transport" "dockPosition"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "windows" "mixer" "show"]
+      ["programs" "reaper" "layout" "mixer" "visible"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "windows" "mixer" "master" "show"]
+      ["programs" "reaper" "layout" "masterMixer" "visible"])
+  ];
+
   options.programs.reaper.preferences.windows = {
     tcpHelpBar = {
       informationDisplay = mkOption {
@@ -201,25 +213,7 @@ in {
       };
     };
 
-    transportDockPosition = mkOption {
-      type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperWindows.transport));
-      default = null;
-      example = literalExpression "reaperWindows.transport.topOfMainWindow";
-      description = ''
-        Position of the transport in REAPER's main window. Named values are
-        available from `reaperWindows.transport`.
-      '';
-    };
     mixer = {
-      show = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = false;
-        description = ''
-          If set to true the mixer panel will be shown, otherwise it is hidden.
-        '';
-      };
-
       showFolders = mkOption {
         type = types.nullOr types.bool;
         default = null;
@@ -361,17 +355,6 @@ in {
       };
 
       master = {
-        show = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = false;
-          description = ''
-            Whether REAPER's separate master mixer window state is visible.
-            This writes `[mastermixer].wnd_vis`; use `master.showInMixer`
-            for the master strip inside the main mixer.
-          '';
-        };
-
         showInMixer = mkOption {
           type = types.nullOr types.bool;
           default = null;
@@ -402,12 +385,7 @@ in {
     ];
 
     programs.reaper.ini.sections.reaper =
-      optionalAttrs (cfg.transportDockPosition != null) {transport_dock_pos = cfg.transportDockPosition;}
-      // optionalAttrs (mixer.show != null) {mixwin_vis = mixer.show;}
-      // optionalAttrs (mixer.scrollViewWhenTracksActivated != null) {showctinmix = mixer.scrollViewWhenTracksActivated;};
-
-    programs.reaper.ini.sections.mastermixer =
-      optionalAttrs (mixer.master.show != null) {wnd_vis = mixer.master.show;};
+      optionalAttrs (mixer.scrollViewWhenTracksActivated != null) {showctinmix = mixer.scrollViewWhenTracksActivated;};
 
     programs.reaper.ini.bitfields.reaper = reaperBitfields;
   };

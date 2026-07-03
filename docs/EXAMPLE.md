@@ -7,6 +7,7 @@
   reaperActions,
   reaperAppearance,
   reaperGeneral,
+  reaperLayout,
   reaperMouse,
   reaperWindows,
   ...
@@ -34,6 +35,69 @@
         menubar_height = 17;
         scrollbar_width = 14;
         focus_hilight = "#d1a660";
+      };
+    };
+
+    layout = {
+      mainWindow = {
+        position = {
+          x = 0;
+          y = 0;
+        };
+        size = {
+          width = 1600;
+          height = 900;
+        };
+        state = reaperLayout.windowState.normal;
+      };
+
+      mixer = {
+        visible = true;
+        docked = true;
+        dockId = reaperLayout.dock.mainDocker;
+        position = {
+          x = 0;
+          y = 580;
+        };
+        size = {
+          width = 1600;
+          height = 320;
+        };
+        maximized = false;
+      };
+
+      masterMixer = {
+        visible = false;
+        docked = true;
+        dockId = reaperLayout.dock.mainDocker;
+        position = {
+          x = 80;
+          y = 80;
+        };
+        size = {
+          width = 260;
+          height = 500;
+        };
+      };
+
+      transport = {
+        visible = true;
+        docked = true;
+        dockId = reaperLayout.dock.mainDocker;
+        dockPosition = reaperWindows.transport.topOfMainWindow;
+      };
+
+      dockPreferences = {
+        explorer = reaperLayout.dock.mainDocker;
+      };
+
+      rawSections = {
+        reaper_explorer = {
+          window_x = 80;
+          window_y = 80;
+          window_w = 900;
+          window_h = 420;
+        };
       };
     };
 
@@ -245,10 +309,7 @@
         performanceMeter.cpuUtilizationDisplay =
           reaperWindows.performanceMeter.cpuUtilizationDisplay.allCoresFullyUtilized;
 
-        transportDockPosition = reaperWindows.transport.topOfMainWindow;
-
         mixer = {
-          show = true;
           showFolders = true;
           showNormalTopLevelTracks = true;
           showTracksThatAreInFolders = true;
@@ -274,7 +335,6 @@
           showIconForLastTrackInFolder = true;
 
           master = {
-            show = true;
             showInMixer = true;
             showOnRightSide = false;
           };

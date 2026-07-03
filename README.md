@@ -43,6 +43,7 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
   inputs,
   reaperActions,
   reaperAppearance,
+  reaperLayout,
   reaperMouse,
   reaperGeneral,
   reaperWindows,
@@ -71,6 +72,33 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
         menubar_height = 17;
         scrollbar_width = 14;
         focus_hilight = "#d1a660";
+      };
+    };
+
+    layout = {
+      mainWindow = {
+        position = {
+          x = 0;
+          y = 0;
+        };
+        size = {
+          width = 1600;
+          height = 900;
+        };
+        state = reaperLayout.windowState.normal;
+      };
+
+      mixer = {
+        visible = true;
+        docked = true;
+        dockId = reaperLayout.dock.mainDocker;
+        size.height = 320;
+      };
+
+      transport = {
+        visible = true;
+        docked = true;
+        dockPosition = reaperWindows.transport.topOfMainWindow;
       };
     };
 
@@ -147,10 +175,8 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
           informationDisplay = reaperWindows.tcpHelpBar.informationDisplay.selectedTrackItemEnvelopeDetails;
           showMouseEditingHelp = true;
         };
-        transportDockPosition = reaperWindows.transport.topOfMainWindow;
 
         mixer = {
-          show = true;
           autoArrangeTracks = true;
           showFxInserts = true;
           showSends = true;
