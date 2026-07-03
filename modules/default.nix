@@ -59,11 +59,17 @@ in {
   imports = [
     ./ini.nix
     ./line-files.nix
+
     ./resources.nix
     ./swell.nix
+
     ./actions.nix
+
     ./extensions/sws.nix
     ./extensions/reapack.nix
+
+    ./layout.nix
+
     ./preferences/windows.nix
     ./preferences/general
     ./preferences/project
