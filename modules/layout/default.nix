@@ -52,15 +52,23 @@
         description = "Whether the window is docked in a REAPER docker.";
       };
 
+      docker = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "main";
+        description = ''
+          Name of a `programs.reaper.layout.dockers` entry where this window
+          should be docked.
+        '';
+      };
+
       dockId = mkOption {
         type = types.nullOr types.int;
         default = null;
         example = literalExpression "reaperLayout.dock.mainDocker";
         description = ''
-          Raw REAPER docker ID for `[REAPERdockpref]`. REAPER accepts these
-          values through its own docking APIs; use `reaperLayout.dock.mainDocker`
-          for the primary docker or a raw integer captured from an existing
-          layout.
+          Raw REAPER docker ID for `[REAPERdockpref]`. Prefer `docker` when
+          assigning the window to a named docker container.
         '';
       };
     };
@@ -121,19 +129,11 @@
     // optionalAttrs (cfg.transport.dockPosition != null) {
       transport_dock_pos = cfg.transport.dockPosition;
     };
-
-  dockPreferences =
-    cfg.dockPreferences
-    // optionalAttrs (cfg.mixer.dockId != null) {
-      mixer = cfg.mixer.dockId;
-    }
-    // optionalAttrs (cfg.masterMixer.dockId != null) {
-      mastermixer = cfg.masterMixer.dockId;
-    }
-    // optionalAttrs (cfg.transport.dockId != null) {
-      transport = cfg.transport.dockId;
-    };
 in {
+  imports = [
+    ./dock.nix
+  ];
+
   options.programs.reaper.layout = {
     mainWindow =
       floatingWindowOptions
@@ -185,22 +185,6 @@ in {
         };
       };
 
-    dockPreferences = mkOption {
-      type = types.attrsOf types.int;
-      default = {};
-      example = literalExpression ''
-        {
-          explorer = reaperLayout.dock.mainDocker;
-          navigator = 1;
-        }
-      '';
-      description = ''
-        Raw `[REAPERdockpref]` entries by REAPER window ID. This covers dockable
-        windows whose layout is stored only by REAPER's generic dock preference
-        table.
-      '';
-    };
-
     rawSections = mkOption {
       type = types.attrsOf (types.attrsOf reaperLib.reaperTypes.iniValue);
       default = {};
@@ -231,9 +215,6 @@ in {
 
         mastermixer = sectionWindowAttrs cfg.masterMixer;
       }
-      (optionalAttrs (dockPreferences != {}) {
-        REAPERdockpref = dockPreferences;
-      })
       cfg.rawSections
     ];
   };

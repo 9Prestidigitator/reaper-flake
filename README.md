@@ -37,6 +37,8 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
 
 ### Example
 
+See [docs/layout.md](docs/layout.md) for a short explanation of layout and docker options.
+
 ```nix
 {
   config,
@@ -91,13 +93,14 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
       mixer = {
         visible = true;
         docked = true;
-        dockId = reaperLayout.dock.mainDocker;
+        docker = "main";
         size.height = 320;
       };
 
       transport = {
         visible = true;
         docked = true;
+        docker = "main";
         dockPosition = reaperWindows.transport.topOfMainWindow;
       };
     };

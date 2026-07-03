@@ -68,7 +68,7 @@ in {
     ./extensions/sws.nix
     ./extensions/reapack.nix
 
-    ./layout.nix
+    ./layout
 
     ./preferences/windows.nix
     ./preferences/general

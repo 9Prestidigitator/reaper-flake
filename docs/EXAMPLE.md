@@ -39,6 +39,20 @@
     };
 
     layout = {
+      dockers = {
+        main = {
+          id = reaperLayout.dock.mainDocker;
+          position = "main";
+        };
+
+        left = {
+          id = 1;
+          position = "left";
+          size = 320;
+          preference = "0.85531396 1";
+        };
+      };
+
       mainWindow = {
         position = {
           x = 0;
@@ -54,7 +68,7 @@
       mixer = {
         visible = true;
         docked = true;
-        dockId = reaperLayout.dock.mainDocker;
+        docker = "main";
         position = {
           x = 0;
           y = 580;
@@ -69,7 +83,7 @@
       masterMixer = {
         visible = false;
         docked = true;
-        dockId = reaperLayout.dock.mainDocker;
+        docker = "main";
         position = {
           x = 80;
           y = 80;
@@ -83,12 +97,16 @@
       transport = {
         visible = true;
         docked = true;
-        dockId = reaperLayout.dock.mainDocker;
+        docker = "main";
         dockPosition = reaperWindows.transport.topOfMainWindow;
       };
 
+      dockedWindows = {
+        explorer.docker = "left";
+      };
+
       dockPreferences = {
-        explorer = reaperLayout.dock.mainDocker;
+        navigator = reaperLayout.dock.mainDocker;
       };
 
       rawSections = {
