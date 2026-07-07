@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.reaper.fm/"><img alt="REAPER 7.76" src="https://img.shields.io/badge/REAPER-7.76-2b9bd8?style=for-the-badge"></a>
+  <a href="https://www.reaper.fm/"><img alt="REAPER 7.77" src="https://img.shields.io/badge/REAPER-7.77-2b9bd8?style=for-the-badge"></a>
   <a href="https://reapack.com/"><img alt="ReaPack 1.2.6" src="https://img.shields.io/badge/ReaPack-1.2.6-69c72f?style=for-the-badge"></a>
   <a href="https://www.sws-extension.org/"><img alt="SWS 2.14.0.7" src="https://img.shields.io/badge/SWS-2.14.0.7-bb6b5b?style=for-the-badge"></a>
 </p>
@@ -18,7 +18,7 @@
 
 | Track            | Version    | Output                            |
 | ---------------- | ---------- | --------------------------------- |
-| REAPER           | `7.76`     | `packages.reaper`                 |
+| REAPER           | `7.77`     | `packages.reaper`                 |
 | ReaPack          | `1.2.6`    | `packages.reapack`                |
 | SWS              | `2.14.0.7` | `packages.sws`                    |
 | Reapertips Theme | `1.90`     | `packages.reapertips-theme`       |
