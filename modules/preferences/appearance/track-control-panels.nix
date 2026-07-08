@@ -6,10 +6,10 @@
 }: let
   inherit (lib) literalExpression mkOption optionalAttrs types;
   inherit (reaperLib) reaperBitfield reaperTypes;
-  cfg = config.programs.reaper.preferences.appearance.trackControlPanels;
 
   inherit (reaperTypes.trackControlPanel) sliderMaximum sliderMinimum sliderShape;
 
+  cfg = config.programs.reaper.preferences.appearance.trackControlPanels;
   mixer = config.programs.reaper.preferences.windows.mixer;
 
   groupSendsWithFxInserts =

@@ -363,7 +363,6 @@
 
           showFxInserts = true;
           showFxParameters = true;
-          groupFxParametersWithInserts = true;
           showSends = true;
           groupSendsWithFxInserts = false;
           allowEmptySlotsInFxLists = true;

@@ -300,6 +300,13 @@ in {
         description = "Whether FX parameters are shown in the mixer when size permits. Default null value is false.";
       };
 
+      groupFxParametersWithInserts = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        example = true;
+        description = "Whether FX parameters are grouped with FX inserts in the mixer. Default null value is false.";
+      };
+
       showSends = mkOption {
         type = types.nullOr types.bool;
         default = null;
