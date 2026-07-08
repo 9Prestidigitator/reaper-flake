@@ -37,7 +37,7 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
 
 ### Example
 
-See [docs/layout.md](docs/layout.md) for a short explanation of layout and docker options.
+See [docs/layout.md](docs/layout.md) for a short explanation of layout, dock, and panel options.
 
 ```nix
 {
@@ -78,6 +78,22 @@ See [docs/layout.md](docs/layout.md) for a short explanation of layout and docke
     };
 
     layout = {
+      docks = {
+        bottom = {
+          id = 3;
+          position = "bottom";
+          size = 320;
+          selectedPanel = "mixer";
+        };
+
+        left = {
+          id = 2;
+          position = "left";
+          size = 395;
+          selectedPanel = "explorer";
+        };
+      };
+
       mainWindow = {
         position = {
           x = 0;
@@ -93,15 +109,27 @@ See [docs/layout.md](docs/layout.md) for a short explanation of layout and docke
       mixer = {
         visible = true;
         docked = true;
-        docker = "main";
+        dock = "bottom";
+        tabOrder = 0.0;
         size.height = 320;
       };
 
       transport = {
         visible = true;
         docked = true;
-        docker = "main";
+        dock = "bottom";
+        tabOrder = 1.0;
         dockPosition = reaperWindows.transport.topOfMainWindow;
+      };
+
+      panels.explorer = {
+        id = "explorer";
+        section = "reaper_sexplorer";
+        keyStyle = "window";
+        visible = true;
+        docked = true;
+        dock = "left";
+        tabOrder = 0.5;
       };
     };
 

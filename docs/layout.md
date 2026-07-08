@@ -1,10 +1,13 @@
 # Layout
 
-`programs.reaper.layout` controls REAPER window placement and docking state. It writes the INI keys REAPER uses for the main window, mixer, master mixer, transport, and any additional docked windows you model.
+`programs.reaper.layout` controls REAPER window placement and docking state. The layout layer now separates two REAPER concepts:
+
+- `layout.docks.*` describes docker containers: their numeric ID, screen edge, selected tab, and edge size.
+- `layout.panels.*` describes dockable panels: their REAPER panel ID, optional INI section, visibility/window keys, target dock, and tab order.
+
+REAPER stores the relationship between these concepts in two places. `[reaper].dockermodeN` describes where docker container `N` is attached, and `[REAPERdockpref]` assigns a panel ID to a docker ID. The first number in a `[REAPERdockpref]` value is the panel's relative tab order inside that dock.
 
 ## Basic Example
-
-This is the smallest useful shape:
 
 ```nix
 {
@@ -15,110 +18,156 @@ This is the smallest useful shape:
   programs.reaper.layout = {
     mainWindow = {
       position = {
-        x = 60;
-        y = 50;
+        x = 0;
+        y = 0;
       };
       size = {
-        width = 1120;
-        height = 760;
+        width = 1600;
+        height = 900;
+      };
+      state = reaperLayout.windowState.normal;
+    };
+
+    docks = {
+      bottom = {
+        id = 3;
+        position = "bottom";
+        size = 471;
+        selectedPanel = "mixer";
+      };
+
+      left = {
+        id = 2;
+        position = "left";
+        size = 395;
+        selectedPanel = "explorer";
       };
     };
 
     mixer = {
       visible = true;
       docked = true;
-      docker = "main";
+      dock = "bottom";
+      tabOrder = 0.0;
     };
 
     transport = {
       visible = true;
       docked = true;
-      docker = "main";
+      dock = "bottom";
+      tabOrder = 1.0;
       dockPosition = reaperWindows.transport.topOfMainWindow;
+    };
+
+    panels.explorer = {
+      id = "explorer";
+      section = "reaper_sexplorer";
+      keyStyle = "window";
+      visible = true;
+      docked = true;
+      dock = "left";
+      tabOrder = 0.5;
+      raw = {
+        peak_height = 80;
+        volume = 4096;
+      };
     };
   };
 }
 ```
 
-## What It Covers
+This writes the equivalent of:
 
-The first-class layout options are:
+```ini
+[reaper]
+dockermode3=0
+dockermode2=1
+dockersel3=mixer
+dockersel2=explorer
+dockheight=471
+dockheight_l=395
+mixwnd_dock=1
+mixwnd_vis=1
+transport_dock=1
+transport_vis=1
+
+[REAPERdockpref]
+mixer=0.000000 3
+transport=1.000000 3
+explorer=0.500000 2
+
+[reaper_sexplorer]
+visible=1
+peak_height=80
+volume=4096
+```
+
+## Docks
+
+Use `layout.docks` for docker containers:
+
+```nix
+layout.docks.right = {
+  id = 1;
+  position = "right";
+  size = 233;
+  selectedPanel = "transport";
+};
+```
+
+`position` maps to `[reaper].dockermodeN`:
+
+| position | dockermode value | size key |
+| --- | ---: | --- |
+| `bottom` | `0` | `dockheight` |
+| `left` | `1` | `dockheight_l` |
+| `top` | `2` | `dockheight_t` |
+| `right` | `3` | `dockheight_r` |
+
+The size keys are global buckets for a physical edge. They are not per-container geometry keys. If multiple dockers occupy the same edge, REAPER applies the same edge size value.
+
+Use `mode` or `sizeKey` only as raw escape hatches when you have captured a REAPER layout that cannot be described by `position`.
+
+## Panels
+
+Use `layout.panels` for arbitrary dockable REAPER windows:
+
+```nix
+layout.panels.routingMatrix = {
+  id = "routing";
+  section = "reaper_routing";
+  keyStyle = "window";
+  visible = true;
+  dock = "top";
+  tabOrder = 0.0;
+};
+```
+
+The `id` is the token REAPER uses in `[REAPERdockpref]` and `dockerselN`. The `section` is where that panel stores its own INI keys, if it has a separate section.
+
+Supported `keyStyle` values:
+
+- `reaper`: writes prefixed keys inside `[reaper]`, such as `mixwnd_vis`.
+- `section-long`: writes section keys like `wnd_left`, `wnd_top`, `wnd_width`, `wnd_height`, and `dock`.
+- `section-short`: writes section keys like `wnd_x`, `wnd_y`, `wnd_w`, `wnd_h`, and `wnd_dock`.
+- `window`: writes section keys like `window_x`, `window_y`, `window_w`, `window_h`, and `visible`.
+- `simple`: writes only `visible` plus any `raw` keys.
+
+For example, REAPER's media explorer uses a separate `[reaper_sexplorer]` section, so `keyStyle = "window"` plus `raw` works well. The mixer is special and is still available through the first-class `layout.mixer` option because REAPER stores its window keys directly in `[reaper]` as `mixwnd_*`.
+
+## First-Class Panels
+
+The existing first-class options remain available:
 
 - `mainWindow`
 - `mixer`
 - `masterMixer`
 - `transport`
 
-These options let you set things like position, size, visibility, docked state, and a few window-specific values such as `mainWindow.state` or `transport.dockPosition`.
+For new dock assignments, prefer `dock = "name"` over the legacy `docker = "name"`. Use `tabOrder` when multiple panels share the same dock.
 
-## Dock Containers
+## Compatibility And Escape Hatches
 
-Docker topology is modeled separately from the windows that live inside it.
+The older `layout.dockers`, `layout.dockedWindows`, and `docker` options still work for existing configurations. New configuration should prefer `layout.docks`, `layout.panels`, and `dock`.
 
-Use `programs.reaper.layout.dockers` to name docker containers:
-
-```nix
-layout.dockers = {
-  main = {
-    id = reaperLayout.dock.mainDocker;
-    position = "main";
-  };
-
-  left = {
-    id = 1;
-    position = "left";
-    size = 320;
-    preference = "0.85531396 1";
-  };
-};
-```
-
-The built-in `main` docker is available by default. Additional entries are useful when you want to describe a more specific docker topology.
-
-If REAPER stores the container geometry as an opaque composite value, keep that value in `preference` and leave the semantic name in `position`:
-
-```nix
-layout.dockers.left = {
-  id = 1;
-  position = "left";
-  size = 320;
-  preference = "0.85531396 1";
-};
-```
-
-## Docked Windows
-
-First-class windows such as `mixer` and `transport` can point at a named docker with `docker = "main"`.
-
-For other dockable REAPER windows, use `programs.reaper.layout.dockedWindows`:
-
-```nix
-layout.dockedWindows.explorer.docker = "left";
-```
-
-That writes the corresponding `[REAPERdockpref]` entry for the window ID.
-
-If you already know the raw window ID or the exact dock preference string, you can still use the lower-level options:
-
-```nix
-layout = {
-  dockPreferences.navigator = reaperLayout.dock.mainDocker;
-
-  rawSections.reaper_explorer = {
-    window_x = 80;
-    window_y = 80;
-    window_w = 900;
-    window_h = 420;
-  };
-};
-```
-
-## Raw Escape Hatches
-
-Use `dockPreferences` when you already know the exact `[REAPERdockpref]` value you want to write, and use `rawSections` for layout-related INI sections that are not modeled yet.
-
-## Practical Rule
-
-- Use `docker` when you want to refer to a named docker container.
-- Use `dockId` only when you need a raw docker ID.
-- Use `dockPreferences` and `rawSections` only when REAPER stores the layout state in a form that is not yet modeled directly.
+Use `dockId` when you need to assign a panel to a raw docker ID, `dockPreference` when you already know the exact `[REAPERdockpref]` value, and `rawSections` for layout-related INI sections that are not worth modeling as panels.

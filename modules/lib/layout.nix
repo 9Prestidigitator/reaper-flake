@@ -9,4 +9,18 @@
     floating = 0;
     mainDocker = 1;
   };
+
+  dockMode = {
+    bottom = 0;
+    left = 1;
+    top = 2;
+    right = 3;
+  };
+
+  dockSizeKey = {
+    bottom = "dockheight";
+    left = "dockheight_l";
+    right = "dockheight_r";
+    top = "dockheight_t";
+  };
 }

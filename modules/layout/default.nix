@@ -4,10 +4,17 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) literalExpression mkMerge mkOption optionalAttrs types;
+  inherit (lib) literalExpression mapAttrsToList mkMerge mkOption optionalAttrs types;
 
   cfg = config.programs.reaper.layout;
   windowStateType = types.enum (builtins.attrValues reaperLib.reaperLayout.windowState);
+  panelKeyStyleType = types.enum [
+    "reaper"
+    "section-long"
+    "section-short"
+    "window"
+    "simple"
+  ];
 
   floatingWindowOptions = {
     position = mkOption {
@@ -62,13 +69,43 @@
         '';
       };
 
+      dock = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "left";
+        description = ''
+          Name of a `programs.reaper.layout.docks` entry where this window
+          should be docked. Prefer this for new configuration.
+        '';
+      };
+
       dockId = mkOption {
         type = types.nullOr types.int;
         default = null;
         example = literalExpression "reaperLayout.dock.mainDocker";
         description = ''
-          Raw REAPER docker ID for `[REAPERdockpref]`. Prefer `docker` when
+          Raw REAPER docker ID for `[REAPERdockpref]`. Prefer `dock` when
           assigning the window to a named docker container.
+        '';
+      };
+
+      dockPreference = mkOption {
+        type = types.nullOr reaperLib.reaperTypes.iniValue;
+        default = null;
+        example = "0.50000000 2";
+        description = ''
+          Raw `[REAPERdockpref]` value. This overrides `dock`, `docker`,
+          `dockId`, and `tabOrder`.
+        '';
+      };
+
+      tabOrder = mkOption {
+        type = types.nullOr (reaperLib.reaperTypes.boundedNumber "dock tab order between 0 and 1" 0 1);
+        default = null;
+        example = 0.5;
+        description = ''
+          Relative tab order inside the target dock. REAPER stores this as the
+          first number in `[REAPERdockpref]` values like `0.50000000 2`.
         '';
       };
     };
@@ -124,11 +161,159 @@
       wnd_max = window.maximized;
     };
 
+  sectionLongWindowAttrs = window:
+    optionalAttrs (window.visible != null) {
+      wnd_vis = window.visible;
+    }
+    // optionalAttrs (window.docked != null) {
+      dock = window.docked;
+    }
+    // optionalAttrs (window.position != null) {
+      wnd_left = window.position.x;
+      wnd_top = window.position.y;
+    }
+    // optionalAttrs (window.size != null) {
+      wnd_width = window.size.width;
+      wnd_height = window.size.height;
+    }
+    // optionalAttrs ((window.maximized or null) != null) {
+      wnd_max = window.maximized;
+    };
+
+  windowSectionAttrs = window:
+    optionalAttrs (window.visible != null) {
+      visible = window.visible;
+    }
+    // optionalAttrs (window.position != null) {
+      window_x = window.position.x;
+      window_y = window.position.y;
+    }
+    // optionalAttrs (window.size != null) {
+      window_w = window.size.width;
+      window_h = window.size.height;
+    }
+    // optionalAttrs ((window.maximized or null) != null) {
+      window_max = window.maximized;
+    };
+
+  simplePanelAttrs = window:
+    optionalAttrs (window.visible != null) {
+      visible = window.visible;
+    };
+
   transportAttrs =
     prefixedWindowAttrs "transport" cfg.transport
     // optionalAttrs (cfg.transport.dockPosition != null) {
       transport_dock_pos = cfg.transport.dockPosition;
     };
+
+  panelType = types.submodule ({name, ...}: {
+    options =
+      dockableWindowOptions
+      // {
+        id = mkOption {
+          type = types.str;
+          default = name;
+          defaultText = literalExpression "attribute name";
+          example = "explorer";
+          description = ''
+            REAPER window ID used in `[REAPERdockpref]`. This is usually the
+            same token that appears in `dockerselN`.
+          '';
+        };
+
+        section = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          example = "reaper_sexplorer";
+          description = ''
+            INI section where this panel stores its window state. When unset,
+            the panel ID is used, except for `keyStyle = "reaper"` which writes
+            into `[reaper]`.
+          '';
+        };
+
+        prefix = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          example = "mixwnd";
+          description = ''
+            Prefix used by `keyStyle = "reaper"` for keys such as
+            `mixwnd_vis`, `mixwnd_dock`, and `mixwnd_h`. Defaults to the panel
+            ID.
+          '';
+        };
+
+        keyStyle = mkOption {
+          type = panelKeyStyleType;
+          default = "simple";
+          example = "window";
+          description = ''
+            INI key family used for the panel's own window state:
+            `reaper` writes prefixed keys in `[reaper]`, `section-long` writes
+            keys like `wnd_left` and `wnd_width`, `section-short` writes keys
+            like `wnd_x` and `wnd_w`, `window` writes keys like `window_x`, and
+            `simple` writes only `visible` plus `raw`.
+          '';
+        };
+
+        maximized = mkOption {
+          type = types.nullOr types.bool;
+          default = null;
+          example = false;
+          description = "Whether the floating panel window is maximized.";
+        };
+
+        raw = mkOption {
+          type = types.attrsOf reaperLib.reaperTypes.iniValue;
+          default = {};
+          example = literalExpression ''
+            {
+              peak_height = 80;
+              volume = 4096;
+            }
+          '';
+          description = ''
+            Extra keys to write into this panel's INI section. These override
+            generated keys for the same panel.
+          '';
+        };
+      };
+  });
+
+  panelSectionName = panel:
+    if panel.section != null
+    then panel.section
+    else if panel.keyStyle == "reaper"
+    then "reaper"
+    else panel.id;
+
+  panelAttrs = panel:
+    (
+      if panel.keyStyle == "reaper"
+      then
+        prefixedWindowAttrs (
+          if panel.prefix != null
+          then panel.prefix
+          else panel.id
+        )
+        panel
+      else if panel.keyStyle == "section-long"
+      then sectionLongWindowAttrs panel
+      else if panel.keyStyle == "section-short"
+      then sectionWindowAttrs panel
+      else if panel.keyStyle == "window"
+      then windowSectionAttrs panel
+      else simplePanelAttrs panel
+    )
+    // panel.raw;
+
+  panelSections =
+    mapAttrsToList
+    (_: panel: {
+      "${panelSectionName panel}" = panelAttrs panel;
+    })
+    cfg.panels;
 in {
   imports = [
     ./dock.nix
@@ -185,6 +370,40 @@ in {
         };
       };
 
+    panels = mkOption {
+      type = types.attrsOf panelType;
+      default = {};
+      example = literalExpression ''
+        {
+          explorer = {
+            id = "explorer";
+            section = "reaper_sexplorer";
+            keyStyle = "window";
+            visible = true;
+            docked = true;
+            dock = "left";
+            tabOrder = 0.5;
+            raw = {
+              peak_height = 80;
+              volume = 4096;
+            };
+          };
+
+          routingMatrix = {
+            id = "routing";
+            section = "reaper_routing";
+            keyStyle = "window";
+            visible = true;
+            dock = "top";
+          };
+        }
+      '';
+      description = ''
+        Arbitrary REAPER panels. Each panel can render its own INI section and
+        can also be assigned to a named dock through `[REAPERdockpref]`.
+      '';
+    };
+
     rawSections = mkOption {
       type = types.attrsOf (types.attrsOf reaperLib.reaperTypes.iniValue);
       default = {};
@@ -213,8 +432,9 @@ in {
           // prefixedWindowAttrs "mixwnd" cfg.mixer
           // transportAttrs;
 
-        mastermixer = sectionWindowAttrs cfg.masterMixer;
+        mastermixer = sectionLongWindowAttrs cfg.masterMixer;
       }
+      (mkMerge panelSections)
       cfg.rawSections
     ];
   };

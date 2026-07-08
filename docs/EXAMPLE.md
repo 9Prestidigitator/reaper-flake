@@ -39,17 +39,19 @@
     };
 
     layout = {
-      dockers = {
-        main = {
-          id = reaperLayout.dock.mainDocker;
-          position = "main";
+      docks = {
+        bottom = {
+          id = 3;
+          position = "bottom";
+          size = 320;
+          selectedPanel = "mixer";
         };
 
         left = {
-          id = 1;
+          id = 2;
           position = "left";
-          size = 320;
-          preference = "0.85531396 1";
+          size = 395;
+          selectedPanel = "explorer";
         };
       };
 
@@ -68,7 +70,8 @@
       mixer = {
         visible = true;
         docked = true;
-        docker = "main";
+        dock = "bottom";
+        tabOrder = 0.0;
         position = {
           x = 0;
           y = 580;
@@ -83,7 +86,8 @@
       masterMixer = {
         visible = false;
         docked = true;
-        docker = "main";
+        dock = "bottom";
+        tabOrder = 0.5;
         position = {
           x = 80;
           y = 80;
@@ -97,20 +101,36 @@
       transport = {
         visible = true;
         docked = true;
-        docker = "main";
+        dock = "bottom";
+        tabOrder = 1.0;
         dockPosition = reaperWindows.transport.topOfMainWindow;
       };
 
-      dockedWindows = {
-        explorer.docker = "left";
-      };
+      panels = {
+        explorer = {
+          id = "explorer";
+          section = "reaper_sexplorer";
+          keyStyle = "window";
+          visible = true;
+          docked = true;
+          dock = "left";
+          tabOrder = 0.5;
+          raw = {
+            peak_height = 80;
+            volume = 4096;
+          };
+        };
 
-      dockPreferences = {
-        navigator = reaperLayout.dock.mainDocker;
+        navigator = {
+          id = "navigator";
+          keyStyle = "simple";
+          dock = "bottom";
+          tabOrder = 0.75;
+        };
       };
 
       rawSections = {
-        reaper_explorer = {
+        reaper_routing = {
           window_x = 80;
           window_y = 80;
           window_w = 900;
