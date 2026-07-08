@@ -101,6 +101,7 @@ in {
         Whether track label backgrounds are set to custom track colors.
       '';
     };
+
     tintTrackPanelBackgrounds = mkOption {
       type = types.nullOr types.bool;
       default = null;
@@ -109,6 +110,7 @@ in {
         Whether track panel backgrounds are tinted.
       '';
     };
+
     alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed = mkOption {
       type = types.nullOr types.bool;
       default = null;
@@ -117,6 +119,7 @@ in {
         Whether TCP controls are aligned when track icons or fixed item lanes are used.
       '';
     };
+
     showFxInserts = mkOption {
       type = types.nullOr types.bool;
       default = null;
@@ -125,6 +128,7 @@ in {
         Whether FX inserts are shown in the track control panel when size permits.
       '';
     };
+
     showSends = mkOption {
       type = types.nullOr types.bool;
       default = null;
@@ -133,6 +137,7 @@ in {
         Whether sends are shown in the track control panel when size permits.
       '';
     };
+
     groupSendsWithFxInserts = mkOption {
       type = types.nullOr types.bool;
       default = null;
@@ -141,6 +146,7 @@ in {
         Whether sends are grouped with before/after FX inserts.
       '';
     };
+
     groupFxParametersWithInserts = mkOption {
       type = types.nullOr types.bool;
       default = null;
@@ -149,6 +155,7 @@ in {
         Whether FX parameters are grouped with their inserts.
       '';
     };
+
     folderCollapseButtonCyclesTrackHeights = mkOption {
       type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights));
       default = null;
@@ -157,6 +164,7 @@ in {
         Track height cycle used by the folder collapse button.
       '';
     };
+
     fixedLaneCollapseButtonChangesDisplay = mkOption {
       type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay));
       default = null;
@@ -165,6 +173,7 @@ in {
         Fixed lane display mode toggled by the fixed lane collapse button.
       '';
     };
+
     trackGroupingIndicators = mkOption {
       type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.trackGroupingIndicators));
       default = null;
@@ -173,6 +182,7 @@ in {
         Track grouping indicator display mode in Track Control Panel preferences.
       '';
     };
+
     volumeFaderRange = {
       minimum = mkOption {
         type = types.nullOr sliderMinimum;
@@ -182,6 +192,7 @@ in {
           Minimum TCP volume fader range in dB.
         '';
       };
+
       maximum = mkOption {
         type = types.nullOr sliderMaximum;
         default = null;
@@ -191,6 +202,7 @@ in {
         '';
       };
     };
+
     volumeFaderShape = mkOption {
       type = types.nullOr sliderShape;
       default = null;
@@ -200,6 +212,7 @@ in {
         for REAPER's named choices, or a custom shape between `0.25` and `4.0`.
       '';
     };
+
     panFaderUnitDisplay = mkOption {
       type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.panFaderUnitDisplay));
       default = null;

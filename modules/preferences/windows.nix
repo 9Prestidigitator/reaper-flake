@@ -37,6 +37,12 @@
 
     mixerflag = [
       {
+        optionPath = "preferences.windows.mixer.master.showInDockerOrWindow";
+        gui = "Master Track > Show in separate window/Show in docker";
+        option = mixer.master.showInDockerOrWindow;
+        bit = 16;
+      }
+      {
         optionPath = "preferences.windows.mixer.showIconForLastTrackInFolder";
         gui = "Show icon for last track in folder";
         option = mixer.showIconForLastTrackInFolder;
@@ -58,7 +64,7 @@
       {
         optionPath = "preferences.windows.mixer.allowReoarderingEmptySlotsInTcpMcpSendLists";
         gui = "Allow empty slots in FX lists";
-        option = mixer.allowEmptySlotsInFxLists;
+        option = mixer.allowReoarderingEmptySlotsInTcpMcpSendLists;
         bit = 128;
         inverted = true;
       }
@@ -111,6 +117,7 @@
       }
     ];
 
+    # This isn't really responding directly in reaper. But according to this (https://mespotin.uber.space/Ultraschall/Reaper_Config_Variables.html#mixrowflags) it's valid.
     mixrowflags = [
       {
         optionPath = "preferences.windows.mixer.showMultipleRowsWhenSizePermits";
@@ -127,7 +134,7 @@
       }
       {
         optionPath = "preferences.windows.mixer.master.showOnRightSide";
-        gui = "Show master track on right side of mixer";
+        gui = "Show master track on right side of mixer window.";
         option = mixer.master.showOnRightSide;
         bit = 4;
       }
@@ -165,18 +172,6 @@
     ];
   };
 in {
-  imports = [
-    (lib.mkRenamedOptionModule
-      ["programs" "reaper" "preferences" "windows" "transportDockPosition"]
-      ["programs" "reaper" "layout" "transport" "dockPosition"])
-    (lib.mkRenamedOptionModule
-      ["programs" "reaper" "preferences" "windows" "mixer" "show"]
-      ["programs" "reaper" "layout" "mixer" "visible"])
-    (lib.mkRenamedOptionModule
-      ["programs" "reaper" "preferences" "windows" "mixer" "master" "show"]
-      ["programs" "reaper" "layout" "masterMixer" "visible"])
-  ];
-
   options.programs.reaper.preferences.windows = {
     tcpHelpBar = {
       informationDisplay = mkOption {
@@ -305,13 +300,6 @@ in {
         description = "Whether FX parameters are shown in the mixer when size permits. Default null value is false.";
       };
 
-      groupFxParametersWithInserts = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether FX parameters are grouped with their inserts in the mixer. Default null value is false.";
-      };
-
       showSends = mkOption {
         type = types.nullOr types.bool;
         default = null;
@@ -362,11 +350,26 @@ in {
           description = "Whether the master track is shown in the mixer.";
         };
 
+        # TODO(max): Test this specifically
         showOnRightSide = mkOption {
           type = types.nullOr types.bool;
           default = null;
           example = false;
-          description = "Whether the master track is shown on the right side of the mixer.";
+          visible = false;
+          description = lib.mdDoc ''
+            This option doesn't seem to work at all, even in standard reaper it
+            does not retain whether this was enabled or not..
+          '';
+        };
+
+        showInDockerOrWindow = mkOption {
+          type = types.nullOr types.bool;
+          default = null;
+          example = true;
+          description = ''
+            Whether to show reaper master track in the mixer
+            window/dock or to have it be in it's own dock or window.
+          '';
         };
       };
     };
