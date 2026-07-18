@@ -253,15 +253,16 @@ in {
         ];
       };
 
-      home.activation.reaperReapack = hm.dag.entryAfter ["reaper"] ''
-        mkdir -p "$reaper_resource_path/ReaPack"
-        ${optionalString cfg.synchronizeOnActivation ''
-          printf '%s\n' ${lib.escapeShellArg (concatMapStringsSep "," (repository: repository.name) managedRepositories)} > "$reaper_resource_path/ReaPack/.nix-sync-requested"
-        ''}
-        ${optionalString (!cfg.synchronizeOnActivation) ''
-          rm -f "$reaper_resource_path/ReaPack/.nix-sync-requested"
-        ''}
-      '';
     };
+
+    home.activation.reaperReapack = hm.dag.entryAfter ["reaper"] ''
+      mkdir -p "$reaper_resource_path/ReaPack"
+      ${optionalString cfg.synchronizeOnActivation ''
+        printf '%s\n' ${lib.escapeShellArg (concatMapStringsSep "," (repository: repository.name) managedRepositories)} > "$reaper_resource_path/ReaPack/.nix-sync-requested"
+      ''}
+      ${optionalString (!cfg.synchronizeOnActivation) ''
+        rm -f "$reaper_resource_path/ReaPack/.nix-sync-requested"
+      ''}
+    '';
   };
 }
