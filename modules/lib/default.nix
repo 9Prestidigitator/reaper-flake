@@ -8,4 +8,5 @@
   reaperMouse = import ./mouse.nix {inherit lib;};
   reaperActions = import ./actions.nix {inherit lib;};
   reaperGeneral = import ./general.nix;
+  reapack = import ./reapack.nix;
 }

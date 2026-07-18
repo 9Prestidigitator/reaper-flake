@@ -7,6 +7,11 @@
   ruff,
   prettierd,
   bash-language-server,
+  sqlite,
+  jq,
+  curl,
+  git,
+  lua,
 }:
 mkShell {
   name = "reaper-flake dev shell";
@@ -26,5 +31,11 @@ mkShell {
 
     bash-language-server
     prettierd
+
+    sqlite
+    jq
+    curl
+    git
+    lua
   ];
 }

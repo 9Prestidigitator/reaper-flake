@@ -19,7 +19,35 @@
     configPath = "${config.xdg.configHome}/HOME-REAPER";
 
     extensions = {
-      reapack.enable = true;
+      reapack = {
+        enable = true;
+
+        repositories = [
+          {
+            name = "ReaTeam Scripts";
+            url = "https://github.com/ReaTeam/ReaScripts/raw/master/index.xml";
+            installNewPackages = "always";
+          }
+          {
+            name = "ReaTeam Extensions";
+            url = "https://github.com/ReaTeam/Extensions/raw/master/index.xml";
+          }
+        ];
+
+        installNewPackagesWhenSynchronizing = false;
+        enablePrereleasesGlobally = false;
+        promptToUninstallObsoletePackages = true;
+        browser.expandSynonyms = true;
+
+        network = {
+          verifyPeer = true;
+          refreshIndexCacheAfterSeconds = 86400;
+          fallbackProxy = "ask";
+        };
+
+        # Synchronize repositories automatically after Home Manager activation.
+        synchronizeOnActivation = true;
+      };
       sws.enable = true;
     };
 
