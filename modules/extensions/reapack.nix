@@ -5,7 +5,7 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) concatMapStringsSep filter hasInfix literalExpression mkEnableOption mkIf mkOption optionalAttrs optionalString types;
+  inherit (lib) concatMapStringsSep filter hasInfix hm literalExpression mkEnableOption mkIf mkOption optionalAttrs optionalString types;
 
   cfg = config.programs.reaper.extensions.reapack;
 
@@ -253,17 +253,15 @@ in {
         ];
       };
 
-      activation.extraCommands = [
-        ''
-          mkdir -p "$reaper_resource_path/ReaPack"
-          ${optionalString cfg.synchronizeOnActivation ''
-            printf '%s\n' ${lib.escapeShellArg (concatMapStringsSep "," (repository: repository.name) managedRepositories)} > "$reaper_resource_path/ReaPack/.nix-sync-requested"
-          ''}
-          ${optionalString (!cfg.synchronizeOnActivation) ''
-            rm -f "$reaper_resource_path/ReaPack/.nix-sync-requested"
-          ''}
-        ''
-      ];
+      home.activation.reaperReapack = hm.dag.entryAfter ["reaper"] ''
+        mkdir -p "$reaper_resource_path/ReaPack"
+        ${optionalString cfg.synchronizeOnActivation ''
+          printf '%s\n' ${lib.escapeShellArg (concatMapStringsSep "," (repository: repository.name) managedRepositories)} > "$reaper_resource_path/ReaPack/.nix-sync-requested"
+        ''}
+        ${optionalString (!cfg.synchronizeOnActivation) ''
+          rm -f "$reaper_resource_path/ReaPack/.nix-sync-requested"
+        ''}
+      '';
     };
   };
 }
