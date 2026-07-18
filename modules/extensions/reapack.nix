@@ -40,10 +40,16 @@
     };
   };
 
+  customRepositories = if cfg.repositories == null then [] else cfg.repositories;
+  customRepositoryNames = map (repository: repository.name) customRepositories;
+
   managedRepositories =
-    if cfg.repositories == null
-    then []
-    else cfg.repositories;
+    (if cfg.addDefaultRepositories
+    then filter (repository: !(builtins.elem repository.name customRepositoryNames)) reaperLib.reapack.defaultRepositories
+    else [])
+    ++ customRepositories;
+
+  repositoriesManaged = cfg.repositories != null || cfg.addDefaultRepositories;
 
   repositoryLine = index: repository: {
     "remote${toString index}" = "${repository.name}|${repository.url}|${toString (
@@ -101,12 +107,24 @@ in {
       description = "Package that provides ReaPack files under `UserPlugins`.";
     };
 
+    addDefaultRepositories = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Add the default repositories shipped by ReaPack alongside any
+        explicitly configured `repositories`. Custom repositories with the
+        same name replace the corresponding default. Set to `false` to omit
+        the built-in repositories.
+      '';
+    };
+
     repositories = mkOption {
       type = types.nullOr (types.listOf repositoryType);
       default = null;
-      example = literalExpression "config.lib.reaper.reapack.defaultRepositories";
+      example = literalExpression "reaperLib.reapack.defaultRepositories";
       description = ''
-        Ordered ReaPack repositories. `null` leaves `[remotes]` unmanaged.
+        Additional ordered ReaPack repositories. These are appended after the
+        built-in repositories when `addDefaultRepositories` is enabled.
         Setting a list writes ReaPack's `remoteN` entries and `size`.
       '';
     };
@@ -206,7 +224,7 @@ in {
     programs.reaper = {
       ini.files."reapack.ini" =
         {
-          general = optionalAttrs (cfg.repositories != null) {
+          general = optionalAttrs repositoriesManaged {
             version = 4;
           };
 
@@ -239,7 +257,7 @@ in {
             synonyms = cfg.browser.expandSynonyms;
           };
         }
-        // optionalAttrs (cfg.repositories != null) {
+        // optionalAttrs repositoriesManaged {
           remotes = repositoryLines // {size = builtins.length managedRepositories;};
         };
 
