@@ -61,17 +61,17 @@ assert waylandSwellSupport -> swell-wayland != null; let
 in
   stdenv.mkDerivation (finalAttrs: {
     pname = "reaper";
-    version = "7.77";
+    version = "7.78";
 
     src = fetchurl {
       url = urlForPlatform finalAttrs.version stdenv.hostPlatform.qemuArch;
       hash =
         if hostPlatform.isDarwin
-        then "sha256-ehatGZtKQWQ81z+P5gKJr7ESV09PjS46jkTdsDhP6p4="
+        then "sha256-Z7H85bcIoY9tXGuOboh3X54hZQAD2LPKxLGXZ1EtfQE="
         else
           {
-            x86_64-linux = "sha256-yU2WQ35UgEuuU8NJOMgxzQAhg0sGcW4/E0wcxVrWDfE=";
-            aarch64-linux = "sha256-/3HPsaH75vWzGgs4wuQrpGOutAEe25TJy9BpNJdP1s0=";
+            x86_64-linux = "sha256-1mLrNdyrf9LOX6xqYJITYu8DPi0HXHTM75dPu9E6ZUI=";
+            aarch64-linux = "sha256-xqzPN4naSYaveYlFOkKzocnfysMfzaUkWndLel4jAHw=";
           }
         .${
             hostPlatform.system
