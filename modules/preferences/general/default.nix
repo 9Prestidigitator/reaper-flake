@@ -90,6 +90,12 @@
     ];
   };
 in {
+  imports = [
+    ./keyboard-multitouch.nix
+    ./paths.nix
+    ./undo.nix
+  ];
+
   options.programs.reaper.preferences.general = {
     languagePack = mkOption {
       type = types.nullOr types.str;
