@@ -8,15 +8,22 @@
   inherit (lib) concatMapStringsSep filterAttrs generators mapAttrs mkOption types;
   cfg = config.programs.reaper;
 
+  bitfieldNumberType = types.mkOptionType {
+    name = "bitfield number";
+    description = "an unsigned integer bitfield contribution";
+    check = value: builtins.isInt value && value >= 0;
+    merge = _: definitions: builtins.foldl' (total: definition: total + definition.value) 0 definitions;
+  };
+
   # bitfield INI types:
   bitfieldType = types.submodule {
     options = {
       mask = mkOption {
-        type = types.ints.unsigned;
+        type = bitfieldNumberType;
         description = "Bit mask to update.";
       };
       value = mkOption {
-        type = types.ints.unsigned;
+        type = bitfieldNumberType;
         description = "Masked bit value to write.";
       };
     };

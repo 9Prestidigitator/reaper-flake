@@ -94,6 +94,15 @@
         inverted = true;
       }
     ];
+
+    splash_options = [
+      {
+        optionPath = "preferences.general.unloadProjectsInBackgroundWhenQuitting";
+        gui = "Unload projects in background when quitting";
+        option = cfg.unloadProjectsInBackgroundWhenQuitting;
+        bit = 2;
+      }
+    ];
   };
 in {
   imports = [
@@ -372,7 +381,6 @@ in {
         else 0;
     }
     // optionalAttrs (filenameAutoIncrement.suffix != null) {autoincrsuffix = filenameAutoIncrement.suffix;}
-    // optionalAttrs (cfg.unloadProjectsInBackgroundWhenQuitting != null) {splash_options = cfg.unloadProjectsInBackgroundWhenQuitting;}
     // optionalAttrs (advancedUiSystemTweaks.customSplashScreenImage != null) {
       splashimage = advancedUiSystemTweaks.customSplashScreenImage;
     }

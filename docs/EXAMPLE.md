@@ -290,6 +290,24 @@
         };
       };
 
+      project = {
+        defaultProjectTemplate = "/home/user/.config/REAPER/ProjectTemplates/default.RPP";
+        promptToSaveOnNewProject = true;
+        openPropertiesOnNewProject = false;
+
+        projectLoading = {
+          lookForProjectMediaInProjectDirectoryBeforeQualifiedPath = true;
+          promptWhenFilesAreNotFound = true;
+          showLoadStatusAndSplash = true;
+        };
+
+        projectSaving = {
+          saveFileReferencesWithRelativePathnames = true;
+          defaultSaveAsWildcardPattern = "$project";
+          saveNewVersionSuffix = "_001";
+        };
+      };
+
       project.backups = {
         whenSaving = {
           # These top-level save-backup modes are mutually exclusive.
