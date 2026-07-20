@@ -28,8 +28,8 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      inkscape:zoom="1.122535"
-     inkscape:cx="1043.62"
-     inkscape:cy="211.12927"
+     inkscape:cx="191.9762"
+     inkscape:cy="358.11801"
      inkscape:window-width="1477"
      inkscape:window-height="831"
      inkscape:window-x="0"
@@ -456,4 +456,13 @@
          id="tspan32"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans';fill:#ffffff;fill-opacity:1;stroke-width:0.529167"
          x="305.32132"
-         y="9.3652401">v7.77</tspan></text></g></svg>
+         y="9.3652401">v7.77</tspan></text><path
+       style="baseline-shift:baseline;display:inline;overflow:visible;opacity:1;fill:#00ff00;stroke:#008000;stroke-width:0.529167;stroke-linecap:round;stroke-dasharray:none;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+       d="m 29.003171,43.553284 a 0.55436999,0.55436999 0 0 0 -0.767578,0.158203 l -1.820312,2.773438 -1.28711,-1.208985 a 0.55436999,0.55436999 0 0 0 -0.783203,0.02344 0.55436999,0.55436999 0 0 0 0.02344,0.783204 l 2.248046,2.117187 2.546875,-3.878906 a 0.55436999,0.55436999 0 0 0 -0.160158,-0.767578 z"
+       id="path5" /><path
+       style="baseline-shift:baseline;display:inline;overflow:visible;opacity:1;fill:#00ff00;stroke:#008000;stroke-width:0.529167;stroke-linecap:round;stroke-dasharray:none;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+       d="m 23.346333,46.617405 a 0.55436999,0.55436999 0 0 0 -0.767578,0.158203 l -1.820312,2.773438 -1.28711,-1.208985 a 0.55436999,0.55436999 0 0 0 -0.783203,0.02344 0.55436999,0.55436999 0 0 0 0.02344,0.783204 l 2.248046,2.117187 2.546875,-3.878906 a 0.55436999,0.55436999 0 0 0 -0.160158,-0.767578 z"
+       id="path6" /><path
+       style="baseline-shift:baseline;display:inline;overflow:visible;opacity:1;fill:#00ff00;stroke:#008000;stroke-width:0.529167;stroke-linecap:round;stroke-dasharray:none;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+       d="m 49.744915,50.624333 a 0.55436999,0.55436999 0 0 0 -0.767578,0.158203 l -1.820312,2.773438 -1.28711,-1.208985 a 0.55436999,0.55436999 0 0 0 -0.783203,0.02344 0.55436999,0.55436999 0 0 0 0.02344,0.783204 l 2.248046,2.117187 2.546875,-3.878906 a 0.55436999,0.55436999 0 0 0 -0.160158,-0.767578 z"
+       id="path7" /></g></svg>
