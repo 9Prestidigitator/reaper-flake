@@ -139,7 +139,7 @@ in {
         bit = 32;
       }
       {
-        optionPath = "preferences.general.undo.includeSelection.";
+        optionPath = "preferences.general.undo.includeSelection.midiEvents";
         gui = "Include selection: MIDI events";
         option = cfg.includeSelection.midiEvents;
         bit = 128;

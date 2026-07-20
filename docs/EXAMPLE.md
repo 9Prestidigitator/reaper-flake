@@ -226,16 +226,18 @@
         undo = {
           maximumUndoMemory = 256;
           includeSelection = {
-            items = true;
-            timeSelection = false;
+            item = true;
+            time = false;
             cursorPosition = false;
-            tracks = true;
-            envelopePoints = false;
+            track = true;
+            envelopePoint = false;
+            midiEvents = false;
           };
           keepNewestStateWhenApproachingMemoryLimit = true;
           storeMultipleRedoPathsWhenPossible = false;
           saveHistoryWithProjectFiles = true;
           allowLoadingHistory = true;
+          showLastUndoPointInMenuBar = true;
         };
 
         paths = {

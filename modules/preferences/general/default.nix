@@ -396,7 +396,7 @@ in {
       bigwndframes = advancedUiSystemTweaks.useLargeNonToolWindowFrames;
     }
     // optionalAttrs (advancedUiSystemTweaks.cpuAffinity.cpuIndexes != null) {
-      cpuallowed = builtins.foldl' (mask: cpu: mask + powerOfTwo cpu) 0 advancedUiSystemTweaks.cpuAffinity.cpuIndexes;
+      cpuallowed = builtins.foldl' (mask: cpu: mask + powerOfTwo cpu) 0 (lib.unique advancedUiSystemTweaks.cpuAffinity.cpuIndexes);
     }
     // optionalAttrs (advancedUiSystemTweaks.processWorkingSet.enable != null) {
       workset_use = advancedUiSystemTweaks.processWorkingSet.enable;
