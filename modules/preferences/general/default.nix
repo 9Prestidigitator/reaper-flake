@@ -6,12 +6,18 @@
 }: let
   inherit (lib) literalExpression mkOption optionalAttrs types;
   inherit (reaperLib) reaperBitfield;
+
   cfg = config.programs.reaper.preferences.general;
+
   startupSettings = cfg.startupSettings;
   recentProjectList = cfg.recentProjectList;
   filenameAutoIncrement = cfg.filenameAutoIncrement;
   advancedUiSystemTweaks = cfg.advancedUiSystemTweaks;
-  memoryThreshold = types.ints.unsigned;
+
+  powerOfTwo = exponent:
+    if exponent == 0
+    then 1
+    else 2 * powerOfTwo (exponent - 1);
 
   reaperBitfields = reaperBitfield.entries {
     multinst = [
@@ -200,7 +206,7 @@ in {
     };
 
     warnWhenMemoryUseReachesMegabytes = mkOption {
-      type = types.nullOr memoryThreshold;
+      type = types.nullOr types.ints.unsigned;
       default = null;
       example = 1800;
       description = "Warn when REAPER's memory use reaches this many megabytes. Use 0 to never warn.";
@@ -290,6 +296,59 @@ in {
           `reaperGeneral.modalWindowPositioning`.
         '';
       };
+
+      useLargeNonToolWindowFrames = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        example = true;
+        description = "Whether REAPER uses large, non-tool window frames for windows.";
+      };
+
+      cpuAffinity = {
+        enable = mkOption {
+          type = types.nullOr types.bool;
+          default = null;
+          example = true;
+          description = "Whether REAPER is restricted to the configured CPU indexes.";
+        };
+
+        cpuIndexes = mkOption {
+          type = types.nullOr (types.listOf (types.ints.between 0 31));
+          default = null;
+          example = [0 2 4 6];
+          description = "CPU indexes REAPER may use. REAPER supports indexes 0 through 31 in this setting.";
+        };
+
+        preventOsRelocatingWorkerThreads = mkOption {
+          type = types.nullOr types.bool;
+          default = null;
+          example = true;
+          description = "Whether REAPER prevents the OS from relocating worker threads between CPUs.";
+        };
+      };
+
+      processWorkingSet = {
+        enable = mkOption {
+          type = types.nullOr types.bool;
+          default = null;
+          example = true;
+          description = "Whether REAPER sets a process working-set size.";
+        };
+
+        minimum = mkOption {
+          type = types.nullOr types.ints.unsigned;
+          default = null;
+          example = 0;
+          description = "Minimum process working-set size passed to REAPER.";
+        };
+
+        maximum = mkOption {
+          type = types.nullOr types.ints.unsigned;
+          default = null;
+          example = 0;
+          description = "Maximum process working-set size passed to REAPER.";
+        };
+      };
     };
   };
 
@@ -332,7 +391,39 @@ in {
     }
     // optionalAttrs (advancedUiSystemTweaks.modalWindowPositioning != null) {
       windowflags = advancedUiSystemTweaks.modalWindowPositioning;
+    }
+    // optionalAttrs (advancedUiSystemTweaks.useLargeNonToolWindowFrames != null) {
+      bigwndframes = advancedUiSystemTweaks.useLargeNonToolWindowFrames;
+    }
+    // optionalAttrs (advancedUiSystemTweaks.cpuAffinity.cpuIndexes != null) {
+      cpuallowed = builtins.foldl' (mask: cpu: mask + powerOfTwo cpu) 0 advancedUiSystemTweaks.cpuAffinity.cpuIndexes;
+    }
+    // optionalAttrs (advancedUiSystemTweaks.processWorkingSet.enable != null) {
+      workset_use = advancedUiSystemTweaks.processWorkingSet.enable;
+    }
+    // optionalAttrs (advancedUiSystemTweaks.processWorkingSet.minimum != null) {
+      workset_min = advancedUiSystemTweaks.processWorkingSet.minimum;
+    }
+    // optionalAttrs (advancedUiSystemTweaks.processWorkingSet.maximum != null) {
+      workset_max = advancedUiSystemTweaks.processWorkingSet.maximum;
     };
 
-  config.programs.reaper.ini.bitfields.reaper = reaperBitfields;
+  config.programs.reaper.ini.bitfields.reaper =
+    reaperBitfields
+    // reaperBitfield.entries {
+      restrictcpu = [
+        {
+          optionPath = "preferences.general.advancedUiSystemTweaks.cpuAffinity.enable";
+          gui = "Restrict REAPER to specific CPUs";
+          option = advancedUiSystemTweaks.cpuAffinity.enable;
+          bit = 1;
+        }
+        {
+          optionPath = "preferences.general.advancedUiSystemTweaks.cpuAffinity.preventOsRelocatingWorkerThreads";
+          gui = "Do not allow the OS to relocate worker threads to different CPUs";
+          option = advancedUiSystemTweaks.cpuAffinity.preventOsRelocatingWorkerThreads;
+          bit = 2;
+        }
+      ];
+    };
 }

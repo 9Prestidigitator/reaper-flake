@@ -189,7 +189,6 @@ See [docs/layout.md](docs/layout.md) for a short explanation of layout, dock, an
             (set contexts.arrange.middleDrag modifiers.none (mouse 7))
 
             # MIDI piano roll single-click: insert a note.
-            # This uses REAPER's action text until this flake has named mouse-action enums.
             (set contexts.midiPianoRoll.leftClick modifiers.none (mouse 4))
           ];
         };

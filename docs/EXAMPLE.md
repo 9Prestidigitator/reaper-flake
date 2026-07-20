@@ -208,6 +208,83 @@
           allowSnapGridRoutingWindowsToStayOpen = false;
           allowKeyboardCommandsEvenWhenMouseEditing = false;
           modalWindowPositioning = reaperGeneral.modalWindowPositioning.lastWindowPosition;
+          useLargeNonToolWindowFrames = false;
+
+          cpuAffinity = {
+            enable = false;
+            cpuIndexes = [0 2 4 6];
+            preventOsRelocatingWorkerThreads = false;
+          };
+
+          processWorkingSet = {
+            enable = false;
+            minimum = 0;
+            maximum = 0;
+          };
+        };
+
+        undo = {
+          maximumUndoMemory = 256;
+          includeSelection = {
+            items = true;
+            timeSelection = false;
+            cursorPosition = false;
+            tracks = true;
+            envelopePoints = false;
+          };
+          keepNewestStateWhenApproachingMemoryLimit = true;
+          storeMultipleRedoPathsWhenPossible = false;
+          saveHistoryWithProjectFiles = true;
+          allowLoadingHistory = true;
+        };
+
+        paths = {
+          defaultProjectSavePath = "/home/user/Projects/REAPER";
+          defaultRenderPath = "Renders";
+          defaultRecordingPath = "/home/user/Music/Recordings";
+          doNotCopyOrMoveMediaFromTheFollowingPaths = [
+            "/home/user/Downloads/samplepack"
+            "/mnt/samples"
+          ];
+          peakCache = {
+            storeAllInAlternatePath = true;
+            alternatePath = "/home/user/.cache/reaper-peaks";
+            useAlternatePathForPaths = "/mnt/samples";
+          };
+        };
+
+        keyboardMultitouch = {
+          useAlternateKeyboardSectionWhenRecording = true;
+          commitChangesToEditFieldsAfterOneSecond = true;
+          preventAltKeyFocusingMainMenu = true;
+          allowSpaceKeyForNavigationInWindows = true;
+          sendSpaceKeyFromPluginTextFieldsToMainWindow = true;
+          momentaryKeyboardSectionOverrideTimeoutMilliseconds = 1000;
+
+          multitouch = {
+            swipe = {
+              enable = true;
+              suppressInertia = false;
+              reverse = false;
+              gearing = 1.0;
+            };
+            zoom = {
+              enable = true;
+              suppressInertia = false;
+              reverse = false;
+              gearing = 1.0;
+            };
+            rotate = {
+              enable = true;
+              suppressInertia = false;
+              reverse = false;
+              gearing = 1.0;
+            };
+            reverseVerticalScroll = false;
+            reverseHorizontalScroll = false;
+            ignoreNewGestureAfterGestureMilliseconds = 150;
+            ignoreScrollAfterGestureMilliseconds = 150;
+          };
         };
       };
 
