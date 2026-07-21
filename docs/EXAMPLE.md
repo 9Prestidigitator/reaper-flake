@@ -236,7 +236,7 @@
             preservePreviouslySavedVersionOfProjectAsRppBak = {
               enable = true;
               saveTimestampedBackupsToProjectBackupsSubdirectory = true;
-    
+
               limitAutoSavedBackupsToMostRecent = {
                 enable = true;
                 count = 50;
@@ -244,38 +244,38 @@
               };
             };
           };
-    
+
           autoSave = {
             autoSaveToTimestampedFileInProjectDirectory = {
               enable = true;
               saveBackupsToProjectAutoSavesSubdirectory = true;
-    
+
               limitAutoSavedBackupsToMostRecent = {
                 enable = true;
                 count = 50;
                 unit = "copies";
               };
             };
-    
+
             autoSaveToTimestampedFileInAdditionalDirectory = {
               enable = false;
               path = "/tmp/reaper-projects";
-    
+
               limitAutoSavedBackupsToMostRecent = {
                 enable = false;
                 count = 50;
                 mode = "copiesForCurrentProject";
               };
             };
-    
+
             autoSaveToProjectFile = false;
             autoSaveUnsavedProjectsToTemporaryFile = true;
-    
+
             autoSaveInterval = {
               minutes = 10;
               mode = "whenNotRecording";
             };
-    
+
             autoSavePathForUnsavedProjects.path = "/tmp/reaper-unsaved";
           };
         };
