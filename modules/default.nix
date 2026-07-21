@@ -65,6 +65,7 @@ in {
     ./themes.nix
 
     ./actions.nix
+    ./menus.nix
 
     ./extensions/sws.nix
     ./extensions/reapack.nix
@@ -137,6 +138,7 @@ in {
       _module.args.reaperLib = reaperLib;
       _module.args.reaperBitfield = reaperLib.reaperBitfield;
       _module.args.reaperLayout = reaperLib.reaperLayout;
+      _module.args.reaperMenus = reaperLib.reaperMenus;
       _module.args.reaperWindows = reaperLib.reaperWindows;
       _module.args.reaperMouse = reaperLib.reaperMouse;
       _module.args.reaperAppearance = reaperLib.reaperAppearance;

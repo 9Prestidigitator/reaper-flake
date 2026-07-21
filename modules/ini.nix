@@ -47,10 +47,11 @@
   renderBitfields = sections:
     generators.toINI {} (builtins.mapAttrs (_: entries: builtins.mapAttrs (_: entry: "${toString entry.mask}:${toString entry.value}") entries) sections);
 
-  renderPayload = sections: bitfields:
+  renderPayload = sections: bitfields: removeSections:
     builtins.toJSON {
       sections = builtins.mapAttrs (_: entries: builtins.mapAttrs (_: formatIniValue) entries) sections;
       inherit bitfields;
+      removeSections = removeSections;
     };
 
   nonEmptySections = filterAttrs (_: entries: entries != {}) cfg.ini.sections;
@@ -67,8 +68,10 @@
     (mapAttrs (_: sections: filterAttrs (_: entries: entries != {}) sections)
       cfg.ini.fileBitfields);
 
+  nonEmptyFileRemovedSections = filterAttrs (_: sections: sections != []) cfg.ini.removeSections;
+
   emptyIniFile = pkgs.writeText "reaper-managed-empty.ini" "";
-  emptyPayloadFile = pkgs.writeText "reaper-managed-empty.json" (renderPayload {} {});
+  emptyPayloadFile = pkgs.writeText "reaper-managed-empty.json" (renderPayload {} {} []);
 in {
   options.programs.reaper.ini = {
     # Modules assign `programs.reaper.ini.sections.<section>.<key> = value`
@@ -101,6 +104,13 @@ in {
       default = {};
       internal = true;
       description = "Bitfield updates generated for additional mutable REAPER INI files.";
+    };
+
+    removeSections = mkOption {
+      type = types.attrsOf (types.listOf types.str);
+      default = {};
+      internal = true;
+      description = "INI sections to remove completely from additional mutable REAPER INI files.";
     };
 
     generatedFile = mkOption {
@@ -185,7 +195,8 @@ in {
       nonEmptyFileBitfieldSections
       // mapAttrs
       (fileName: sections: pkgs.writeText "reaper-managed-${fileName}" (renderIni sections))
-      nonEmptyFileSections;
+      nonEmptyFileSections
+      // mapAttrs (_: _: emptyIniFile) nonEmptyFileRemovedSections;
 
     generatedBitfieldFiles =
       {"reaper.ini" = cfg.ini.generatedBitfieldFile;}
@@ -196,7 +207,7 @@ in {
       (fileName: sections: pkgs.writeText "reaper-managed-bitfields-${fileName}" (renderBitfields sections))
       nonEmptyFileBitfieldSections;
 
-    generatedPayloadFile = pkgs.writeText "reaper-managed.json" (renderPayload nonEmptySections nonEmptyBitfieldSections);
+    generatedPayloadFile = pkgs.writeText "reaper-managed.json" (renderPayload nonEmptySections nonEmptyBitfieldSections []);
     emptyPayloadFile = emptyPayloadFile;
 
     generatedPayloadFiles =
@@ -210,8 +221,12 @@ in {
           if fileName == "reaper.ini"
           then nonEmptyBitfieldSections
           else nonEmptyFileBitfieldSections.${fileName} or {};
+        removeSections =
+          if fileName == "reaper.ini"
+          then []
+          else nonEmptyFileRemovedSections.${fileName} or [];
       in
-        pkgs.writeText "reaper-managed-${fileName}.json" (renderPayload sections bitfields))
+        pkgs.writeText "reaper-managed-${fileName}.json" (renderPayload sections bitfields removeSections))
       cfg.ini.generatedFiles;
 
     writerPackage = pkgs.writeShellApplication {

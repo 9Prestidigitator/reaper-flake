@@ -9,6 +9,7 @@
   reaperAppearance,
   reaperGeneral,
   reaperLayout,
+  reaperMenus,
   reaperMouse,
   reaperWindows,
   ...
@@ -18,6 +19,56 @@
   programs.reaper = {
     enable = true;
     configPath = "${config.xdg.configHome}/HOME-REAPER";
+
+    menus = {
+      "${reaperMenus.sections.mainFile}" = {
+        # `title` renames the menu-bar entry. An `&` defines its mnemonic.
+        title = "&File";
+        entries = [
+          {action = 40023; label = "&New project";}
+          {action = 40859; label = "New project tab";}
+          reaperMenus.divider
+          (reaperMenus.submenu "Project &templates" [
+            {action = 40394; label = "Save project as template...";}
+            {action = 48000; label = "(project template list)";}
+          ])
+          reaperMenus.divider
+          {action = 40004; label = "&Quit";}
+        ];
+      };
+
+      # Context-menu titles are stored for REAPER's Customize menus/toolbars
+      # editor only; they are not rendered in the context-menu popup.
+      "${reaperMenus.sections.rulerArrangeContext}" = {
+        title = "Arrange context";
+        entries = [{action = 40023; label = "New project";}];
+      };
+
+      "${reaperMenus.toolbars.main}" = {
+        entries = [
+          {action = 40023; label = "New project...";}
+          {action = 40025; label = "Open project...";}
+          {action = 40026; label = "Save project";}
+          {action = 40021; label = "Project settings...";}
+          {action = 40029; label = "Undo";}
+          {action = 40030; label = "Redo";}
+          {action = 40364; label = "Metronome"; textIcon = "normal";}
+          {action = 42616; label = "Marquee selection"; toolbarFlags = 1;}
+          reaperMenus.divider
+          {
+            action = 40041;
+            label = "Enable auto-crossfade";
+          }
+          {action = 1156; label = "Enable item and track media/razor edit grouping";}
+          {action = 40070; label = "Move envelope points with media items";}
+          {action = 1162; label = "Toggle ripple editing"; toolbarFlags = 1;}
+          {action = 40145; label = "Show arrange view grid";}
+          {action = 1157; label = "Enable snapping";}
+          {action = 1135; label = "Enable locking";}
+          {action = 42618; label = "Razor editing"; toolbarFlags = 1;}
+        ];
+      };
+    };
 
     extensions = {
       reapack = {

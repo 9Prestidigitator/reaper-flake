@@ -4,6 +4,7 @@
   reaperBitfield = import ./bitfield.nix {inherit lib;};
 
   reaperLayout = import ./layout.nix;
+  reaperMenus = import ./menus.nix;
   reaperWindows = import ./windows.nix;
 
   reaperMouse = import ./mouse.nix {inherit lib;};

@@ -192,6 +192,22 @@ def remove_stale(
     return kept
 
 
+def remove_sections(lines: list[Line], sections: set[str]) -> list[Line]:
+    if not sections:
+        return lines
+
+    ranges = section_ranges(lines)
+    remove_indexes: set[int] = set()
+    for section in sections:
+        section_range = ranges.get(section)
+        if section_range is None:
+            continue
+        start, end = section_range
+        remove_indexes.update(range(start, end))
+
+    return [line for index, line in enumerate(lines) if index not in remove_indexes]
+
+
 def intish(value: str) -> int:
     # `int(..., 0)` accepts decimal as well as prefixed forms like `0x10`.
     try:
@@ -318,6 +334,13 @@ def main():
     lines = remove_stale(lines, previous, current_identities)
     current = resolve_current(payload, lines)
     lines = apply_managed_values(lines, current)
+    remove_sections_value = payload.get("removeSections", [])
+    remove_sections_set = (
+        {str(section) for section in remove_sections_value}
+        if isinstance(remove_sections_value, list)
+        else set()
+    )
+    lines = remove_sections(lines, remove_sections_set)
 
     save_target(args.target, lines)
 
