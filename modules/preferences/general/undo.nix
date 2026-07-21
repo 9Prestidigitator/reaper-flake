@@ -102,6 +102,7 @@ in {
 
   config.programs.reaper.ini.bitfields.reaper = reaperBitfield.entries {
     undomask = [
+      # TODO(max): Check this toggle, I'm warry about this bitfield
       {
         optionPath = "preferences.general.undo.includeSelection.item";
         gui = "Include selection: item";

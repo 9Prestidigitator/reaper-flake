@@ -142,6 +142,7 @@ in {
       _module.args.reaperAppearance = reaperLib.reaperAppearance;
       _module.args.reaperActions = reaperLib.reaperActions;
       _module.args.reaperGeneral = reaperLib.reaperGeneral;
+      _module.args.reaperProject = reaperLib.reaperProject;
     }
     (mkIf cfg.enable {
       assertions = [

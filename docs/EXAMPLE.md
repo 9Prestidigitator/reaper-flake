@@ -330,33 +330,48 @@
         };
 
         trackSendDefaults = {
-          tracks = {
-            defaultVolume = 1.0; # 0 dB
-            defaultHeight = 6; # Medium
-            showInMixer = true;
-            mainParentSend = true;
-            freeItemPositioning = false;
+          trackVolumeFaderGain = 0.0; # dB
+          mainParentSend = true;
+          visibleEnvelopes = {
+            preFxVolume = false;
+            preFxPan = false;
+            volume = true;
+            pan = false;
+            mute = false;
+          };
+          envelopePointShape = "linear";
+          automationMode = "trimRead";
+          armNewEnvelopes = false;
+          trackHeightInNewProjects = "medium";
+          showInMixer = true;
+          freeItemPositioning = false;
+          fixedItemLanes = true;
 
-            visibleEnvelopes = {
-              preFxVolume = false;
-              preFxPan = false;
-              volume = true;
-              pan = false;
-              mute = false;
-            };
+          fixedLaneDefaults = {
+            laneSize = "bigLanes";
+            showPlayOnlyOneLane = false;
+            hideLaneButtons = false;
+            mediaItemsInHigherNumberedLanesMaskPlaybackOfLowerNumberedLanes = false;
+            allowEditingSourceMediaWhileComping = false;
+            createCompAreasForNewRecordingWhileComping = true;
+            newRecordingBehavior = "newRecordingAddsLanesNewLanesPlayExclusively";
+            automaticallyDeleteEmptyLanesAtBottomOfTrack = true;
+          };
 
-            defaultEnvelopePointShape = "linear";
-            defaultAutomationMode = "trimRead";
-            armNewEnvelopes = false;
+          trackMeterDisplay = {
+            display = "stereoPeaks";
+            lufsMeasuresFirstTwoChannelsOnlyIgnoreSidechain = false;
+            displayGainReductionForPlugInsThatSupportIt = true;
+          };
 
-            recording = {
-              arm = false;
-              automaticallyArmWhenSelected = false;
-              input = -1; # None; hardware and MIDI inputs use REAPER's native values.
-              monitorInput = "off";
-              monitorTrackMediaWhenRecording = false;
-              preservePdcDelayedMonitoringInRecordedItems = false;
-            };
+          recordArm = false;
+          recordConfig = {
+            monitorInput = "monitorInput";
+            monitorTrackMediaWhenRecording = false;
+            preservePdcDelayedMonitoringInRecordedItems = false;
+            record = "recordInputAudioOrMidi";
+            input = -1; # Input: None; device and MIDI values are hardware-dependent.
+            automaticRecordArmWhenTrackSelected = false;
           };
 
           newVolumeEnvelopes = {
@@ -364,12 +379,12 @@
             warnWhenChangingScalingChangesEnvelopeSound = true;
           };
 
-          sendsAndTrackHardwareOutputs = {
-            defaultSendVolume = 1.0; # 0 dB
-            defaultHardwareOutputVolume = 1.0; # 0 dB
-            defaultMode = "postFaderPostPan";
-            sendMidiByDefault = true;
-            sendAudioByDefault = true;
+          sendsTrackHardwareOutputs = {
+            sendGain = 0.0; # dB
+            hardwareOutputGain = 0.0; # dB
+            sendHardwareOutputMode = "postFaderPostPan";
+            sendsSendMidiByDefault = true;
+            sendsSendAudioByDefault = true;
           };
         };
       };
