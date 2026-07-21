@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./docs/logo.png" alt="REAPER Flake logo" width="220">
+  <img src="./docs/assets/logo.png" alt="REAPER Flake logo" width="220">
 </p>
 
 <h1 align="center">reaper-flake</h1>
@@ -268,10 +268,10 @@ When removing an option from your configuration that was instantiated with the f
 
 ## Roadmap
 
-Continue studying Reaper configuration model to allow for options I use most to be set. Found this [site](https://mespotin.uber.space/Ultraschall/Reaper_Config_Variables.html) as a good reference.
+Continue studying Reaper configuration model to allow for options I use most to be set. Found this [site](https://mespotin.uber.space/Ultraschall/Reaper_Config_Variables.html) as a good starting point.
 
 <p align="center">
-  <img src="./docs/status.png" alt="REAPER preference coverage status">
+  <img src="./docs/assets/status.png" alt="REAPER preference coverage status">
 </p>
 
 ## Inspirations
