@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://www.reaper.fm/v5img/logo.jpg" alt="REAPER logo" width="220">
+  <img src="./docs/logo.png" alt="REAPER Flake logo" width="220">
 </p>
 
 <h1 align="center">reaper-flake</h1>
