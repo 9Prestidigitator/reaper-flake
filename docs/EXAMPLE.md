@@ -4,6 +4,7 @@
 {
   config,
   inputs,
+  pkgs,
   reaperActions,
   reaperAppearance,
   reaperGeneral,
@@ -64,6 +65,23 @@
         scrollbar_width = 14;
         focus_hilight = "#d1a660";
       };
+    };
+
+    theme = {
+      # The active file name, from ColorThemes.
+      active = "Smooth_6.ReaperThemeZip";
+
+      # Link individual theme archives from any Nix path-producing expression.
+      colorThemes = [
+        ./themes/MyTheme.ReaperThemeZip
+      ];
+
+      # Theme packages contribute ColorThemes plus other REAPER resources such
+      # as scripts. Their fonts are installed through home.packages.
+      packages = [
+        inputs.reaper-flake.packages.${pkgs.system}.smooth6-theme
+        inputs.reaper-flake.packages.${pkgs.system}.reapertips-theme
+      ];
     };
 
     layout = {

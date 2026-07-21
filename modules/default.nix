@@ -62,6 +62,7 @@ in {
 
     ./resources.nix
     ./swell.nix
+    ./themes.nix
 
     ./actions.nix
 

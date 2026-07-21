@@ -44,6 +44,7 @@ See [docs/layout.md](docs/layout.md) for a short explanation of layout, dock, an
 {
   config,
   inputs,
+  pkgs,
   reaperActions,
   reaperAppearance,
   reaperLayout,
@@ -76,6 +77,18 @@ See [docs/layout.md](docs/layout.md) for a short explanation of layout, dock, an
         scrollbar_width = 14;
         focus_hilight = "#d1a660";
       };
+    };
+
+    theme = {
+      # Select a file available in ColorThemes.
+      active = "Smooth_6.ReaperThemeZip";
+
+      # Individual archives can come from a local path or a fetched derivation.
+      colorThemes = [ ./themes/MyTheme.ReaperThemeZip ];
+
+      # Packages expose REAPER assets in share/reaper and optional fonts in
+      # share/fonts. Smooth 6 also supplies its theme-adjuster scripts.
+      packages = [ inputs.reaper-flake.packages.${pkgs.system}.smooth6-theme ];
     };
 
     layout = {
