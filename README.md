@@ -22,6 +22,7 @@
 | ReaPack          | `1.2.6`    | `packages.reapack`                |
 | SWS              | `2.14.0.7` | `packages.sws`                    |
 | Reapertips Theme | `1.90`     | `packages.reapertips-theme`       |
+| Smooth 6 Theme   | `2.1`      | `packages.smooth6-theme`          |
 | SWELL Wayland    | `1.1.0w`   | `packages.swell-wayland` on Linux |
 
 Most package derivations are originally from nixpkgs with updated hashes and small tweaks.

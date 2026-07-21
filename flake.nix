@@ -30,7 +30,8 @@
                 then swellWayland
                 else null;
             };
-            reapertips-theme = pkgs.callPackage ./packages/reapertips-theme.nix {};
+            reapertips-theme = pkgs.callPackage ./packages/themes/reapertips.nix {};
+            smooth6-theme = pkgs.callPackage ./packages/themes/smooth6.nix {};
             reapack = pkgs.callPackage ./packages/reapack {};
             sws = pkgs.callPackage ./packages/sws {};
           }
