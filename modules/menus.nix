@@ -9,9 +9,14 @@
   cfg = config.programs.reaper.menus;
   commandIdType = types.either types.int types.str;
   menuKinds = ["menu" "contextMenu" "toolbar"];
-  kindFor = name: reaperLib.reaperMenus.kindFor name or "menu";
+  kindFor = name: let
+    kind = reaperLib.reaperMenus.kindFor name;
+  in
+    if kind == null
+    then "menu"
+    else kind;
 
-  menuEntryType = types.submodule ({config, ...}: {
+  menuEntryType = types.submodule {
     options = {
       action = mkOption {
         type = types.nullOr commandIdType;
@@ -90,7 +95,7 @@
         '';
       };
     };
-  });
+  };
 
   menuType = types.submodule ({name, ...}: {
     options = {

@@ -78,7 +78,7 @@ in {
     ./preferences/appearance
     ./preferences/editing-behavior
     ./preferences/media
-    ./preferences/plugins.nix
+    ./preferences/plugins
   ];
 
   options.programs.reaper = {

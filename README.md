@@ -45,7 +45,7 @@ Declare REAPER, seed its resource path, and link extensions from Nix-built packa
 
 ### Example
 
-See [docs/layout.md](docs/layout.md) for a short explanation of layout, dock, and panel options.
+See [docs/layout.md](docs/layout.md) for a short explanation of layout, dock, and panel options, and [docs/menus.md](docs/menus.md) for declarative menus and toolbars.
 
 ```nix
 {
