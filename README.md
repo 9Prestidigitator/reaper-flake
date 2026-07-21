@@ -273,6 +273,10 @@ The preferences option set is designed to be as faithful to the gui option windo
 
 A more exhaustive example, showing off more options can be found [here](./docs/EXAMPLE.md).
 
+
+> [!WARNING]
+> You must close reaper before home manager activation. Failure to do could result in nix options being overwritten by Reaper modifying it's own config upon exit.
+
 The default configuration path is `~/.config/reaper-flake` instead of `~/.config/REAPER` to avoid overwriting original GUI configurations, this can be changed with `programs.reaper.configPath`.
 
 When removing an option from your configuration that was instantiated with the flake, the the module will automatically clean up the option in the ini. Reseting it to whatever the default reaper value. That is the purpose of the `.nix-managed` directory in the config directory. For bitfields it will just clean the managed bit mask.
