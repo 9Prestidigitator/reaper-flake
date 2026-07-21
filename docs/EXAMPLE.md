@@ -82,6 +82,10 @@
         inputs.reaper-flake.packages.${pkgs.system}.smooth6-theme
         inputs.reaper-flake.packages.${pkgs.system}.reapertips-theme
       ];
+
+      # Theme-provided SWELL colorthemes are ignored by default, keeping
+      # programs.reaper.swell.colortheme authoritative.
+      includeSwellColorThemes = false;
     };
 
     layout = {

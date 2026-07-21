@@ -9,7 +9,7 @@
   cfg = config.programs.reaper;
   themeCfg = cfg.theme;
 
-  themeFileName = source: builtins.unsafeDiscardStringContext (builtins.baseNameOf (toString source));
+  themeFileName = source: builtins.unsafeDiscardStringContext (baseNameOf (toString source));
   colorThemeLinks = listToAttrs (map (source: nameValuePair "ColorThemes/${themeFileName source}" source) themeCfg.colorThemes);
   colorThemeNames = map themeFileName themeCfg.colorThemes;
 in {
@@ -47,6 +47,16 @@ in {
         fonts are installed through `home.packages`.
       '';
     };
+
+    includeSwellColorThemes = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether theme-package `libSwell*.colortheme` resources are linked into
+        REAPER's resource directory. Disabled by default so
+        `programs.reaper.swell.colortheme` remains the final SWELL theme layer.
+      '';
+    };
   };
 
   config = mkMerge [
@@ -61,7 +71,7 @@ in {
           message = "programs.reaper.theme.colorThemes entries must have unique file names.";
         }
         {
-          assertion = themeCfg.active == null || builtins.baseNameOf themeCfg.active == themeCfg.active;
+          assertion = themeCfg.active == null || baseNameOf themeCfg.active == themeCfg.active;
           message = "programs.reaper.theme.active must be a file name, not a path.";
         }
       ];
@@ -73,8 +83,13 @@ in {
       programs.reaper.ini.sections.reaper.lastthemefn5 = "${cfg.configPath}/ColorThemes/${themeCfg.active}";
     })
     (mkIf (themeCfg.packages != []) {
-      home.activation.reaperThemePackages = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      home.activation.reaperThemePackages = lib.hm.dag.entryAfter ["reaper"] ''
         reaper_resource_path=${lib.escapeShellArg cfg.configPath}
+        include_swell_colorthemes=${
+          if themeCfg.includeSwellColorThemes
+          then "1"
+          else "0"
+        }
 
         link_theme_resources() {
           src=$1
@@ -89,6 +104,10 @@ in {
 
             if [ -d "$src_path" ]; then
               mkdir -p "$dst_path"
+            elif [ "$include_swell_colorthemes" -ne 1 ] && [[ "$rel_path" == libSwell*.colortheme ]]; then
+              # Remove an old package link from a previous activation without
+              # taking over a regular user-managed SWELL colortheme.
+              [ ! -L "$dst_path" ] || rm -f "$dst_path"
             elif [ -e "$dst_path" ] && [ ! -L "$dst_path" ]; then
               :
             else

@@ -89,6 +89,9 @@ See [docs/layout.md](docs/layout.md) for a short explanation of layout, dock, an
       # Packages expose REAPER assets in share/reaper and optional fonts in
       # share/fonts. Smooth 6 also supplies its theme-adjuster scripts.
       packages = [ inputs.reaper-flake.packages.${pkgs.system}.smooth6-theme ];
+
+      # Keep programs.reaper.swell.colortheme authoritative (the default).
+      includeSwellColorThemes = false;
     };
 
     layout = {
