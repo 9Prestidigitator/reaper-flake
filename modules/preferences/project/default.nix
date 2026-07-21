@@ -10,6 +10,7 @@
 in {
   imports = [
     ./backups.nix
+    ./track-send-defaults.nix
   ];
 
   options.programs.reaper.preferences.project = {

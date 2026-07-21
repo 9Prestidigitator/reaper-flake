@@ -324,6 +324,50 @@
           defaultSaveAsWildcardPattern = "$project";
           saveNewVersionSuffix = "_001";
         };
+
+        trackSendDefaults = {
+          tracks = {
+            defaultVolume = 1.0; # 0 dB
+            defaultHeight = 6; # Medium
+            showInMixer = true;
+            mainParentSend = true;
+            freeItemPositioning = false;
+
+            visibleEnvelopes = {
+              preFxVolume = false;
+              preFxPan = false;
+              volume = true;
+              pan = false;
+              mute = false;
+            };
+
+            defaultEnvelopePointShape = "linear";
+            defaultAutomationMode = "trimRead";
+            armNewEnvelopes = false;
+
+            recording = {
+              arm = false;
+              automaticallyArmWhenSelected = false;
+              input = -1; # None; hardware and MIDI inputs use REAPER's native values.
+              monitorInput = "off";
+              monitorTrackMediaWhenRecording = false;
+              preservePdcDelayedMonitoringInRecordedItems = false;
+            };
+          };
+
+          newVolumeEnvelopes = {
+            scaling = "volumeFader";
+            warnWhenChangingScalingChangesEnvelopeSound = true;
+          };
+
+          sendsAndTrackHardwareOutputs = {
+            defaultSendVolume = 1.0; # 0 dB
+            defaultHardwareOutputVolume = 1.0; # 0 dB
+            defaultMode = "postFaderPostPan";
+            sendMidiByDefault = true;
+            sendAudioByDefault = true;
+          };
+        };
       };
 
       project.backups = {
