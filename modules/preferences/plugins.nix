@@ -2,9 +2,11 @@
   config,
   lib,
   pkgs,
+  reaperLib,
   ...
 }: let
   inherit (lib) optionals mkEnableOption types mkOption optionalAttrs literalExpression unique;
+  inherit (reaperLib) reaperBitfield;
 
   cfg = config.programs.reaper.preferences.plugIns;
   nixSystemRoot = cfg.nixSystemPaths.root;
@@ -122,4 +124,16 @@ in {
       pythonlibpath64 = "${cfg.reascript.python.package}/lib";
       pythonlibdll64 = "libpython${cfg.reascript.python.package.pythonVersion}.so";
     };
+
+  config.programs.reaper.ini.bitfields.reaper = reaperBitfield.entries {
+    reascript = [
+      {
+        optionPath = "preferences.plugIns.reascript.python.enable";
+        gui = "Enable ReaScript";
+        configured = cfg.reascript.python.enable;
+        option = cfg.reascript.python.enable;
+        bit = 1;
+      }
+    ];
+  };
 }
