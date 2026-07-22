@@ -262,7 +262,7 @@ in {
             output_file=$4
 
             if [ "$file_name" = "reaper-kb.ini" ]; then
-              ${pkgs.gawk}/bin/awk 'FNR == NR { old[$0] = 1; if ($1 == "SCR") oldScr[$3, $4] = 1; next } ($0 in old) { next } ($1 == "SCR" && (($3, $4) in oldScr)) { next } { print }' "$state_file" "$target_file" > "$output_file"
+              ${pkgs.gawk}/bin/awk 'FNR == NR { old[$0] = 1; if ($1 == "SCR") oldScr[$3, $4] = 1; if ($1 == "ACT") oldAct[$3, $4] = 1; next } ($0 in old) { next } ($1 == "SCR" && (($3, $4) in oldScr)) { next } ($1 == "ACT" && (($3, $4) in oldAct)) { next } { print }' "$state_file" "$target_file" > "$output_file"
             else
               ${pkgs.gawk}/bin/awk 'FNR == NR { old[$0] = 1; next } !($0 in old)' "$state_file" "$target_file" > "$output_file"
             fi

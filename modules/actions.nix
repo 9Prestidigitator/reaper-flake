@@ -4,11 +4,11 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) filter hasInfix hasPrefix length literalExpression mkOption nameValuePair types unique;
+  inherit (lib) filter hasInfix hasPrefix intersectLists length literalExpression mkOption nameValuePair types unique;
 
   cfg = config.programs.reaper.actions;
   reaperCfg = config.programs.reaper;
-  inherit (reaperLib.reaperActions) formatKeyBinding formatScript;
+  inherit (reaperLib.reaperActions) formatCustomAction formatKeyBinding formatScript;
 
   rawBindingType = types.submodule {
     options = {
@@ -111,6 +111,63 @@
     };
   });
 
+  customActionType = types.submodule ({config, ...}: {
+    options = {
+      name = mkOption {
+        type = types.str;
+        example = "Prepare recording";
+        description = "Name used to derive a stable command id when `commandId` is unset.";
+      };
+
+      description = mkOption {
+        type = types.str;
+        default = "Custom: ${config.name}";
+        defaultText = literalExpression ''"Custom: ''${config.name}"'';
+        example = "Custom: Prepare recording";
+        description = "Custom action description shown in REAPER's Actions list.";
+      };
+
+      commandId = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "prepare_recording";
+        description = ''
+          Stable custom-action command id. When unset, a deterministic `CA...`
+          id is generated from the action section and `name`. Set this explicitly
+          when a command id must remain unchanged after renaming the action.
+        '';
+      };
+
+      section = mkOption {
+        type = types.int;
+        default = 0;
+        description = "REAPER action section in which this custom action is available.";
+      };
+
+      actions = mkOption {
+        type = types.listOf (types.oneOf [types.int types.str]);
+        example = [40001 40044 "RS_toggle_click"];
+        description = ''
+          REAPER command ids, ReaScript ids, extension-action ids, or custom-action
+          ids to run in order. String ids may be written with or without their
+          leading underscore.
+        '';
+      };
+
+      consolidateUndoPoints = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Consolidate the component actions into one undo point.";
+      };
+
+      showInActionsMenu = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Show this custom action in REAPER's Actions menu.";
+      };
+    };
+  });
+
   resolvedScriptPath = script:
     if script.location == "absolute"
     then script.path
@@ -141,6 +198,42 @@
     };
 
   configuredScriptIds = map (script: "${toString script.section}:${normalizeScriptCommandId script}") cfg.scripts;
+  normalizeCustomActionCommandId = action: let
+    commandId =
+      if action.commandId == null
+      then "CA${builtins.hashString "sha1" "${toString action.section}:${action.name}"}"
+      else action.commandId;
+  in
+    if hasPrefix "_" commandId
+    then builtins.substring 1 ((builtins.stringLength commandId) - 1) commandId
+    else commandId;
+  lineCustomAction = action: {
+    inherit (action) actions description section;
+    commandId = normalizeCustomActionCommandId action;
+    flags =
+      (
+        if action.consolidateUndoPoints
+        then 1
+        else 0
+      )
+      + (
+        if action.showInActionsMenu
+        then 2
+        else 0
+      );
+  };
+  configuredCustomActionIds = map (action: "${toString action.section}:${normalizeCustomActionCommandId action}") cfg.customActions;
+  badCustomActionCommandIds =
+    filter (
+      action: let
+        commandId = normalizeCustomActionCommandId action;
+      in
+        (builtins.match "[^[:space:]\"]+" commandId) == null
+    )
+    cfg.customActions;
+  emptyCustomActions = filter (action: action.actions == []) cfg.customActions;
+  badCustomActionActionIds = filter (action: builtins.any (command: builtins.isString command && ((builtins.match "[^[:space:]\"]+" command) == null)) action.actions) cfg.customActions;
+  badCustomActionNewlines = filter (action: hasInfix "\n" action.description) cfg.customActions;
   badScriptCommandIds =
     filter (
       script: let
@@ -170,6 +263,12 @@ in {
       description = "Managed `reaper-kb.ini` script action registrations.";
     };
 
+    customActions = mkOption {
+      type = types.listOf customActionType;
+      default = [];
+      description = "Managed REAPER custom actions that run a sequence of actions.";
+    };
+
     rawLines = mkOption {
       type = types.listOf types.str;
       default = [];
@@ -184,8 +283,32 @@ in {
         message = "REAPER action scripts must not reuse the same commandId in the same section.";
       }
       {
+        assertion = length configuredCustomActionIds == length (unique configuredCustomActionIds);
+        message = "REAPER custom actions must not reuse the same commandId in the same section.";
+      }
+      {
+        assertion = intersectLists configuredScriptIds configuredCustomActionIds == [];
+        message = "REAPER scripts and custom actions must not reuse the same commandId in the same section.";
+      }
+      {
         assertion = badScriptCommandIds == [];
         message = "REAPER action script commandId values must start with `RS` and contain no whitespace or quotes.";
+      }
+      {
+        assertion = badCustomActionCommandIds == [];
+        message = "REAPER custom action commandId values must contain no whitespace or quotes.";
+      }
+      {
+        assertion = emptyCustomActions == [];
+        message = "REAPER custom actions must contain at least one action.";
+      }
+      {
+        assertion = badCustomActionActionIds == [];
+        message = "REAPER custom action string action ids must contain no whitespace or quotes.";
+      }
+      {
+        assertion = badCustomActionNewlines == [];
+        message = "REAPER custom action descriptions must be single-line strings.";
       }
       {
         assertion = badRelativeScriptPaths == [];
@@ -212,6 +335,7 @@ in {
     programs.reaper = {
       lineFiles.files."reaper-kb.ini" =
         (map (script: formatScript (lineScript script)) cfg.scripts)
+        ++ (map (action: formatCustomAction (lineCustomAction action)) cfg.customActions)
         ++ (map formatKeyBinding cfg.keyBindings)
         ++ cfg.rawLines;
 

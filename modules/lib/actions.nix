@@ -304,4 +304,12 @@ in rec {
       then builtins.substring 1 ((builtins.stringLength script.commandId) - 1) script.commandId
       else script.commandId;
   in "SCR ${toString script.flags} ${toString script.section} ${commandId} \"${description}\" ${script.path}";
+
+  formatCustomAction = action: let
+    description = builtins.replaceStrings ["\""] ["\\\""] action.description;
+    commandId =
+      if hasPrefix "_" action.commandId
+      then builtins.substring 1 ((builtins.stringLength action.commandId) - 1) action.commandId
+      else action.commandId;
+  in "ACT ${toString action.flags} ${toString action.section} \"${commandId}\" \"${description}\" ${builtins.concatStringsSep " " (map formatCommand action.actions)}";
 }

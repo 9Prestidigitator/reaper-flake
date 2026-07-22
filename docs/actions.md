@@ -2,7 +2,7 @@
 
 This module writes managed lines to `reaper-kb.ini`.
 
-Use `programs.reaper.actions.keyBindings` for keyboard shortcuts, `programs.reaper.actions.scripts` for ReaScript action registrations, and `programs.reaper.actions.rawLines` for advanced `reaper-kb.ini` lines such as custom actions exported from REAPER.
+Use `programs.reaper.actions.keyBindings` for keyboard shortcuts, `programs.reaper.actions.scripts` for ReaScript action registrations, `programs.reaper.actions.customActions` for sequential custom actions, and `programs.reaper.actions.rawLines` for advanced `reaper-kb.ini` lines.
 
 ## Basic Shape
 
@@ -360,16 +360,30 @@ Use an explicit `commandId` when you want to bind the script in the same config.
 
 ## Custom Actions
 
-Typed custom action composition is not available yet. Use `rawLines` with lines exported from REAPER.
+`customActions` creates REAPER custom actions: ordered sequences of built-in,
+extension, ReaScript, or other custom actions. REAPER executes the entries in
+`actions` from left to right.
 
 ```nix
-programs.reaper.actions.rawLines = [
-  # Paste the exact custom action line from REAPER's reaper-kb.ini.
-  ''ACT ...''
+programs.reaper.actions.customActions = [
+  {
+    name = "Prepare recording";
+    commandId = "prepare_recording";
+    description = "Custom: Prepare recording";
+    consolidateUndoPoints = true;
+    showInActionsMenu = true;
+    actions = [40001 40044 "RS_toggle_click"];
+  }
 ];
 ```
 
-Then bind the custom action by command id:
+`commandId` is optional. When omitted, the module derives a stable `CA...` id
+from the action's section and name. Set it explicitly if you may rename the
+action while preserving existing key bindings, toolbar entries, or external
+references. String action ids can include their leading underscore, but do not
+need to.
+
+Bind the custom action by its command id:
 
 ```nix
 programs.reaper.actions.keyBindings = with reaperActions; bindings [
@@ -381,12 +395,9 @@ programs.reaper.actions.keyBindings = with reaperActions; bindings [
 ];
 ```
 
-For custom actions, the most reliable workflow is:
-
-1. Create or import the custom action once in REAPER.
-2. Find the generated line in `reaper-kb.ini`.
-3. Put that exact line in `programs.reaper.actions.rawLines`.
-4. Bind the action id with `keyBindings`.
+Each custom action must contain at least one entry. `rawLines` remains available
+for importing an existing `ACT` line or using an uncommon REAPER custom-action
+flag that does not yet have a typed option.
 
 ## Full Example
 
