@@ -20,6 +20,51 @@ Use `programs.reaper.actions.keyBindings` for keyboard shortcuts, `programs.reap
 
 This writes a managed `KEY` line to `reaper-kb.ini`.
 
+## Overrides and Conflicts
+
+REAPER's factory-default shortcuts are built in and normally do not appear in
+`reaper-kb.ini`. Declaring a binding for the same shortcut in the same action
+section overrides the factory default. There is no separate conflict prompt
+during Home Manager activation: REAPER resolves the `KEY` record when it next
+loads `reaper-kb.ini`.
+
+```nix
+programs.reaper.actions.keyBindings = with reaperActions; bindings [
+  # Overrides REAPER's default Main-section Space binding.
+  (shortcut {
+    shortcut = "Space";
+    command = 1016;
+    actionName = "Transport: Stop";
+  })
+];
+```
+
+A binding is unique within its action section by its modifier flags and key
+code. The same shortcut in different sections, such as Main and MIDI editor,
+does not conflict.
+
+If two `KEY` lines define the same shortcut in the same section, REAPER uses
+the last one. This module preserves the order of `keyBindings`, so the later
+declaration wins. Avoid duplicates: the module does not currently reject them,
+and a manually managed `KEY` line for the same shortcut can make the resulting
+file harder to reason about.
+
+To explicitly disable a factory-default shortcut, bind it to command `0`:
+
+```nix
+programs.reaper.actions.keyBindings = with reaperActions; bindings [
+  (shortcut {
+    shortcut = "Space";
+    command = 0;
+    actionName = "Unbind factory-default Space shortcut";
+  })
+];
+```
+
+Removing the managed override restores REAPER's factory default only when no
+other custom `KEY` record for that same shortcut and section remains. Restart
+REAPER after activation so it reloads `reaper-kb.ini`.
+
 ## Options
 
 `keyBindings`
