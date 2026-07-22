@@ -71,8 +71,8 @@ in {
     ./extensions/reapack.nix
 
     ./layout
+    ./windows.nix
 
-    ./preferences/windows.nix
     ./preferences/general
     ./preferences/project
     ./preferences/appearance
