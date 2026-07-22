@@ -8,6 +8,7 @@
 
   cfg = config.programs.reaper.menus;
   commandIdType = types.either types.int types.str;
+  inherit (reaperLib.reaperActions) formatCommand;
   menuKinds = ["menu" "contextMenu" "toolbar"];
   kindFor = name: let
     kind = reaperLib.reaperMenus.kindFor name;
@@ -24,8 +25,9 @@
         example = 40023;
         description = ''
           REAPER action command ID. Built-in commands use their numeric command
-          ID; custom actions and ReaScripts use their underscore-prefixed action
-          ID, such as `_RS…`.
+          ID; custom actions and ReaScripts may use their command ID with or
+          without its leading underscore, such as `custom_action` or
+          `_custom_action`.
         '';
       };
 
@@ -153,7 +155,7 @@
       else [entry])
     entries;
 
-  formatItem = entry: "${toString entry.action}${optionalString (entry.label != null) " ${entry.label}"}";
+  formatItem = entry: "${formatCommand entry.action}${optionalString (entry.label != null) " ${entry.label}"}";
 
   toolbarIcon = entry: let
     textIcon = entry.textIcon or null;
@@ -257,10 +259,6 @@ in {
               {
                 assertion = entry.entries == null || (entry.action == null && !entry.separator && !entry.disabled && entry.label != null);
                 message = "A submenu in REAPER menu `${menuName}` requires label and cannot also be an action, separator, or disabled label.";
-              }
-              {
-                assertion = !(builtins.isString entry.action) || lib.hasPrefix "_" entry.action;
-                message = "String action command IDs in REAPER menu `${menuName}` must begin with an underscore.";
               }
               {
                 assertion = isToolbar || (entry.icon == null && entry.textIcon == null && !entry.useTextAsTooltip && entry.toolbarFlags == null);

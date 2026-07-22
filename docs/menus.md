@@ -86,11 +86,13 @@ retitled. `title` is the title of the entire section: it changes a main
 menu-bar caption, while context-menu titles are only visible in REAPER's
 Customize menus/toolbars editor and not in the popup itself.
 
-An `action` is either a numeric REAPER command ID or an underscore-prefixed
-custom action, script, or extension command ID:
+An `action` is either a numeric REAPER command ID or a custom action, script,
+or extension command ID. String IDs may be written with or without their
+leading underscore; the module writes REAPER's underscore-prefixed form:
 
 ```nix
 {action = 40044; label = "Play/stop";}
+{action = "custom_drum_view"; label = "Drum view";}
 {action = "_SWS_SAVEVIEW"; label = "SWS: Save view";}
 {action = "_RS0123456789abcdef"; label = "My script";}
 ```
