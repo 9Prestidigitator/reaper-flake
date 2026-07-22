@@ -281,7 +281,7 @@ See [docs/layout.md](docs/layout.md) for a short explanation of layout, dock, an
 
 The preferences option set is designed to be as faithful to the gui option windows and tabs as possible.
 
-A more exhaustive example, showing off more options can be found [here](./docs/EXAMPLE.md).
+A more exhaustive example, showing off more options can be found [here](./docs/EXAMPLE.md). You can also look at my personal reaper configuration [here](https://github.com/9Prestidigitator/.nixos/blob/17be8333423767756b780c526f9f71244be368e3/modules/home/desktop/applications/reaper/reaper.nix).
 
 > [!WARNING]
 > Home Manager activation refuses to modify the REAPER configuration while
