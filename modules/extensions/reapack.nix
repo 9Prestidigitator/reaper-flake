@@ -9,6 +9,10 @@
 
   cfg = config.programs.reaper.extensions.reapack;
 
+  # TODO(max): Installing individual packages is not possible yet because reapack
+  # uses a database directly inside the config. Will have to think about
+  # implementation carefully.
+
   repositoryType = types.submodule {
     options = {
       name = mkOption {
@@ -40,13 +44,18 @@
     };
   };
 
-  customRepositories = if cfg.repositories == null then [] else cfg.repositories;
+  customRepositories =
+    if cfg.repositories == null
+    then []
+    else cfg.repositories;
   customRepositoryNames = map (repository: repository.name) customRepositories;
 
   managedRepositories =
-    (if cfg.addDefaultRepositories
-    then filter (repository: !(builtins.elem repository.name customRepositoryNames)) reaperLib.reapack.defaultRepositories
-    else [])
+    (
+      if cfg.addDefaultRepositories
+      then filter (repository: !(builtins.elem repository.name customRepositoryNames)) reaperLib.reapack.defaultRepositories
+      else []
+    )
     ++ customRepositories;
 
   repositoriesManaged = cfg.repositories != null || cfg.addDefaultRepositories;
@@ -270,7 +279,6 @@ in {
           ''pcall(dofile, reaper.GetResourcePath() .. "/Scripts/reaper-flake/reapack-startup.lua")''
         ];
       };
-
     };
 
     home.activation.reaperReapack = hm.dag.entryAfter ["reaper"] ''

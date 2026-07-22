@@ -6,29 +6,32 @@
 }: let
   inherit (lib) literalExpression mkOption optionalAttrs types;
   inherit (reaperLib) reaperBitfield;
-  cfg = config.programs.reaper.preferences.windows;
 
+  cfg = config.programs.reaper.windows;
   mixer = cfg.mixer;
   tcpHelpBar = cfg.tcpHelpBar;
   performanceMeter = cfg.performanceMeter;
 
+  # TODO(max): This option set is scoped terribly. Will likely move these
+  # options somewhere else that makes more sense.
+
   reaperBitfields = reaperBitfield.entries {
     help = [
       {
-        optionPath = "preferences.windows.tcpHelpBar.informationDisplay";
+        optionPath = "windows.tcpHelpBar.informationDisplay";
         gui = "TCP help bar information display";
         option = tcpHelpBar.informationDisplay;
         mask = 7;
       }
       {
-        optionPath = "preferences.windows.tcpHelpBar.showMouseEditingHelp";
+        optionPath = "windows.tcpHelpBar.showMouseEditingHelp";
         gui = "Show mouse editing help";
         option = tcpHelpBar.showMouseEditingHelp;
         bit = 65536;
         inverted = true;
       }
       {
-        optionPath = "preferences.windows.performanceMeter.cpuUtilizationDisplay";
+        optionPath = "windows.performanceMeter.cpuUtilizationDisplay";
         gui = "Performance meter CPU utilization display";
         option = performanceMeter.cpuUtilizationDisplay;
         mask = 393216;
@@ -37,32 +40,32 @@
 
     mixerflag = [
       {
-        optionPath = "preferences.windows.mixer.master.showInDockerOrWindow";
+        optionPath = "windows.mixer.master.showInDockerOrWindow";
         gui = "Master Track > Show in separate window/Show in docker";
         option = mixer.master.showInDockerOrWindow;
         bit = 16;
       }
       {
-        optionPath = "preferences.windows.mixer.showIconForLastTrackInFolder";
+        optionPath = "windows.mixer.showIconForLastTrackInFolder";
         gui = "Show icon for last track in folder";
         option = mixer.showIconForLastTrackInFolder;
         bit = 1;
         inverted = true;
       }
       {
-        optionPath = "preferences.windows.mixer.clickableIconForFolderTracksToShowHideChildren";
+        optionPath = "windows.mixer.clickableIconForFolderTracksToShowHideChildren";
         gui = "Clickable icon for folder tracks to show/hide children";
         option = mixer.clickableIconForFolderTracksToShowHideChildren;
         bit = 2;
       }
       {
-        optionPath = "preferences.windows.mixer.allowEmptySlotsInFxLists";
+        optionPath = "windows.mixer.allowEmptySlotsInFxLists";
         gui = "Allow empty slots in FX lists";
         option = mixer.allowEmptySlotsInFxLists;
         bit = 64;
       }
       {
-        optionPath = "preferences.windows.mixer.allowReoarderingEmptySlotsInTcpMcpSendLists";
+        optionPath = "windows.mixer.allowReoarderingEmptySlotsInTcpMcpSendLists";
         gui = "Allow empty slots in FX lists";
         option = mixer.allowReoarderingEmptySlotsInTcpMcpSendLists;
         bit = 128;
@@ -72,44 +75,44 @@
 
     mixeruiflag = [
       {
-        optionPath = "preferences.windows.mixer.showNormalTopLevelTracks";
+        optionPath = "windows.mixer.showNormalTopLevelTracks";
         gui = "Show normal top level tracks";
         option = mixer.showNormalTopLevelTracks;
         bit = 1;
       }
       {
-        optionPath = "preferences.windows.mixer.showFolders";
+        optionPath = "windows.mixer.showFolders";
         gui = "Show folders";
         option = mixer.showFolders;
         bit = 2;
       }
       {
-        optionPath = "preferences.windows.mixer.groupFoldersToLeft";
+        optionPath = "windows.mixer.groupFoldersToLeft";
         gui = "Group folders to left";
         option = mixer.groupFoldersToLeft;
         bit = 4;
       }
       {
-        optionPath = "preferences.windows.mixer.showTracksThatHaveReceives";
+        optionPath = "windows.mixer.showTracksThatHaveReceives";
         gui = "Show tracks that have receives";
         option = mixer.showTracksThatHaveReceives;
         bit = 8;
       }
       {
-        optionPath = "preferences.windows.mixer.groupTracksThatHaveReceivesToLeft";
+        optionPath = "windows.mixer.groupTracksThatHaveReceivesToLeft";
         gui = "Group tracks that have receives to left";
         option = mixer.groupTracksThatHaveReceivesToLeft;
         bit = 16;
       }
       {
-        optionPath = "preferences.windows.mixer.showTracksThatAreInFolders";
+        optionPath = "windows.mixer.showTracksThatAreInFolders";
         gui = "Show tracks that are in folders";
         option = mixer.showTracksThatAreInFolders;
         bit = 32;
         inverted = true;
       }
       {
-        optionPath = "preferences.windows.mixer.autoArrangeTracks";
+        optionPath = "windows.mixer.autoArrangeTracks";
         gui = "Auto-arrange tracks in Mixer";
         option = mixer.autoArrangeTracks;
         bit = 64;
@@ -120,50 +123,50 @@
     # This isn't really responding directly in reaper. But according to this (https://mespotin.uber.space/Ultraschall/Reaper_Config_Variables.html#mixrowflags) it's valid.
     mixrowflags = [
       {
-        optionPath = "preferences.windows.mixer.showMultipleRowsWhenSizePermits";
+        optionPath = "windows.mixer.showMultipleRowsWhenSizePermits";
         gui = "Show multiple rows of tracks (when size permits)";
         option = mixer.showMultipleRowsWhenSizePermits;
         bit = 1;
         inverted = true;
       }
       {
-        optionPath = "preferences.windows.mixer.showMaximumRowsEvenWhenTracksWouldFitInFewerRows";
+        optionPath = "windows.mixer.showMaximumRowsEvenWhenTracksWouldFitInFewerRows";
         gui = "Show maximum rows even when tracks would fit in fewer rows";
         option = mixer.showMaximumRowsEvenWhenTracksWouldFitInFewerRows;
         bit = 2;
       }
       {
-        optionPath = "preferences.windows.mixer.master.showOnRightSide";
+        optionPath = "windows.mixer.master.showOnRightSide";
         gui = "Show master track on right side of mixer window.";
         option = mixer.master.showOnRightSide;
         bit = 4;
       }
       {
-        optionPath = "preferences.windows.mixer.showFxInserts";
+        optionPath = "windows.mixer.showFxInserts";
         gui = "Show FX inserts (when size permits)";
         option = mixer.showFxInserts;
         bit = 16;
       }
       {
-        optionPath = "preferences.windows.mixer.showSends";
+        optionPath = "windows.mixer.showSends";
         gui = "Show sends (when size permits)";
         option = mixer.showSends;
         bit = 32;
       }
       {
-        optionPath = "preferences.windows.mixer.showTrackIconsInMixer";
+        optionPath = "windows.mixer.showTrackIconsInMixer";
         gui = "Show track icons in mixer";
         option = mixer.showTrackIconsInMixer;
         bit = 64;
       }
       {
-        optionPath = "preferences.windows.mixer.showFxParameters";
+        optionPath = "windows.mixer.showFxParameters";
         gui = "Show FX parameters (when size permits)";
         option = mixer.showFxParameters;
         bit = 128;
       }
       {
-        optionPath = "preferences.windows.mixer.master.showInMixer";
+        optionPath = "windows.mixer.master.showInMixer";
         gui = "Show master track in mixer";
         option = mixer.master.showInMixer;
         bit = 256;
@@ -172,7 +175,7 @@
     ];
   };
 in {
-  options.programs.reaper.preferences.windows = {
+  options.programs.reaper.windows = {
     tcpHelpBar = {
       informationDisplay = mkOption {
         type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperWindows.tcpHelpBar.informationDisplay));

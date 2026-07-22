@@ -284,7 +284,10 @@ The preferences option set is designed to be as faithful to the gui option windo
 A more exhaustive example, showing off more options can be found [here](./docs/EXAMPLE.md).
 
 > [!WARNING]
-> You must close reaper before home manager activation. Failure to do could result in nix options being overwritten by Reaper modifying it's own config upon exit.
+> Home Manager activation refuses to modify the REAPER configuration while
+> REAPER is running. Close REAPER and retry. Set
+> `programs.reaper.activation.allowRunning = true` only when you accept that
+> REAPER can overwrite activated values with its in-memory configuration on exit.
 
 The default configuration path is `~/.config/reaper-flake` instead of `~/.config/REAPER` to avoid overwriting original configurations, this can be changed with `programs.reaper.configPath`.
 
@@ -300,6 +303,10 @@ Continue studying Reaper configuration model to support options I use most to be
 <p align="center">
   <img src="./docs/assets/status.png" alt="REAPER preference coverage status">
 </p>
+
+## Known Issues
+
+While you can currently manage ReaPack repositories and even have whole repositories auto-download, you can not declare individual packages just yet.
 
 ## Inspirations
 

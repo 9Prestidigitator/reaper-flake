@@ -130,6 +130,16 @@ in {
       '';
     };
 
+    activation.allowRunning = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Allow Home Manager activation to modify the REAPER resource directory
+        while REAPER is running. Disabled by default because REAPER can overwrite
+        activated configuration with its in-memory state when it exits.
+      '';
+    };
+
     experimental.swell-wayland.enable = mkEnableOption "EXTREMELY EXPERIMENTAL AND BROKEN: Reaper on native wayland.";
   };
 
@@ -159,6 +169,17 @@ in {
 
         activation.reaper = hm.dag.entryAfter ["writeBoundary"] ''
           reaper_resource_path=${lib.escapeShellArg cfg.configPath}
+
+          if [ ${
+            if cfg.activation.allowRunning
+            then "1"
+            else "0"
+          } -eq 0 ] && ${pkgs.procps}/bin/pgrep -x reaper >/dev/null; then
+            echo "Refusing to activate REAPER configuration while REAPER is running." >&2
+            echo "Close REAPER and retry, or set programs.reaper.activation.allowRunning = true to override this safety check." >&2
+            exit 1
+          fi
+
           mkdir -p "$reaper_resource_path"
 
           # Seeds initial REAPER resource path by copying files that are not
