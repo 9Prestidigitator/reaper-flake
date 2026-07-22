@@ -10,7 +10,7 @@
   inherit (reaperTypes.trackControlPanel) sliderMaximum sliderMinimum sliderShape;
 
   cfg = config.programs.reaper.preferences.appearance.trackControlPanels;
-  mixer = config.programs.reaper.preferences.windows.mixer;
+  mixer = config.programs.reaper.windows.mixer;
 
   groupSendsWithFxInserts =
     if mixer.groupSendsWithFxInserts != null
@@ -44,19 +44,19 @@
         bit = 16;
       }
       {
-        optionPath = "preferences.windows.mixer.groupSendsWithFxInserts";
+        optionPath = "windows.mixer.groupSendsWithFxInserts";
         gui = "Group sends with FX inserts";
         option = groupSendsWithFxInserts;
         bit = 32;
       }
       {
-        optionPath = "preferences.windows.mixer.groupFxParametersWithInserts";
+        optionPath = "windows.mixer.groupFxParametersWithInserts";
         gui = "Group FX parameters with their inserts";
         option = groupFxParametersWithInserts;
         bit = 64;
       }
       {
-        optionPath = "preferences.windows.mixer.allowEmptySlotsInFxLists";
+        optionPath = "windows.mixer.allowEmptySlotsInFxLists";
         gui = "Allow empty slots in FX lists";
         option = mixer.allowEmptySlotsInFxLists;
         bit = 128;
