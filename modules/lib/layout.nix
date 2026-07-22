@@ -10,6 +10,21 @@
     mainDocker = 1;
   };
 
+  dockPositions = [
+    "left"
+    "right"
+    "top"
+    "bottom"
+  ];
+
+  panelKeyStyles = [
+    "reaper"
+    "section-long"
+    "section-short"
+    "window"
+    "simple"
+  ];
+
   dockMode = {
     bottom = 0;
     left = 1;

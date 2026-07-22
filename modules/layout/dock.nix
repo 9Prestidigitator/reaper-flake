@@ -8,77 +8,6 @@
 
   cfg = config.programs.reaper.layout;
 
-  legacyDockerPositionType = types.enum [
-    "main"
-    "left"
-    "right"
-    "top"
-    "bottom"
-  ];
-
-  dockPositionType = types.enum [
-    "left"
-    "right"
-    "top"
-    "bottom"
-  ];
-
-  tabOrderType = reaperLib.reaperTypes.boundedNumber "dock tab order between 0 and 1" 0 1;
-
-  legacyDockerType = types.submodule {
-    options = {
-      id = mkOption {
-        type = types.int;
-        default = reaperLib.reaperLayout.dock.mainDocker;
-        defaultText = literalExpression "reaperLayout.dock.mainDocker";
-        example = literalExpression "reaperLayout.dock.mainDocker";
-        description = ''
-          Raw REAPER docker ID used when assigning windows to this docker.
-        '';
-      };
-
-      position = mkOption {
-        type = legacyDockerPositionType;
-        default = "main";
-        example = "left";
-        description = ''
-          Legacy descriptive placement. Prefer `programs.reaper.layout.docks`
-          for new configuration because it writes REAPER's `dockermodeN` keys.
-        '';
-      };
-
-      size = mkOption {
-        type = types.nullOr types.ints.positive;
-        default = null;
-        example = 320;
-        description = ''
-          Legacy descriptive size. Prefer `programs.reaper.layout.docks` for
-          new configuration because dock sizes are global per screen edge.
-        '';
-      };
-
-      splitRatio = mkOption {
-        type = types.nullOr tabOrderType;
-        default = null;
-        example = 0.25;
-        description = ''
-          Legacy tab order value used for `[REAPERdockpref]` entries. Prefer
-          the window or panel `tabOrder` option for new configuration.
-        '';
-      };
-
-      preference = mkOption {
-        type = types.nullOr reaperLib.reaperTypes.iniValue;
-        default = null;
-        example = "0.85531396 1";
-        description = ''
-          Raw `[REAPERdockpref]` value used for windows assigned to this docker.
-          Prefer panel-level `dock` and `tabOrder` for new configuration.
-        '';
-      };
-    };
-  };
-
   dockType = types.submodule {
     options = {
       id = mkOption {
@@ -91,7 +20,7 @@
       };
 
       position = mkOption {
-        type = types.nullOr dockPositionType;
+        type = types.nullOr (types.enum reaperLib.reaperLayout.dockPositions);
         default = null;
         example = "left";
         description = ''
@@ -144,58 +73,6 @@
     };
   };
 
-  dockedWindowType = types.submodule {
-    options = {
-      dock = mkOption {
-        type = types.nullOr types.str;
-        default = null;
-        example = "left";
-        description = ''
-          Name of a `programs.reaper.layout.docks` entry where this REAPER
-          window should be docked.
-        '';
-      };
-
-      docker = mkOption {
-        type = types.nullOr types.str;
-        default = null;
-        example = "left";
-        description = ''
-          Legacy alias for `dock`. Kept for existing configurations.
-        '';
-      };
-
-      dockId = mkOption {
-        type = types.nullOr types.int;
-        default = null;
-        example = literalExpression "reaperLayout.dock.mainDocker";
-        description = ''
-          Raw REAPER docker ID for this window. Prefer `dock` when assigning the
-          window to a named docker container.
-        '';
-      };
-
-      dockPreference = mkOption {
-        type = types.nullOr reaperLib.reaperTypes.iniValue;
-        default = null;
-        example = "0.85531396 1";
-        description = ''
-          Raw `[REAPERdockpref]` value for this window. This overrides `dock`,
-          `docker`, `dockId`, and `tabOrder`.
-        '';
-      };
-
-      tabOrder = mkOption {
-        type = types.nullOr tabOrderType;
-        default = null;
-        example = 0.5;
-        description = ''
-          Relative tab order inside the target dock.
-        '';
-      };
-    };
-  };
-
   builtInDocks = {
     main = {
       id = reaperLib.reaperLayout.dock.mainDocker;
@@ -207,27 +84,9 @@
     };
   };
 
-  legacyDocks =
-    mapAttrs (_: docker: {
-      inherit (docker) id size;
-      position =
-        if docker.position == "main"
-        then null
-        else docker.position;
-      mode = null;
-      sizeKey = null;
-      selectedPanel = null;
-      preference = docker.preference;
-      splitRatio = docker.splitRatio;
-    })
-    cfg.dockers;
+  namedDocks = builtInDocks // cfg.docks;
 
-  namedDocks = builtInDocks // legacyDocks // cfg.docks;
-
-  dockNameOf = window:
-    if (window.dock or null) != null
-    then window.dock
-    else window.docker or null;
+  dockNameOf = window: window.dock or null;
 
   dockIdOf = window: let
     dockName = dockNameOf window;
@@ -238,13 +97,6 @@
     then namedDocks.${dockName}.id
     else null;
 
-  legacyDockPreferenceValue = dock:
-    if (dock.preference or null) != null
-    then dock.preference
-    else if (dock.splitRatio or null) != null
-    then "${toString dock.splitRatio} ${toString dock.id}"
-    else dock.id;
-
   windowDockPreference = window: let
     dockName = dockNameOf window;
     dockId = dockIdOf window;
@@ -254,7 +106,7 @@
     else if (window.tabOrder or null) != null && dockId != null
     then "${toString window.tabOrder} ${toString dockId}"
     else if dockName != null && builtins.hasAttr dockName namedDocks
-    then legacyDockPreferenceValue namedDocks.${dockName}
+    then namedDocks.${dockName}.id
     else if dockId != null
     then dockId
     else null;
@@ -270,10 +122,6 @@
       transport = windowDockPreference cfg.transport;
     };
 
-  arbitraryWindowDockPreferences =
-    mapAttrs (_: window: windowDockPreference window)
-    (filterAttrs (_: window: windowDockPreference window != null) cfg.dockedWindows);
-
   panelDockPreferences =
     mapAttrs'
     (_: panel: nameValuePair panel.id (windowDockPreference panel))
@@ -281,7 +129,6 @@
 
   dockPreferences =
     knownWindowDockPreferences
-    // arbitraryWindowDockPreferences
     // panelDockPreferences
     // cfg.dockPreferences;
 
@@ -292,7 +139,6 @@
         mastermixer = dockNameOf cfg.masterMixer;
         transport = dockNameOf cfg.transport;
       }
-      // mapAttrs (_: window: dockNameOf window) cfg.dockedWindows
       // mapAttrs (_: panel: dockNameOf panel) cfg.panels);
 
   modeValue = dock:
@@ -351,42 +197,6 @@ in {
         Declarative REAPER docker containers. These entries write
         `[reaper].dockermodeN`, `[reaper].dockerselN`, and the global dock size
         keys for each physical edge.
-      '';
-    };
-
-    dockers = mkOption {
-      type = types.attrsOf legacyDockerType;
-      default = {};
-      defaultText = literalExpression ''
-        {}
-      '';
-      example = literalExpression ''
-        {
-          main = {
-            id = reaperLayout.dock.mainDocker;
-            position = "main";
-          };
-        }
-      '';
-      description = ''
-        Legacy named REAPER docker containers. Prefer
-        `programs.reaper.layout.docks` for new configuration. This option still
-        works for existing `docker = "name"` assignments and raw preferences.
-      '';
-    };
-
-    dockedWindows = mkOption {
-      type = types.attrsOf dockedWindowType;
-      default = {};
-      example = literalExpression ''
-        {
-          navigator.dock = "left";
-        }
-      '';
-      description = ''
-        Legacy way to write arbitrary REAPER window IDs into
-        `[REAPERdockpref]`. Prefer `programs.reaper.layout.panels` when you also
-        want to model the panel's own INI section.
       '';
     };
 

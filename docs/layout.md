@@ -128,6 +128,48 @@ The size keys are global buckets for a physical edge. They are not per-container
 
 Use `mode` or `sizeKey` only as raw escape hatches when you have captured a REAPER layout that cannot be described by `position`.
 
+## Toolbar Docker
+
+REAPER's numbered floating toolbars are tabs inside a special Toolbar Docker,
+which uses docker ID `15`. Define the toolbar contents with
+`programs.reaper.menus`, then place the Toolbar Docker through `layout.docks`:
+
+```nix
+{
+  reaperMenus,
+  ...
+}: {
+  programs.reaper = {
+    menus."${reaperMenus.toolbars.floating 1}" = {
+      title = "Editing";
+      entries = [
+        {action = 40041; label = "Auto-crossfade";}
+        {action = 1157; label = "Snap";}
+      ];
+    };
+
+    layout = {
+      docks.toolbar = {
+        id = 15;
+        position = "top";
+      };
+
+      # REAPER persists a Toolbar Docker tab separately from normal panels.
+      rawSections."toolbar:1" = {
+        dock = 1;
+        wnd_vis = 1;
+      };
+    };
+  };
+}
+```
+
+This docks Floating toolbar 1 at the top of the main window. Change the
+section to `toolbar:2` for Floating toolbar 2, and so on. REAPER uses a
+different internal section index for MIDI floating toolbars; capture that
+section from a REAPER-created `reaper.ini` before managing it with
+`rawSections`.
+
 ## Panels
 
 Use `layout.panels` for arbitrary dockable REAPER windows:
@@ -164,10 +206,8 @@ The existing first-class options remain available:
 - `masterMixer`
 - `transport`
 
-For new dock assignments, prefer `dock = "name"` over the legacy `docker = "name"`. Use `tabOrder` when multiple panels share the same dock.
+Use `tabOrder` when multiple panels share the same dock.
 
-## Compatibility And Escape Hatches
-
-The older `layout.dockers`, `layout.dockedWindows`, and `docker` options still work for existing configurations. New configuration should prefer `layout.docks`, `layout.panels`, and `dock`.
+## Escape Hatches
 
 Use `dockId` when you need to assign a panel to a raw docker ID, `dockPreference` when you already know the exact `[REAPERdockpref]` value, and `rawSections` for layout-related INI sections that are not worth modeling as panels.

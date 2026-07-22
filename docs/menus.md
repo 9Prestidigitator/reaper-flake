@@ -164,6 +164,46 @@ are numbered 1 through 16. The helpers enforce these bounds.
 The helpers write `[Floating toolbar N]` and `[Floating MIDI toolbar N]` and
 are recognized as toolbar sections automatically.
 
+### Docking a Floating Toolbar
+
+Floating toolbars are hosted by REAPER's dedicated Toolbar Docker. Use a
+regular `layout.docks` entry with ID `15` to place that docker, then mark the
+toolbar visible and docked in its `toolbar:N` section:
+
+```nix
+{
+  reaperMenus,
+  ...
+}: {
+  programs.reaper = {
+    menus."${reaperMenus.toolbars.floating 1}" = {
+      title = "Editing";
+      entries = [
+        {action = 40041; label = "Auto-crossfade";}
+        {action = 1157; label = "Snap";}
+      ];
+    };
+
+    layout = {
+      docks.toolbar = {
+        id = 15;
+        position = "top";
+      };
+
+      # Toolbar state is not a normal REAPER panel and uses its own section.
+      rawSections."toolbar:1" = {
+        dock = 1;
+        wnd_vis = 1;
+      };
+    };
+  };
+}
+```
+
+This writes `[reaper].dockermode15=2`, which attaches the Toolbar Docker to
+the top of the main window, and makes Floating toolbar 1 visible in that
+docker.
+
 ## Resetting a Section
 
 Set a managed section to `null` to remove that section from `reaper-menu.ini`:

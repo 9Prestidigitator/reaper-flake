@@ -8,13 +8,6 @@
 
   cfg = config.programs.reaper.layout;
   windowStateType = types.enum (builtins.attrValues reaperLib.reaperLayout.windowState);
-  panelKeyStyleType = types.enum [
-    "reaper"
-    "section-long"
-    "section-short"
-    "window"
-    "simple"
-  ];
 
   floatingWindowOptions = {
     position = mkOption {
@@ -59,16 +52,6 @@
         description = "Whether the window is docked in a REAPER docker.";
       };
 
-      docker = mkOption {
-        type = types.nullOr types.str;
-        default = null;
-        example = "main";
-        description = ''
-          Name of a `programs.reaper.layout.dockers` entry where this window
-          should be docked.
-        '';
-      };
-
       dock = mkOption {
         type = types.nullOr types.str;
         default = null;
@@ -94,8 +77,8 @@
         default = null;
         example = "0.50000000 2";
         description = ''
-          Raw `[REAPERdockpref]` value. This overrides `dock`, `docker`,
-          `dockId`, and `tabOrder`.
+          Raw `[REAPERdockpref]` value. This overrides `dock`, `dockId`, and
+          `tabOrder`.
         '';
       };
 
@@ -245,7 +228,7 @@
         };
 
         keyStyle = mkOption {
-          type = panelKeyStyleType;
+          type = types.enum reaperLib.reaperLayout.panelKeyStyles;
           default = "simple";
           example = "window";
           description = ''
