@@ -83,6 +83,16 @@
           }
         ];
 
+        # Exact identities come from the repository index. ReaPack installs
+        # these on the next REAPER start using its native transaction engine.
+        packages = [
+          {
+            repository = "ReaTeam Scripts";
+            category = "MIDI Editor";
+            name = "js_Mouse editing - Draw ramp.lua";
+          }
+        ];
+
         installNewPackagesWhenSynchronizing = false;
         enablePrereleasesGlobally = false;
         promptToUninstallObsoletePackages = true;
@@ -137,6 +147,44 @@
     };
 
     preferences = {
+      controlOscWeb = {
+        controlSurfaceDisplayUpdateFrequency = 15;
+        warnWhenErrorsOpeningSurfaceMidiDevices = true;
+        closeControlSurfaceDevicesWhenStoppedAndNotActiveApplication = false;
+        closeControlSurfaceDevicesWhenRendering = true;
+
+        controlSurfaces = [
+          {
+            mode = "mackieControlUniversal";
+            # Native zero-based MIDI device indexes; -1 means none.
+            midiInput = 0;
+            midiOutput = 0;
+            surfaceOffsetTracks = 0;
+            sizeTweak = 9;
+            mapF1F8ToGoToMarkers = true;
+          }
+          {
+            mode = "oscOpenSoundControl";
+            deviceName = "Tablet";
+            patternConfig = "";
+            oscMode = "configureDeviceIpAndLocalPort";
+            deviceIp = "192.0.2.10";
+            devicePort = 9000;
+            localListenPort = 8000;
+            allowBindingMessagesToReaperActionsAndFxLearn = true;
+          }
+          {
+            mode = "webBrowserInterface";
+            runWebServerOnPort = {
+              enable = true;
+              port = 8080;
+            };
+            usernamePassword = "reaper:change-me";
+            defaultInterface = "index.html";
+          }
+        ];
+      };
+
       general = {
         languagePack = "";
 

@@ -79,6 +79,7 @@ in {
     ./preferences/editing-behavior
     ./preferences/media
     ./preferences/plugins
+    ./preferences/control-osc-web.nix
   ];
 
   options.programs.reaper = {
@@ -155,6 +156,7 @@ in {
       _module.args.reaperActions = reaperLib.reaperActions;
       _module.args.reaperGeneral = reaperLib.reaperGeneral;
       _module.args.reaperProject = reaperLib.reaperProject;
+      _module.args.reaperControlOscWeb = reaperLib.reaperControlOscWeb;
     }
     (mkIf cfg.enable {
       assertions = [

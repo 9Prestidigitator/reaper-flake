@@ -307,7 +307,13 @@ Continue studying Reaper configuration model to support options I use most to be
 
 ## Known Issues
 
-While you can currently manage ReaPack repositories and even have whole repositories auto-download, you can not declare individual packages just yet.
+- Individual ReaPack package changes are queued during Home Manager activation
+  and applied on the next REAPER start. They require the patched ReaPack package
+  supplied by this flake; overriding the ReaPack package with an unmodified
+  upstream binary disables this feature.
+- Control-surface MIDI inputs and outputs are stored by REAPER as
+  machine-local, zero-based device indexes. A declaration may need different
+  indexes on hosts whose MIDI device ordering differs.
 
 ## Inspirations
 
