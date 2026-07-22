@@ -491,43 +491,44 @@
         };
       };
 
-      windows = {
-        tcpHelpBar = {
-          informationDisplay = reaperWindows.tcpHelpBar.informationDisplay.cpuRamUseTimeSinceLastSave;
-          showMouseEditingHelp = true;
-        };
+    };
 
-        performanceMeter.cpuUtilizationDisplay =
-          reaperWindows.performanceMeter.cpuUtilizationDisplay.allCoresFullyUtilized;
+    windows = {
+      tcpHelpBar = {
+        informationDisplay = reaperWindows.tcpHelpBar.informationDisplay.cpuRamUseTimeSinceLastSave;
+        showMouseEditingHelp = true;
+      };
 
-        mixer = {
-          showFolders = true;
-          showNormalTopLevelTracks = true;
-          showTracksThatAreInFolders = true;
-          showTracksThatHaveReceives = true;
-          scrollViewWhenTracksActivated = true;
-          autoArrangeTracks = true;
-          groupFoldersToLeft = false;
-          groupTracksThatHaveReceivesToLeft = false;
-          clickableIconForFolderTracksToShowHideChildren = false;
+      performanceMeter.cpuUtilizationDisplay =
+        reaperWindows.performanceMeter.cpuUtilizationDisplay.allCoresFullyUtilized;
 
-          showMultipleRowsWhenSizePermits = true;
-          showMaximumRowsEvenWhenTracksWouldFitInFewerRows = false;
+      mixer = {
+        showFolders = true;
+        showNormalTopLevelTracks = true;
+        showTracksThatAreInFolders = true;
+        showTracksThatHaveReceives = true;
+        scrollViewWhenTracksActivated = true;
+        autoArrangeTracks = true;
+        groupFoldersToLeft = false;
+        groupTracksThatHaveReceivesToLeft = false;
+        clickableIconForFolderTracksToShowHideChildren = false;
 
-          showFxInserts = true;
-          showFxParameters = true;
-          showSends = true;
-          groupSendsWithFxInserts = false;
-          allowEmptySlotsInFxLists = true;
-          allowReoarderingEmptySlotsInTcpMcpSendLists = true;
+        showMultipleRowsWhenSizePermits = true;
+        showMaximumRowsEvenWhenTracksWouldFitInFewerRows = false;
 
-          showTrackIconsInMixer = true;
-          showIconForLastTrackInFolder = true;
+        showFxInserts = true;
+        showFxParameters = true;
+        showSends = true;
+        groupSendsWithFxInserts = false;
+        allowEmptySlotsInFxLists = true;
+        allowReoarderingEmptySlotsInTcpMcpSendLists = true;
 
-          master = {
-            showInMixer = true;
-            showOnRightSide = false;
-          };
+        showTrackIconsInMixer = true;
+        showIconForLastTrackInFolder = true;
+
+        master = {
+          showInMixer = true;
+          showOnRightSide = false;
         };
       };
     };

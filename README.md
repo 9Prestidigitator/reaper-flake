@@ -224,22 +224,23 @@ See [docs/layout.md](docs/layout.md) for a short explanation of layout, dock, an
         clap.searchPaths = ["~/Documents/CLAP"];
       };
 
-      windows = {
-        tcpHelpBar = {
-          informationDisplay = reaperWindows.tcpHelpBar.informationDisplay.selectedTrackItemEnvelopeDetails;
-          showMouseEditingHelp = true;
-        };
+    };
 
-        mixer = {
-          autoArrangeTracks = true;
-          showFxInserts = true;
-          showSends = true;
-          allowEmptySlotsInFxLists = true;
+    windows = {
+      tcpHelpBar = {
+        informationDisplay = reaperWindows.tcpHelpBar.informationDisplay.selectedTrackItemEnvelopeDetails;
+        showMouseEditingHelp = true;
+      };
 
-          master = {
-            showInMixer = true;
-            showOnRightSide = false;
-          };
+      mixer = {
+        autoArrangeTracks = true;
+        showFxInserts = true;
+        showSends = true;
+        allowEmptySlotsInFxLists = true;
+
+        master = {
+          showInMixer = true;
+          showOnRightSide = false;
         };
       };
     };
