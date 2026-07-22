@@ -52,13 +52,10 @@
           {action = 40021; label = "Project settings...";}
           {action = 40029; label = "Undo";}
           {action = 40030; label = "Redo";}
-          {action = 40364; label = "Metronome"; textIcon = "normal";}
+          {action = 40364; label = "Enable Metronome";}
           {action = 42616; label = "Marquee selection"; toolbarFlags = 1;}
           reaperMenus.divider
-          {
-            action = 40041;
-            label = "Enable auto-crossfade";
-          }
+          {action = 40041; label = "Enable auto-crossfade";}
           {action = 1156; label = "Enable item and track media/razor edit grouping";}
           {action = 40070; label = "Move envelope points with media items";}
           {action = 1162; label = "Toggle ripple editing"; toolbarFlags = 1;}
