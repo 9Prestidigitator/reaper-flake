@@ -1,0 +1,207 @@
+diff --git a/src/api.hpp b/src/api.hpp
+index 5e8dabc..fdca930 100644
+--- a/src/api.hpp
++++ b/src/api.hpp
+@@ -48,5 +48,6 @@ namespace API {
+   extern APIFunc BrowsePackages;
+   extern APIFunc CompareVersions;
++  extern APIFunc IsBusy;
+   extern APIFunc ProcessQueue;
+ 
+   // api_package.cpp
+@@ -57,4 +58,6 @@ namespace API {
+   extern APIFunc GetEntryInfo;
+   extern APIFunc GetOwner;
++  extern APIFunc QueuePackage;
++  extern APIFunc QueueUninstallPackage;
+ 
+   // api_repo.cpp
+diff --git a/src/api_misc.cpp b/src/api_misc.cpp
+index b5c8120..57f8ae1 100644
+--- a/src/api_misc.cpp
++++ b/src/api_misc.cpp
+@@ -44,6 +44,13 @@ R"(Returns 0 if both versions are equal, a positive value if ver1 is higher tha
+   return a.compare(b);
+ });
+ 
++DEFINE_API(bool, IsBusy, ((bool, unused)),
++R"(Returns whether ReaPack is currently processing a transaction.)",
++{
++  (void)unused;
++  return g_reapack->isBusy();
++});
++
+ DEFINE_API(void, ProcessQueue, ((bool, refreshUI)),
+ R"(Run pending operations and save the configuration file. If refreshUI is true the browser and manager windows are guaranteed to be refreshed (otherwise it depends on which operations are in the queue).)",
+ {
+diff --git a/src/api_package.cpp b/src/api_package.cpp
+index 2a43cad..5a6da39 100644
+--- a/src/api_package.cpp
++++ b/src/api_package.cpp
+@@ -167,3 +167,102 @@ R"(Returns the package entry owning the given file.
+     return nullptr;
+   }
+ });
++
++DEFINE_API(bool, QueuePackage, ((const char*, repoName))
++  ((const char*, categoryName))((const char*, packageName))
++  ((const char*, versionName))((bool, pin))((bool, allowPrereleases))
++  ((char*, errorOut))((int, errorOut_sz)),
++R"(Queue a package for installation using ReaPack's native transaction engine.
++An empty version installs the latest stable version, or the latest version when
++allowPrereleases is true. Call ReaPack_ProcessQueue(true) after queueing all
++operations.)",
++{
++  try {
++    const Remote &remote = g_reapack->remote(repoName);
++    if(!remote) {
++      if(errorOut)
++        snprintf(errorOut, errorOut_sz, "repository not found");
++      return false;
++    }
++
++    Transaction *tx = g_reapack->setupTransaction(false);
++    if(!tx) {
++      if(errorOut)
++        snprintf(errorOut, errorOut_sz, "could not create transaction");
++      return false;
++    }
++
++    const IndexPtr &index = tx->loadIndex(remote);
++    if(!index) {
++      if(errorOut)
++        snprintf(errorOut, errorOut_sz, "repository index is unavailable");
++      return false;
++    }
++
++    const Package *package = index->find(categoryName, packageName);
++    if(!package) {
++      if(errorOut)
++        snprintf(errorOut, errorOut_sz, "package not found");
++      return false;
++    }
++
++    const Version *version = nullptr;
++    if(versionName && strlen(versionName) > 0)
++      version = package->findVersion(VersionName(versionName));
++    else
++      version = package->lastVersion(allowPrereleases);
++
++    if(!version) {
++      if(errorOut)
++        snprintf(errorOut, errorOut_sz, "package version not found");
++      return false;
++    }
++
++    const int flags =
++      (pin ? Registry::Entry::PinnedFlag : 0) |
++      (allowPrereleases ? Registry::Entry::BleedingEdgeFlag : 0);
++    const Registry::Entry &current = tx->registry()->getEntry(package);
++
++    if(current && current.version == version->name() && current.flags == flags)
++      return true;
++
++    tx->install(version, flags);
++    return true;
++  }
++  catch(const reapack_error &e) {
++    if(errorOut)
++      snprintf(errorOut, errorOut_sz, "%s", e.what());
++    return false;
++  }
++});
++
++DEFINE_API(bool, QueueUninstallPackage, ((const char*, repoName))
++  ((const char*, categoryName))((const char*, packageName))
++  ((char*, errorOut))((int, errorOut_sz)),
++R"(Queue an installed package for removal using ReaPack's native transaction
++engine. Missing packages are treated as already absent. Call
++ReaPack_ProcessQueue(true) after queueing all operations.)",
++{
++  try {
++    Transaction *tx = g_reapack->setupTransaction(false);
++    if(!tx) {
++      if(errorOut)
++        snprintf(errorOut, errorOut_sz, "could not create transaction");
++      return false;
++    }
++
++    for(const Registry::Entry &entry : tx->registry()->getEntries(repoName)) {
++      if(entry.category == categoryName && entry.package == packageName) {
++        tx->uninstall(entry);
++        break;
++      }
++    }
++
++    return true;
++  }
++  catch(const reapack_error &e) {
++    if(errorOut)
++      snprintf(errorOut, errorOut_sz, "%s", e.what());
++    return false;
++  }
++});
+diff --git a/src/reapack.cpp b/src/reapack.cpp
+index a14e0ce..632db99 100644
+--- a/src/reapack.cpp
++++ b/src/reapack.cpp
+@@ -137,7 +137,10 @@ void ReaPack::setupAPI()
+   m_api.emplace_back(&API::GetEntryInfo);
+   m_api.emplace_back(&API::GetOwner);
+   m_api.emplace_back(&API::GetRepositoryInfo);
++  m_api.emplace_back(&API::IsBusy);
+   m_api.emplace_back(&API::ProcessQueue);
++  m_api.emplace_back(&API::QueuePackage);
++  m_api.emplace_back(&API::QueueUninstallPackage);
+ }
+ 
+ void ReaPack::synchronizeAll()
+@@ -272,7 +275,7 @@ void ReaPack::aboutSelf()
+   about(remote("ReaPack"));
+ }
+ 
+-Transaction *ReaPack::setupTransaction()
++Transaction *ReaPack::setupTransaction(bool showReport)
+ {
+   if(m_progress && m_progress->isVisible())
+     m_progress->setFocus();
+@@ -296,7 +299,7 @@ Transaction *ReaPack::setupTransaction()
+   m_tx->onFinish >> [=] {
+     m_progress.reset();
+ 
+-    if(!m_tx->isCancelled() && !m_tx->receipt()->empty()) {
++    if(showReport && !m_tx->isCancelled() && !m_tx->receipt()->empty()) {
+       LockDialog managerLock(m_manager.get());
+       LockDialog browserLock(m_browser.get());
+ 
+diff --git a/src/reapack.hpp b/src/reapack.hpp
+index 3a78042..9cd5a82 100644
+--- a/src/reapack.hpp
++++ b/src/reapack.hpp
+@@ -64,5 +64,6 @@ public:
+-  Transaction *setupTransaction();
++  Transaction *setupTransaction(bool showReport = true);
+   void commitConfig(bool refresh = true);
+   Config *config() { return &m_config; }
++  bool isBusy() const { return m_tx != nullptr; }
+ 
+ private:
+diff --git a/src/transaction.hpp b/src/transaction.hpp
+index c634923..311fbd9 100644
+--- a/src/transaction.hpp
++++ b/src/transaction.hpp
+@@ -64,5 +64,6 @@ public:
+   void uninstall(const Registry::Entry &);
+   void exportArchive(const std::string &path);
+   bool runTasks();
++  IndexPtr loadIndex(const Remote &);
+ 
+   bool isCancelled() const { return m_isCancelled; }
+@@ -79,7 +80,6 @@ protected:
+   friend SynchronizeTask;
+   friend InstallTask;
+   friend UninstallTask;
+ 
+-  IndexPtr loadIndex(const Remote &);
+   void addObsolete(const Registry::Entry &e) { m_obsolete.insert(e); }
+   void registerAll(bool add, const Registry::Entry &);
