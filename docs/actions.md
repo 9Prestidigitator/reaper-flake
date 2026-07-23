@@ -22,11 +22,7 @@ This writes a managed `KEY` line to `reaper-kb.ini`.
 
 ## Overrides and Conflicts
 
-REAPER's factory-default shortcuts are built in and normally do not appear in
-`reaper-kb.ini`. Declaring a binding for the same shortcut in the same action
-section overrides the factory default. There is no separate conflict prompt
-during Home Manager activation: REAPER resolves the `KEY` record when it next
-loads `reaper-kb.ini`.
+REAPER's factory-default shortcuts are built in and normally do not appear in `reaper-kb.ini`. Declaring a binding for the same shortcut in the same action section overrides the factory default. There is no separate conflict prompt during Home Manager activation: REAPER resolves the `KEY` record when it next loads `reaper-kb.ini`.
 
 ```nix
 programs.reaper.actions.keyBindings = with reaperActions; bindings [
@@ -39,15 +35,9 @@ programs.reaper.actions.keyBindings = with reaperActions; bindings [
 ];
 ```
 
-A binding is unique within its action section by its modifier flags and key
-code. The same shortcut in different sections, such as Main and MIDI editor,
-does not conflict.
+A binding is unique within its action section by its modifier flags and key code. The same shortcut in different sections, such as Main and MIDI editor, does not conflict.
 
-If two `KEY` lines define the same shortcut in the same section, REAPER uses
-the last one. This module preserves the order of `keyBindings`, so the later
-declaration wins. Avoid duplicates: the module does not currently reject them,
-and a manually managed `KEY` line for the same shortcut can make the resulting
-file harder to reason about.
+If two `KEY` lines define the same shortcut in the same section, REAPER uses the last one. This module preserves the order of `keyBindings`, so the later declaration wins. Avoid duplicates: the module does not currently reject them, and a manually managed `KEY` line for the same shortcut can make the resulting file harder to reason about.
 
 To explicitly disable a factory-default shortcut, bind it to command `0`:
 
@@ -61,9 +51,7 @@ programs.reaper.actions.keyBindings = with reaperActions; bindings [
 ];
 ```
 
-Removing the managed override restores REAPER's factory default only when no
-other custom `KEY` record for that same shortcut and section remains. Restart
-REAPER after activation so it reloads `reaper-kb.ini`.
+Removing the managed override restores REAPER's factory default only when no other custom `KEY` record for that same shortcut and section remains. Restart REAPER after activation so it reloads `reaper-kb.ini`.
 
 ## Options
 
@@ -360,9 +348,7 @@ Use an explicit `commandId` when you want to bind the script in the same config.
 
 ## Custom Actions
 
-`customActions` creates REAPER custom actions: ordered sequences of built-in,
-extension, ReaScript, or other custom actions. REAPER executes the entries in
-`actions` from left to right.
+`customActions` creates REAPER custom actions: ordered sequences of built-in, extension, ReaScript, or other custom actions. REAPER executes the entries in `actions` from left to right.
 
 ```nix
 programs.reaper.actions.customActions = [
@@ -377,11 +363,7 @@ programs.reaper.actions.customActions = [
 ];
 ```
 
-`commandId` is optional. When omitted, the module derives a stable `CA...` id
-from the action's section and name. Set it explicitly if you may rename the
-action while preserving existing key bindings, toolbar entries, or external
-references. String action ids can include their leading underscore, but do not
-need to.
+`commandId` is optional. When omitted, the module derives a stable `CA...` id from the action's section and name. Set it explicitly if you may rename the action while preserving existing key bindings, toolbar entries, or external references. String action ids can include their leading underscore, but do not need to.
 
 Bind the custom action by its command id:
 
@@ -395,9 +377,7 @@ programs.reaper.actions.keyBindings = with reaperActions; bindings [
 ];
 ```
 
-Each custom action must contain at least one entry. `rawLines` remains available
-for importing an existing `ACT` line or using an uncommon REAPER custom-action
-flag that does not yet have a typed option.
+Each custom action must contain at least one entry. `rawLines` remains available for importing an existing `ACT` line or using an uncommon REAPER custom-action flag that does not yet have a typed option.
 
 ## Full Example
 

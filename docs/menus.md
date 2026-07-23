@@ -1,9 +1,6 @@
 # Menus and Toolbars
 
-`programs.reaper.menus` declaratively manages sections in REAPER's
-`reaper-menu.ini`. A section replaces the corresponding REAPER menu or toolbar.
-Set a section to `null` to remove its customization and return to REAPER's
-built-in version.
+`programs.reaper.menus` declaratively manages sections in REAPER's `reaper-menu.ini`. A section replaces the corresponding REAPER menu or toolbar. Set a section to `null` to remove its customization and return to REAPER's built-in version.
 
 ```nix
 {reaperMenus, ...}: {
@@ -17,8 +14,7 @@ built-in version.
 }
 ```
 
-The `&` in a menu label defines the menu mnemonic. On Linux and Windows,
-`&New project` displays an underlined `N` while the menu is open.
+The `&` in a menu label defines the menu mnemonic. On Linux and Windows, `&New project` displays an underlined `N` while the menu is open.
 
 ## Section Helpers
 
@@ -44,15 +40,11 @@ Use the helpers instead of spelling section names where practical.
 | `reaperMenus.toolbars.midiPianoRoll` | MIDI piano roll toolbar |
 | `reaperMenus.toolbars.midiEventList` | MIDI event list toolbar |
 
-`reaperMenus.sections` also includes the remaining supported main, MIDI,
-Media Explorer, and context-menu sections. The library identifies whether each
-known section is a menu, context menu, or toolbar. Known sections cannot be
-configured as a different kind.
+`reaperMenus.sections` also includes the remaining supported main, MIDI, Media Explorer, and context-menu sections. The library identifies whether each known section is a menu, context menu, or toolbar. Known sections cannot be configured as a different kind.
 
 ## Menu and Context-Menu Entries
 
-Menus and context menus have the same entry syntax. They can contain actions,
-separators, disabled labels, and nested submenus.
+Menus and context menus have the same entry syntax. They can contain actions, separators, disabled labels, and nested submenus.
 
 ```nix
 "${reaperMenus.sections.mainFile}" = {
@@ -81,14 +73,9 @@ The shorthand list form is equivalent when no section title is needed:
 ];
 ```
 
-`label` is the visible action name, so it is also how an individual action is
-retitled. `title` is the title of the entire section: it changes a main
-menu-bar caption, while context-menu titles are only visible in REAPER's
-Customize menus/toolbars editor and not in the popup itself.
+`label` is the visible action name, so it is also how an individual action is retitled. `title` is the title of the entire section: it changes a main menu-bar caption, while context-menu titles are only visible in REAPER's Customize menus/toolbars editor and not in the popup itself.
 
-An `action` is either a numeric REAPER command ID or a custom action, script,
-or extension command ID. String IDs may be written with or without their
-leading underscore; the module writes REAPER's underscore-prefixed form:
+An `action` is either a numeric REAPER command ID or a custom action, script, or extension command ID. String IDs may be written with or without their leading underscore; the module writes REAPER's underscore-prefixed form:
 
 ```nix
 {action = 40044; label = "Play/stop";}
@@ -99,9 +86,7 @@ leading underscore; the module writes REAPER's underscore-prefixed form:
 
 ## Toolbars
 
-Toolbar entries use the same `action` and `label` fields, but have a different
-REAPER representation. They support icon and feedback fields, and cannot
-contain submenus.
+Toolbar entries use the same `action` and `label` fields, but have a different REAPER representation. They support icon and feedback fields, and cannot contain submenus.
 
 ```nix
 "${reaperMenus.toolbars.main}" = {
@@ -137,14 +122,11 @@ Toolbar-specific fields are:
 | `useTextAsTooltip = true` | Uses REAPER's `text_tt` icon mode. |
 | `toolbarFlags` | Raw `tbf_N` feedback/animation bitfield. |
 
-`toolbarFlags` does not change an action's state. It configures REAPER's
-visual feedback for actions that report a toggle state. REAPER does not publish
-the full bit layout, so it remains an unsigned integer option.
+`toolbarFlags` does not change an action's state. It configures REAPER's visual feedback for actions that report a toggle state. REAPER does not publish the full bit layout, so it remains an unsigned integer option.
 
 ## Floating Toolbars
 
-General floating toolbars are numbered 1 through 32. MIDI floating toolbars
-are numbered 1 through 16. The helpers enforce these bounds.
+General floating toolbars are numbered 1 through 32. MIDI floating toolbars are numbered 1 through 16. The helpers enforce these bounds.
 
 ```nix
 "${reaperMenus.toolbars.floating 1}" = {
@@ -163,14 +145,11 @@ are numbered 1 through 16. The helpers enforce these bounds.
 };
 ```
 
-The helpers write `[Floating toolbar N]` and `[Floating MIDI toolbar N]` and
-are recognized as toolbar sections automatically.
+The helpers write `[Floating toolbar N]` and `[Floating MIDI toolbar N]` and are recognized as toolbar sections automatically.
 
 ### Docking a Floating Toolbar
 
-Floating toolbars are hosted by REAPER's dedicated Toolbar Docker. Use a
-regular `layout.docks` entry with ID `15` to place that docker, then mark the
-toolbar visible and docked in its `toolbar:N` section:
+Floating toolbars are hosted by REAPER's dedicated Toolbar Docker. Use a regular `layout.docks` entry with ID `15` to place that docker, then mark the toolbar visible and docked in its `toolbar:N` section:
 
 ```nix
 {
@@ -202,9 +181,7 @@ toolbar visible and docked in its `toolbar:N` section:
 }
 ```
 
-This writes `[reaper].dockermode15=2`, which attaches the Toolbar Docker to
-the top of the main window, and makes Floating toolbar 1 visible in that
-docker.
+This writes `[reaper].dockermode15=2`, which attaches the Toolbar Docker to the top of the main window, and makes Floating toolbar 1 visible in that docker.
 
 ## Resetting a Section
 
@@ -214,6 +191,4 @@ Set a managed section to `null` to remove that section from `reaper-menu.ini`:
 programs.reaper.menus."${reaperMenus.toolbars.main}" = null;
 ```
 
-REAPER then uses its built-in default toolbar or menu. The module intentionally
-does not generate REAPER's `default=<hash>` metadata; existing metadata is
-preserved when a section remains managed.
+REAPER then uses its built-in default toolbar or menu. The module intentionally does not generate REAPER's `default=<hash>` metadata; existing metadata is preserved when a section remains managed.

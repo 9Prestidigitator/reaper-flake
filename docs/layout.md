@@ -130,9 +130,7 @@ Use `mode` or `sizeKey` only as raw escape hatches when you have captured a REAP
 
 ## Toolbar Docker
 
-REAPER's numbered floating toolbars are tabs inside a special Toolbar Docker,
-which uses docker ID `15`. Define the toolbar contents with
-`programs.reaper.menus`, then place the Toolbar Docker through `layout.docks`:
+REAPER's numbered floating toolbars are tabs inside a special Toolbar Docker, which uses docker ID `15`. Define the toolbar contents with `programs.reaper.menus`, then place the Toolbar Docker through `layout.docks`:
 
 ```nix
 {
@@ -164,11 +162,7 @@ which uses docker ID `15`. Define the toolbar contents with
 }
 ```
 
-This docks Floating toolbar 1 at the top of the main window. Change the
-section to `toolbar:2` for Floating toolbar 2, and so on. REAPER uses a
-different internal section index for MIDI floating toolbars; capture that
-section from a REAPER-created `reaper.ini` before managing it with
-`rawSections`.
+This docks Floating toolbar 1 at the top of the main window. Change the section to `toolbar:2` for Floating toolbar 2, and so on. REAPER uses a different internal section index for MIDI floating toolbars; capture that section from a REAPER-created `reaper.ini` before managing it with `rawSections`.
 
 ## Panels
 
