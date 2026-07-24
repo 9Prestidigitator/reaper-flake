@@ -17,8 +17,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "GoranKovac";
     repo = "WDL";
-    rev = "4c139ab9982ed358950d632568bb5758f649c5d7";
-    sha256 = "sha256-4W6YVNnQrIg/LuiKif9W0DcV4xVZFdLEa1p80xXY5RU=";
+    rev = "96b770f7368f75b53756e0c8941ce3ecc8b6c29b";
+    sha256 = "sha256-P9rLgnetRk7KAnXH2s+0CMcnjAIibncVPI3S7D0On+g=";
   };
 
   sourceRoot = "source/WDL/swell";

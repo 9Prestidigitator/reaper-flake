@@ -16,12 +16,12 @@
 
 ## Packages
 
-| Package       | Version    | Output                            |
-| ------------- | ---------- | --------------------------------- |
-| REAPER        | `7.78`     | `packages.reaper`                 |
-| ReaPack       | `1.2.6`    | `packages.reapack`                |
-| SWS           | `2.14.0.7` | `packages.sws`                    |
-| SWELL Wayland | `1.1.0w`   | `packages.swell-wayland` on Linux |
+| Package                  | Version    | Output                            |
+| ------------------------ | ---------- | --------------------------------- |
+| REAPER                   | `7.78`     | `packages.reaper`                 |
+| ReaPack (with api patch) | `1.2.6`    | `packages.reapack`                |
+| SWS                      | `2.14.0.7` | `packages.sws`                    |
+| SWELL (Wayland)          | `1.1.0w`   | `packages.swell-wayland` on Linux |
 
 Most package derivations are originally from nixpkgs with updated hashes and small tweaks. I will do my best to keep reaper as up to date as possible.
 
