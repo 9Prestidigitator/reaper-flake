@@ -9,6 +9,7 @@
   libX11,
   libXtst,
   libXcomposite,
+  xorg-server,
 }:
 stdenv.mkDerivation {
   pname = "swell-wayland";
@@ -22,6 +23,11 @@ stdenv.mkDerivation {
   };
 
   sourceRoot = "source/WDL/swell";
+
+  postPatch = ''
+    substituteInPlace xwayland-bridge-wm.cpp \
+      --replace-fail "/usr/bin/Xvfb" "${xorg-server}/bin/Xvfb"
+  '';
 
   nativeBuildInputs = [pkg-config];
   buildInputs = [

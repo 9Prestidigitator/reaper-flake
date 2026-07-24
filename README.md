@@ -285,10 +285,7 @@ The preferences option set is designed to be as faithful to the gui option windo
 A more exhaustive example, showing off more options can be found [here](./docs/EXAMPLE.md). You can also look at my personal reaper configuration [here](https://github.com/9Prestidigitator/.nixos/blob/17be8333423767756b780c526f9f71244be368e3/modules/home/desktop/applications/reaper/reaper.nix).
 
 > [!WARNING]
-> Home Manager activation refuses to modify the REAPER configuration while
-> REAPER is running. Close REAPER and retry. Set
-> `programs.reaper.activation.allowRunning = true` only when you accept that
-> REAPER can overwrite activated values with its in-memory configuration on exit.
+> Home Manager activation refuses to modify the REAPER configuration while REAPER is running. Close REAPER and retry. Set `programs.reaper.activation.allowRunning = true` only when you accept that REAPER can overwrite activated values with its in-memory configuration on exit.
 
 The default configuration path is `~/.config/reaper-flake` instead of `~/.config/REAPER` to avoid overwriting original configurations, this can be changed with `programs.reaper.configPath`.
 
@@ -307,13 +304,8 @@ Continue studying Reaper configuration model to support options I use most to be
 
 ## Known Issues
 
-- Individual ReaPack package changes are queued during Home Manager activation
-  and applied on the next REAPER start. They require the patched ReaPack package
-  supplied by this flake; overriding the ReaPack package with an unmodified
-  upstream binary disables this feature.
-- Control-surface MIDI inputs and outputs are stored by REAPER as
-  machine-local, zero-based device indexes. A declaration may need different
-  indexes on hosts whose MIDI device ordering differs.
+- Individual ReaPack package changes are queued during Home Manager activation and applied on the next REAPER start. They require the patched ReaPack package supplied by this flake; overriding the ReaPack package with an unmodified upstream binary disables this feature.
+- Control-surface MIDI inputs and outputs are stored by REAPER as machine-local, zero-based device indexes. A declaration may need different indexes on hosts whose MIDI device ordering differs.
 
 ## Inspirations
 
