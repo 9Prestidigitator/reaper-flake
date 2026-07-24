@@ -12,13 +12,13 @@
 }:
 stdenv.mkDerivation {
   pname = "swell-wayland";
-  version = "1.1.0w";
+  version = "0.1";
 
   src = fetchFromGitHub {
     owner = "GoranKovac";
     repo = "WDL";
-    rev = "96b770f7368f75b53756e0c8941ce3ecc8b6c29b";
-    sha256 = "sha256-P9rLgnetRk7KAnXH2s+0CMcnjAIibncVPI3S7D0On+g=";
+    rev = "0.1";
+    hash = "sha256-7Tq7AbbKXTPMujEu/iHv2UeA7qDWcvp5S5prfDjBAEQ=";
   };
 
   sourceRoot = "source/WDL/swell";
@@ -33,7 +33,10 @@ stdenv.mkDerivation {
     libXcomposite
   ];
 
-  makeFlags = ["SWELL_SUPPORT_GTK=1"];
+  makeFlags = [
+    "SWELL_SUPPORT_GTK=1"
+    "WAYLAND=1"
+  ];
 
   installPhase = ''
     runHook preInstall
