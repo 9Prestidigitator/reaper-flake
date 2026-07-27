@@ -189,6 +189,10 @@ Activation fails if REAPER is running. `programs.reaper.activation.allowRunning 
 - [Layouts and docks](docs/layout.md)
 - [ReaPack](docs/reapack.md)
 
+<p align="center">
+  <img src="./docs/assets/status.png" alt="REAPER preference coverage status">
+</p>
+
 ## Known issues
 
 - The individual ReaPack package feature requires the patched ReaPack package supplied by this flake. Replacing it with an unmodified upstream binary removes the managed-package API.
