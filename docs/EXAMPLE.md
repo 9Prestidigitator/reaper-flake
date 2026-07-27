@@ -13,7 +13,11 @@
   reaperMouse,
   reaperWindows,
   ...
-}: {
+}: let
+  toggleClickScript = pkgs.writeText "toggle-click.lua" ''
+    reaper.Main_OnCommand(40364, 0)
+  '';
+in {
   imports = [inputs.reaper-flake.homeModules.reaper];
 
   programs.reaper = {
@@ -686,7 +690,7 @@
       scripts = [
         {
           path = "User/toggle-click.lua";
-          source = ./scripts/toggle-click.lua;
+          source = toggleClickScript;
           commandId = "RS_toggle_click";
           description = "Custom: toggle click";
         }

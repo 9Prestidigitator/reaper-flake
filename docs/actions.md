@@ -74,13 +74,18 @@ programs.reaper.actions.keyBindings = with reaperActions; bindings [
 Script actions registered in REAPER's action list.
 
 ```nix
-programs.reaper.actions.scripts = [
+{ pkgs, ... }:
+{
+  programs.reaper.actions.scripts = [
   {
     path = "User/toggle-click.lua";
-    source = ./scripts/toggle-click.lua;
+    source = pkgs.writeText "toggle-click.lua" ''
+      reaper.Main_OnCommand(40364, 0)
+    '';
     description = "Custom: toggle click";
   }
-];
+  ];
+}
 ```
 
 `rawLines`
@@ -322,6 +327,7 @@ Use an explicit `commandId` when you want to bind the script in the same config.
 
 ```nix
 {
+  pkgs,
   reaperActions,
   ...
 }: {
@@ -329,7 +335,9 @@ Use an explicit `commandId` when you want to bind the script in the same config.
     scripts = [
       {
         path = "User/toggle-click.lua";
-        source = ./scripts/toggle-click.lua;
+        source = pkgs.writeText "toggle-click.lua" ''
+          reaper.Main_OnCommand(40364, 0)
+        '';
         commandId = "RS_toggle_click";
         description = "Custom: toggle click";
       }
@@ -383,14 +391,19 @@ Each custom action must contain at least one entry. `rawLines` remains available
 
 ```nix
 {
+  pkgs,
   reaperActions,
   ...
-}: {
+}: let
+  toggleClickScript = pkgs.writeText "toggle-click.lua" ''
+    reaper.Main_OnCommand(40364, 0)
+  '';
+in {
   programs.reaper.actions = {
     scripts = [
       {
         path = "User/toggle-click.lua";
-        source = ./scripts/toggle-click.lua;
+        source = toggleClickScript;
         commandId = "RS_toggle_click";
         description = "Custom: toggle click";
       }

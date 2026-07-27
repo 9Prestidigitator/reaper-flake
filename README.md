@@ -1,313 +1,207 @@
-<p align="center">
-  <img src="./docs/assets/logo.png" alt="REAPER Flake logo" width="220">
-</p>
+# reaper-flake
 
-<h1 align="center">reaper-flake</h1>
+Declarative REAPER packages and Home Manager configuration with Nix.
 
-<p align="center">
-  Nix flake for REAPER packages and Home Manager configuration.
-</p>
+[![REAPER 7.78](https://img.shields.io/badge/REAPER-7.78-informational)](https://www.reaper.fm/)
+[![ReaPack 1.2.6](https://img.shields.io/badge/ReaPack-1.2.6-informational)](https://reapack.com/)
+[![SWS 2.14.0.7](https://img.shields.io/badge/SWS-2.14.0.7-informational)](https://www.sws-extension.org/)
 
 <p align="center">
-  <a href="https://www.reaper.fm/"><img alt="REAPER 7.78" src="https://img.shields.io/badge/REAPER-7.78-2b9bd8?style=for-the-badge"></a>
-  <a href="https://reapack.com/"><img alt="ReaPack 1.2.6" src="https://img.shields.io/badge/ReaPack-1.2.6-69c72f?style=for-the-badge"></a>
-  <a href="https://www.sws-extension.org/"><img alt="SWS 2.14.0.7" src="https://img.shields.io/badge/SWS-2.14.0.7-bb6b5b?style=for-the-badge"></a>
+  <img src="docs/assets/logo.png" alt="reaper-flake logo" width="240">
 </p>
 
-## Packages
+reaper-flake provides a Home Manager module for configuring REAPER on NixOS, other Linux systems, and macOS. It also packages REAPER, ReaPack, SWS, themes, and the experimental native-Wayland SWELL library.
 
-| Package                  | Version    | Output                            |
-| ------------------------ | ---------- | --------------------------------- |
-| REAPER                   | `7.78`     | `packages.reaper`                 |
-| ReaPack (with api patch) | `1.2.6`    | `packages.reapack`                |
-| SWS                      | `2.14.0.7` | `packages.sws`                    |
-| SWELL (Wayland)          | `0.1`      | `packages.swell-wayland` on Linux |
+The module updates only the values declared in Nix. REAPER remains free to manage its other settings and runtime state, so you can continue using the GUI for options that are not yet exposed.
 
-Most package derivations are originally from nixpkgs with updated hashes and small tweaks. I will do my best to keep reaper as up to date as possible.
+## Quick start
 
-The SWELL wayland derivation was inspired by this [post](https://forum.cockos.com/showthread.php?t=305832).
-
-### Themes
-
-| Theme            | Version | Output                      |
-| ---------------- | ------- | --------------------------- |
-| Reapertips Theme | `1.90`  | `packages.reapertips-theme` |
-| Smooth 6 Theme   | `2.1`   | `packages.smooth6-theme`    |
-
-More packaged themes to come.
-
-## Home Manager
-
-Declare REAPER, seed its resource path, and link extensions from Nix-built packages.
-
-> [!NOTE]
-> If you are using something like impermanence or preservation you will want to persist the specified configPath manually. This is because REAPER has a stateful configuration model.
-
-### Example
-
-See [docs/layout.md](docs/layout.md) for a short explanation of layout, dock, and panel options, [docs/menus.md](docs/menus.md) for declarative menus and toolbars, and [docs/reapack.md](docs/reapack.md) for repositories, individual packages, synchronization, and ReaPack network settings.
+Add the flake to your inputs:
 
 ```nix
 {
-  config,
-  inputs,
-  pkgs,
-  reaperActions,
-  reaperAppearance,
-  reaperLayout,
-  reaperMouse,
-  reaperGeneral,
-  reaperWindows,
-  ...
-}: {
-  imports = [inputs.reaper-flake.homeModules.reaper];
+  inputs.reaper-flake.url = "github:9Prestidigitator/reaper-flake";
+}
+```
 
+Import the Home Manager module and enable REAPER in the Home Manager configuration for your user. For example, a minimal standalone Home Manager flake could look like this:
+
+```nix
+{
+  description = "Home Manager configuration with REAPER";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    reaper-flake.url = "github:9Prestidigitator/reaper-flake";
+  };
+
+  outputs = inputs @ { nixpkgs, home-manager, ... }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
+    in {
+      homeConfigurations.your-user = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+
+        extraSpecialArgs = { inherit inputs; };
+
+        modules = [
+          inputs.reaper-flake.homeModules.reaper
+          ({ ... }: {
+            home = {
+              username = "your-user";
+              homeDirectory = "/home/your-user";
+              stateVersion = "25.05";
+            };
+
+            programs.reaper = {
+              enable = true;
+
+              extensions = {
+                reapack.enable = true;
+                sws.enable = true;
+              };
+
+              preferences = {
+                general.startupSettings.showSplashScreenOnStartup = false;
+                project.trackSendDefaults.trackVolumeFaderGain = -10.0;
+                plugIns.reascript.python.enable = true;
+              };
+            };
+          })
+        ];
+      };
+    };
+}
+```
+
+Replace `your-user`, the home directory, and `system` with your values, then apply it with `home-manager switch --flake .#your-user`. On NixOS, import the module in your existing Home Manager configuration instead of creating a standalone `homeConfigurations` output. REAPER must be closed while Home Manager activates changes; this protects the generated values from being overwritten by REAPER’s in-memory state.
+
+For a larger, copyable configuration covering themes, layouts, menus, actions, preferences, and ReaPack, see [docs/EXAMPLE.md](docs/EXAMPLE.md).
+
+## What it supports
+
+- REAPER preferences, including INI values and shared bitfields.
+- Keyboard shortcuts, action sections, custom actions, and scripts.
+- Menus, context menus, main and MIDI toolbars, floating toolbars, submenus, labels, and toolbar flags.
+- Windows, docks, panels, transport placement, and layout state.
+- ReaPack repositories, synchronization settings, and individual packages.
+- REAPER themes and theme packages, including `.ReaperTheme`/`.ReaperThemeZip` assets, scripts, and fonts. Direct `theme.colorThemes` links currently accept `.ReaperThemeZip` files; packages can provide either format.
+- VST, VST3, CLAP, and LV2 search paths, including Nix-installed plugins.
+- SWELL color themes and the experimental native-Wayland build.
+
+The option names generally follow the labels in REAPER’s Preferences window. Enumerations and shared constants are provided by the module’s library arguments, for example `reaperActions`, `reaperMenus`, `reaperAppearance`, and `reaperWindows`.
+
+## ReaPack example
+
+Repositories and packages are declared independently. A package is identified by the repository name, category, and package name from the repository index:
+
+```nix
+programs.reaper.extensions.reapack = {
+  enable = true;
+
+  repositories = [
+    {
+      name = "reaper-keys";
+      url = "https://raw.githubusercontent.com/gwatcha/reaper-keys/master/index.xml";
+    }
+  ];
+
+  packages = [
+    {
+      repository = "reaper-keys";
+      category = "Scripts";
+      name = "install-reaper-keys.lua";
+    }
+  ];
+
+  synchronizeOnActivation = true;
+};
+```
+
+The package declaration is applied through ReaPack’s native transaction engine when REAPER starts. `version` is optional; `pin = true` prevents synchronization from moving a package away from the declared version. See [docs/reapack.md](docs/reapack.md) for package identity, repository settings, pins, and troubleshooting.
+
+## Themes and assets
+
+Theme packages can install more than a color theme: they may also provide scripts, fonts, and other resource files. The lower-level `colorThemes` option accepts individual theme files from any Nix path-producing expression, while `packages` accepts standardized theme derivations.
+
+```nix
+{ inputs, pkgs, ... }:
+{
   programs.reaper = {
-    enable = true;
-    configPath = "${config.xdg.configHome}/HOME-REAPER";
-
-    extensions = {
-      reapack.enable = true;
-      sws.enable = true;
+    theme = {
+      active = "Reapertips Theme.ReaperThemeZip";
+      packages = [
+        inputs.reaper-flake.packages.${pkgs.system}.reapertips-theme
+        inputs.reaper-flake.packages.${pkgs.system}.smooth6-theme
+      ];
     };
 
     swell.colortheme = {
       enable = true;
-
-      # Use "stylix" here when Stylix is imported.
       preset = "reapertips";
-
-      settings = {
-        default_font_face = "Liberation Sans";
-        default_font_size = 13;
-        menubar_height = 17;
-        scrollbar_width = 14;
-        focus_hilight = "#d1a660";
-      };
-    };
-
-    theme = {
-      # Select a file available in ColorThemes.
-      active = "Smooth_6.ReaperThemeZip";
-
-      # Individual archives can come from a local path or a fetched derivation.
-      colorThemes = [ ./themes/MyTheme.ReaperThemeZip ];
-
-      # Packages expose REAPER assets in share/reaper and optional fonts in
-      # share/fonts. Smooth 6 also supplies its theme-adjuster scripts.
-      packages = [ inputs.reaper-flake.packages.${pkgs.system}.smooth6-theme ];
-
-      # Keep programs.reaper.swell.colortheme authoritative (the default).
-      includeSwellColorThemes = false;
-    };
-
-    layout = {
-      docks = {
-        bottom = {
-          id = 3;
-          position = "bottom";
-          size = 320;
-          selectedPanel = "mixer";
-        };
-
-        left = {
-          id = 2;
-          position = "left";
-          size = 395;
-          selectedPanel = "explorer";
-        };
-      };
-
-      mainWindow = {
-        position = {
-          x = 0;
-          y = 0;
-        };
-        size = {
-          width = 1600;
-          height = 900;
-        };
-        state = reaperLayout.windowState.normal;
-      };
-
-      mixer = {
-        visible = true;
-        docked = true;
-        dock = "bottom";
-        tabOrder = 0.0;
-        size.height = 320;
-      };
-
-      transport = {
-        visible = true;
-        docked = true;
-        dock = "bottom";
-        tabOrder = 1.0;
-        dockPosition = reaperWindows.transport.topOfMainWindow;
-      };
-
-      panels.explorer = {
-        id = "explorer";
-        section = "reaper_sexplorer";
-        keyStyle = "window";
-        visible = true;
-        docked = true;
-        dock = "left";
-        tabOrder = 0.5;
-      };
-    };
-
-    preferences = {
-      general.startupSettings = {
-        openProjectOnStartup = reaperGeneral.openProjectOnStartup.newProjectIgnoreDefaultTemplate;
-        showSplashScreenOnStartup = false;
-      };
-
-      project.backups = {
-        whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak = {
-          enable = true;
-          saveTimestampedBackupsToProjectBackupsSubdirectory = true;
-        };
-
-        autoSave = {
-          autoSaveToTimestampedFileInProjectDirectory = {
-            enable = true;
-            saveBackupsToProjectAutoSavesSubdirectory = true;
-          };
-          autoSaveToProjectFile = false;
-          autoSaveUnsavedProjectsToTemporaryFile = true;
-          autoSaveInterval = {
-            minutes = 10;
-            mode = "whenNotRecording";
-          };
-        };
-      };
-
-      appearance = {
-        trackControlPanels = {
-          setTrackLabelBackgroundToCustomTrackColors = true;
-          tintTrackPanelBackgrounds = false;
-          alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed = true;
-
-          showFxInserts = true;
-          showSends = true;
-          groupSendsWithFxInserts = false;
-          groupFxParametersWithInserts = true;
-        };
-
-        zoomScrollOffset = {
-          horizontalZoomCenter = reaperAppearance.zoomScrollOffset.zoomCenter.horizontal.mouseCursor;
-          limitHorizontalZoomScrollToProjectStart = false;
-        };
-      };
-
-      editingBehavior = {
-        mouseModifiers = {
-          importedContexts = with reaperMouse; [
-            contexts.arrange.middleDrag
-            contexts.midiPianoRoll.leftClick
-          ];
-
-          contexts = with reaperMouse; merge [
-            # Arrange view middle-drag: hand scroll/pan.
-            (set contexts.arrange.middleDrag modifiers.none (mouse 7))
-
-            # MIDI piano roll single-click: insert a note.
-            (set contexts.midiPianoRoll.leftClick modifiers.none (mouse 4))
-          ];
-        };
-      };
-
-      plugIns = {
-        reascript.python.enable = true;
-        vst.searchPaths = ["~/Documents/VSTs"];
-        clap.searchPaths = ["~/Documents/CLAP"];
-      };
-
-    };
-
-    windows = {
-      tcpHelpBar = {
-        informationDisplay = reaperWindows.tcpHelpBar.informationDisplay.selectedTrackItemEnvelopeDetails;
-        showMouseEditingHelp = true;
-      };
-
-      mixer = {
-        autoArrangeTracks = true;
-        showFxInserts = true;
-        showSends = true;
-        allowEmptySlotsInFxLists = true;
-
-        master = {
-          showInMixer = true;
-          showOnRightSide = false;
-        };
-      };
-    };
-
-    actions = {
-      scripts = [
-        {
-          path = "User/toggle-click.lua";
-          source = ./scripts/toggle-click.lua;
-          commandId = "RS_toggle_click";
-          description = "Custom: toggle click";
-        }
-      ];
-
-      keyBindings = with reaperActions; bindings [
-        (shortcut {
-          shortcut = "Space";
-          command = commands.transport.play;
-          actionName = "Transport: Play";
-        })
-
-        (shortcut {
-          shortcut = "Ctrl+Alt+C";
-          command = "RS_toggle_click";
-          actionName = "Custom: toggle click";
-        })
-
-        (globalShortcut {
-          shortcut = "Ctrl+Alt+Space";
-          command = commands.transport.stop;
-          scope = "global";
-          actionName = "Transport: Stop";
-        })
-      ];
     };
   };
 }
 ```
 
-The preferences option set is designed to be as faithful to the gui option windows and tabs as possible.
+`swell.colortheme.preset` remains authoritative when explicitly configured; theme packages do not silently replace it.
 
-A more exhaustive example, showing off more options can be found [here](./docs/EXAMPLE.md). You can also look at my personal reaper configuration [here](https://github.com/9Prestidigitator/.nixos/blob/17be8333423767756b780c526f9f71244be368e3/modules/home/desktop/applications/reaper/reaper.nix).
+## Packages
 
-> [!WARNING]
-> Home Manager activation refuses to modify the REAPER configuration while REAPER is running. Close REAPER and retry. Set `programs.reaper.activation.allowRunning = true` only when you accept that REAPER can overwrite activated values with its in-memory configuration on exit.
+| Package             | Version  | Description                                       |
+| ------------------- | -------- | ------------------------------------------------- |
+| `reaper`            | 7.78     | REAPER, with optional Python ReaScript support    |
+| `reapack` (patched) | 1.2.6    | ReaPack with the managed-package API              |
+| `sws`               | 2.14.0.7 | SWS/S&M Extension                                 |
+| `swell-wayland`     | 0.1      | Experimental native-Wayland SWELL build for Linux |
 
-The default configuration path is `~/.config/reaper-flake` instead of `~/.config/REAPER` to avoid overwriting original configurations, this can be changed with `programs.reaper.configPath`.
+The flake’s package outputs target `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`, and `aarch64-darwin` where the upstream package supports them. REAPER is proprietary software; enable unfree packages in the Nixpkgs configuration used to build it.
 
-When removing an option from your configuration that was instantiated with the flake, the the module will automatically clean up the option in the ini. Reseting it to whatever the default reaper value. That is the purpose of the `.nix-managed` directory in the config directory. For bitfields it will just clean the managed bit mask.
+The SWELL Wayland package is experimental. It includes the X11 bridge needed for X11-based plugin windows, but plugin GUI compatibility depends on the plugin, Wine/bridge stack, graphics driver, and compositor.
 
-> [!NOTE]
-> If you are using the raw default package exposed by the flake you have to specify the configuration path when launching REAPER: `reaper -cfgfile ~/.config/reaper-flake/reaper.ini`.
+| Themes             | Version |
+| ------------------ | ------- |
+| `reapertips-theme` | 1.90    |
+| `smooth6-theme`    | 2.1     |
 
-## Roadmap
+## Configuration model
 
-Continue studying Reaper configuration model to support options I use most to be set. Found this [site](https://mespotin.uber.space/Ultraschall/Reaper_Config_Variables.html) as a good starting point.
+By default, REAPER uses the isolated resource directory `~/.config/reaper-flake` instead of modifying an existing `~/.config/REAPER` installation. Change it with `programs.reaper.configPath` when desired.
 
-<p align="center">
-  <img src="./docs/assets/status.png" alt="REAPER preference coverage status">
-</p>
+Activation merges declared values into REAPER’s mutable files. Previous Nix-managed values are recorded under `<configPath>/.nix-managed/`, allowing the module to clean up values removed from the Nix configuration without replacing unrelated user settings. This state directory should be persisted when using impermanence or another ephemeral-home setup.
 
-## Known Issues
+Activation fails if REAPER is running. `programs.reaper.activation.allowRunning = true` bypasses that guard, but is unsafe: closing REAPER afterward can write its old in-memory configuration over values just activated by Home Manager.
 
-- Individual ReaPack package changes are queued during Home Manager activation and applied on the next REAPER start. They require the patched ReaPack package supplied by this flake; overriding the ReaPack package with an unmodified upstream binary disables this feature.
-- Control-surface MIDI inputs and outputs are stored by REAPER as machine-local, zero-based device indexes. A declaration may need different indexes on hosts whose MIDI device ordering differs.
+## Further Documentation
 
-## Inspirations
+- [Large configuration example](docs/EXAMPLE.md)
+- [Preferences and INI internals](docs/internal.md)
+- [Actions and shortcuts](docs/actions.md)
+- [Menus and toolbars](docs/menus.md)
+- [Layouts and docks](docs/layout.md)
+- [ReaPack](docs/reapack.md)
+
+## Known issues
+
+- The individual ReaPack package feature requires the patched ReaPack package supplied by this flake. Replacing it with an unmodified upstream binary removes the managed-package API.
+- ReaPack package changes are queued during activation and take effect when REAPER next starts.
+- MIDI control-surface device indexes are native zero-based indexes; they are not stable across all hardware or desktop-session changes.
+- Native Wayland support is experimental and may show blank or incompatible third-party plugin windows. X11 REAPER remains the recommended configuration for production use.
+- REAPER must be closed during activation unless the safety guard is explicitly overridden.
+
+## Why this exists
+
+REAPER stores much of its configuration in readable INI and line-oriented files, but those files also contain mutable application state. A complete-file symlink would make normal REAPER use awkward and could overwrite state unexpectedly. reaper-flake therefore generates a narrowly scoped payload and applies only the declared values during Home Manager activation.
+
+# Inspirations
 
 - [plasma-manager](https://github.com/nix-community/plasma-manager)
 - [audio.nix](https://github.com/polygon/audio.nix)
