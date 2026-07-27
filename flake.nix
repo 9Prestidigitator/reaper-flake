@@ -19,7 +19,37 @@
           config.allowUnfree = true;
         };
         swellWayland = pkgs.callPackage ./packages/swell-wayland.nix {};
+        generatePreferencesDocs = pkgs.writeShellApplication {
+          name = "generate-preferences-docs";
+          runtimeInputs = [pkgs.git pkgs.nix pkgs.prettier];
+          text = ''
+            repo=$(git rev-parse --show-toplevel)
+            cd "$repo"
+
+            options_doc=$(nix build --impure --no-link --print-out-paths --expr '
+              let
+                flake = builtins.getFlake (toString ./.);
+                pkgs = import flake.inputs.nixpkgs {
+                  system = builtins.currentSystem;
+                  config.allowUnfree = true;
+                };
+              in (import ./docs/preferences-options.nix {
+                inherit pkgs;
+                lib = pkgs.lib;
+              }).optionsCommonMark
+            ')
+
+            cp "$options_doc" "$repo/docs/preferences.md"
+            prettier --write "$repo/docs/preferences.md"
+          '';
+        };
       in {
+        apps.generate-preferences-docs = {
+          type = "app";
+          program = pkgs.lib.getExe generatePreferencesDocs;
+          meta.description = "Generate Markdown documentation for REAPER preference options";
+        };
+
         devShells.default = pkgs.callPackage ./devshell.nix {};
         packages =
           rec {
