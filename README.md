@@ -10,7 +10,7 @@ Declarative REAPER packages and Home Manager configuration with Nix.
   <img src="docs/assets/logo.png" alt="reaper-flake logo" width="240">
 </p>
 
-reaper-flake provides a Home Manager module for configuring REAPER on NixOS, other Linux systems, and macOS. It also packages REAPER, ReaPack, SWS, themes, and the experimental native-Wayland SWELL library.
+reaper-flake provides a Home Manager module for configuring REAPER on NixOS, other Linux systems, and macOS. It also packages REAPER, ReaPack, SWS, themes, and the experimental [Wayland SWELL library](https://forum.cockos.com/showthread.php?p=2953586).
 
 The module updates only the values declared in Nix. REAPER remains free to manage its other settings and runtime state, so you can continue using the GUI for options that are not yet exposed.
 
