@@ -15,6 +15,8 @@ stdenvNoCC.mkDerivation {
 
   dontBuild = true;
 
+  passthru.reaperSwellColorTheme = "libSwell-user.colortheme";
+
   installPhase = ''
     runHook preInstall
 

@@ -148,7 +148,7 @@ Theme packages can install more than a color theme: they may also provide script
     # Linux SWELL UI colors. This does not affect macOS's native UI.
     swell.colortheme = {
       enable = true;
-      preset = "reapertips";
+      preset = inputs.reaper-flake.packages.${pkgs.system}.reapertips-theme;
     };
   };
 }
@@ -156,7 +156,7 @@ Theme packages can install more than a color theme: they may also provide script
 
 `theme.active`, `theme.colorThemes`, and theme-package resources are cross-platform: they manage REAPER themes, scripts, fonts, and other files in the selected REAPER resource path. `swell.colortheme` is different: it generates a `libSwell.colortheme` resource for REAPER's Linux SWELL UI and is effective on Linux, including the native-Wayland SWELL. macOS uses REAPER's native UI path, so this option is accepted for shared configurations but does not change macOS UI colors. Theme packages may still contain SWELL color-theme files; those files are ignored by macOS.
 
-`swell.colortheme.preset` remains authoritative when explicitly configured; theme packages do not silently replace it. There is also a Stylix preset for the SWELL colortheme: set `preset = "stylix"` when using Stylix.
+Set `swell.colortheme.preset` to a theme package to select that package's declared SWELL colortheme. Theme packages without a SWELL colortheme cannot be used as a SWELL preset. This selection is deterministic even when multiple theme packages are installed. The built-in `"stylix"` preset remains available, and `settings` can override generated or packaged colorthemes.
 
 ## Packages
 

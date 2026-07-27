@@ -117,16 +117,8 @@ in {
     swell.colortheme = {
       enable = true;
 
-      # Use "stylix" here to use stylix theme, given stylix is imported
-      preset = "reapertips";
-
-      settings = {
-        default_font_face = "Liberation Sans";
-        default_font_size = 13;
-        menubar_height = 17;
-        scrollbar_width = 14;
-        focus_hilight = "#d1a660";
-      };
+      # Select the SWELL colortheme supplied by the theme package.
+      preset = inputs.reaper-flake.packages.${pkgs.system}.reapertips-theme;
     };
 
     theme = {
@@ -145,9 +137,6 @@ in {
         inputs.reaper-flake.packages.${pkgs.system}.reapertips-theme
       ];
 
-      # Theme-provided SWELL colorthemes are ignored by default, keeping
-      # programs.reaper.swell.colortheme authoritative.
-      includeSwellColorThemes = false;
     };
 
     preferences = {

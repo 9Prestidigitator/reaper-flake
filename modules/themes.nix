@@ -44,19 +44,12 @@ in {
         Theme packages following the reaper-flake theme-resource convention:
         REAPER resources under `share/reaper` and optional fonts under
         `share/fonts`. Resources are linked into REAPER's resource directory;
-        fonts are installed through `home.packages`.
+        fonts are installed through `home.packages`. Theme-package
+        `libSwell*.colortheme` files are not linked automatically; select one
+        through `programs.reaper.swell.colortheme.preset` instead.
       '';
     };
 
-    includeSwellColorThemes = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Whether theme-package `libSwell*.colortheme` resources are linked into
-        REAPER's resource directory. Disabled by default so
-        `programs.reaper.swell.colortheme` remains the final SWELL theme layer.
-      '';
-    };
   };
 
   config = mkMerge [
@@ -85,12 +78,6 @@ in {
     (mkIf (themeCfg.packages != []) {
       home.activation.reaperThemePackages = lib.hm.dag.entryAfter ["reaper"] ''
         reaper_resource_path=${lib.escapeShellArg cfg.configPath}
-        include_swell_colorthemes=${
-          if themeCfg.includeSwellColorThemes
-          then "1"
-          else "0"
-        }
-
         link_theme_resources() {
           src=$1
           dst=$2
@@ -104,10 +91,11 @@ in {
 
             if [ -d "$src_path" ]; then
               mkdir -p "$dst_path"
-            elif [ "$include_swell_colorthemes" -ne 1 ] && [[ "$rel_path" == libSwell*.colortheme ]]; then
-              # Remove an old package link from a previous activation without
-              # taking over a regular user-managed SWELL colortheme.
-              [ ! -L "$dst_path" ] || rm -f "$dst_path"
+            elif [[ "$rel_path" == libSwell*.colortheme ]]; then
+              # SWELL colorthemes are selected explicitly through
+              # programs.reaper.swell.colortheme.preset. Never link every
+              # package's colortheme into the same destination.
+              continue
             elif [ -e "$dst_path" ] && [ ! -L "$dst_path" ]; then
               :
             else

@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  inherit (lib) filterAttrs genAttrs mkEnableOption mkIf mkOption types;
+  inherit (lib) concatStringsSep filterAttrs genAttrs mapAttrsToList mkEnableOption mkIf mkMerge mkOption types;
   cfg = config.programs.reaper.swell.colortheme;
 
   colorType =
@@ -137,102 +137,6 @@
         description = "SWELL colortheme `${name}` parameter.";
       });
 
-  reapertipsSettings = {
-    default_font_face = "Liberation Sans";
-    default_font_size = 13;
-    menubar_height = 17;
-    menubar_font_size = 12;
-    menubar_spacing_width = 8;
-    menubar_margin_width = 6;
-    scrollbar_width = 14;
-    scrollbar_min_thumb_height = 4;
-    combo_height = 20;
-    _3dface = "#333333";
-    _3dshadow = "#2e2e2e";
-    _3dhilight = "#2e2e2e";
-    _3ddkshadow = "#2e2e2e";
-    button_bg = "#282828";
-    button_text = "#d1d1d1";
-    button_text_disabled = "#676767";
-    button_shadow = "#202020";
-    button_hilight = "#202020";
-    checkbox_text = "#d1d1d1";
-    checkbox_text_disabled = "#7a7a7a";
-    checkbox_fg = "#c3c3c3";
-    checkbox_inter = "#d1a660";
-    checkbox_bg = "#2a2a2a";
-    scrollbar = "#333333";
-    scrollbar_fg = "#585858";
-    scrollbar_bg = "#2e2e2e";
-    edit_cursor = "#d1d1d1";
-    edit_bg = "#303030";
-    edit_bg_disabled = "#333333";
-    edit_text = "#d1d1d1";
-    edit_text_disabled = "#7a7a7a";
-    edit_bg_sel = "#d1a660";
-    edit_text_sel = "#050505";
-    edit_hilight = "#202020";
-    edit_shadow = "#202020";
-    info_bk = "#2e2e2e";
-    info_text = "#d1d1d1";
-    menu_bg = "#2e2e2e";
-    menu_shadow = "#282828";
-    menu_hilight = "#2f2f2f";
-    menu_text = "#d1d1d1";
-    menu_text_disabled = "#777777";
-    menu_bg_sel = "#d1a660";
-    menu_text_sel = "#050505";
-    menu_scroll = "#333333";
-    menu_scroll_arrow = "#c3c3c3";
-    menu_submenu_arrow = "#c3c3c3";
-    menubar_bg = "#333333";
-    menubar_text = "#9a9a9a";
-    menubar_text_disabled = "#777777";
-    menubar_bg_sel = "#d1a660";
-    menubar_text_sel = "#050505";
-    trackbar_track = "#2e2e2e";
-    trackbar_mark = "#2e2e2e";
-    trackbar_knob = "#d1a660";
-    progress = "#d1a660";
-    label_text = "#d1d1d1";
-    label_text_disabled = "#7a7a7a";
-    combo_text = "#d1d1d1";
-    combo_text_disabled = "#777777";
-    combo_bg = "#292929";
-    combo_bg2 = "#292929";
-    combo_shadow = "#292929";
-    combo_hilight = "#292929";
-    combo_arrow = "#c3c3c3";
-    combo_arrow_press = "#d1a660";
-    listview_bg = "#2e2e2e";
-    listview_bg_sel = "#d1a660";
-    listview_text = "#d1d1d1";
-    listview_text_sel = "#050505";
-    listview_bg_sel_inactive = "#E6E6E6";
-    listview_text_sel_inactive = "#1A1A1A";
-    listview_grid = "#242424";
-    listview_hdr_arrow = "#c3c3c3";
-    listview_hdr_shadow = "#242424";
-    listview_hdr_hilight = "#242424";
-    listview_hdr_bg = "#333333";
-    listview_hdr_text = "#d1d1d1";
-    treeview_text = "#d1d1d1";
-    treeview_bg = "#2e2e2e";
-    treeview_bg_sel = "#d1a660";
-    treeview_text_sel = "#050505";
-    treeview_bg_sel_inactive = "#E6E6E6";
-    treeview_text_sel_inactive = "#1A1A1A";
-    treeview_arrow = "#c3c3c3";
-    tab_shadow = "#2e2e2e";
-    tab_hilight = "#2e2e2e";
-    tab_text = "#d1d1d1";
-    focusrect = "#d1d1d1";
-    group_text = "#d1d1d1";
-    group_shadow = "#353535";
-    group_hilight = "#2c2c2c";
-    focus_hilight = "#d1a660";
-  };
-
   stylixColors = config.lib.stylix.colors or null;
   stylixFont = config.stylix.fonts.sansSerif.name or "Sans";
   stylixColor = name: "#${stylixColors.${name}}";
@@ -336,13 +240,24 @@
     };
 
   presetSettings =
-    if cfg.preset == "reapertips"
-    then reapertipsSettings
-    else if cfg.preset == "stylix"
+    if cfg.preset == "stylix"
     then stylixSettings
     else {};
+  packageSwellColorTheme =
+    if builtins.isAttrs cfg.preset
+    then cfg.preset.reaperSwellColorTheme or null
+    else null;
+  packagePreset = packageSwellColorTheme != null;
   userSettings = filterAttrs (_: value: value != null) cfg.settings;
   finalSettings = presetSettings // userSettings;
+  overrideFile = pkgs.writeText "reaper-swell-colortheme-overrides" (
+    concatStringsSep "\n" (mapAttrsToList (name: value: "${name} ${toString value}") userSettings)
+    + "\n"
+  );
+  packageColorThemeSource =
+    if packagePreset
+    then "${cfg.preset}/share/reaper/${packageSwellColorTheme}"
+    else null;
   renderedSettings =
     map
     (name: "${name} ${toString finalSettings.${name}}")
@@ -358,11 +273,17 @@ in {
     };
 
     preset = mkOption {
-      type = types.enum ["none" "reapertips" "stylix"];
+      type = types.oneOf [
+        (types.enum ["none" "stylix"])
+        types.package
+      ];
       default = "none";
       example = "stylix";
       description = ''
-        Base SWELL color theme settings. Values in `settings` override the selected preset.
+        Base SWELL color theme. Use `"stylix"` for the Stylix-derived theme or
+        provide a reaper-flake theme package with a
+        `reaperSwellColorTheme` passthru attribute. Values in `settings`
+        override keys in either generated or packaged colorthemes.
       '';
     };
 
@@ -378,15 +299,67 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
-    assertions = [
+  config = mkIf cfg.enable (mkMerge [
+    {
+      assertions = [
       {
         assertion = cfg.preset != "stylix" || stylixColors != null;
         message = "programs.reaper.swell.colortheme.preset = \"stylix\" requires Stylix to provide config.lib.stylix.colors.";
       }
-    ];
+      {
+        assertion = !builtins.isAttrs cfg.preset || packageSwellColorTheme != null;
+        message = "programs.reaper.swell.colortheme.preset package must provide a reaperSwellColorTheme passthru attribute.";
+      }
+      ];
+    }
 
-    programs.reaper.resourceFiles.files.${cfg.fileName} =
-      pkgs.writeText "reaper-${cfg.fileName}" (builtins.concatStringsSep "\n" renderedSettings + "\n");
-  };
+    {
+      programs.reaper.resourceFiles.files.${cfg.fileName} =
+        if packagePreset
+        then pkgs.runCommand "reaper-${cfg.fileName}" {} ''
+          ${pkgs.gawk}/bin/awk -v overrides=${lib.escapeShellArg overrideFile} '
+            BEGIN {
+              while ((getline line < overrides) > 0) {
+                key = line;
+                sub(/^[[:space:]]*/, "", key);
+                sub(/[[:space:]].*$/, "", key);
+                value = line;
+                sub(/^[^[:space:]]+[[:space:]]+/, "", value);
+                order[++orderCount] = key;
+                replacement[key] = value;
+              }
+              close(overrides);
+            }
+
+            {
+              key = $0;
+              sub(/^[[:space:]]*/, "", key);
+              sub(/[[:space:]].*$/, "", key);
+
+              if (key in replacement && $0 !~ /^[[:space:]]*[;#]/) {
+                comment = "";
+                commentPosition = index($0, ";");
+                if (commentPosition > 0) {
+                  comment = substr($0, commentPosition);
+                }
+                print key " " replacement[key] (comment == "" ? "" : " " comment);
+                used[key] = 1;
+              } else {
+                print;
+              }
+            }
+
+            END {
+              for (idx = 1; idx <= orderCount; idx++) {
+                key = order[idx];
+                if (!(key in used)) {
+                  print key " " replacement[key];
+                }
+              }
+            }
+          ' ${lib.escapeShellArg packageColorThemeSource} > "$out"
+        ''
+        else pkgs.writeText "reaper-${cfg.fileName}" (concatStringsSep "\n" renderedSettings + "\n");
+    }
+  ]);
 }
