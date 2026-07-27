@@ -2,7 +2,7 @@
   description = "REAPER flake";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/release-26.05";
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
 

@@ -95,7 +95,7 @@ For a larger, copyable configuration covering themes, layouts, menus, actions, p
 - ReaPack repositories, synchronization settings, and individual packages.
 - REAPER themes and theme packages, including `.ReaperTheme`/`.ReaperThemeZip` assets, scripts, and fonts. Direct `theme.colorThemes` links currently accept `.ReaperThemeZip` files; packages can provide either format.
 - VST, VST3, CLAP, and LV2 search paths, including Nix-installed plugins.
-- SWELL color themes and the experimental native-Wayland build.
+- Linux SWELL color themes and the experimental native-Wayland build.
 
 The option names generally follow the labels in REAPER’s Preferences window. Enumerations and shared constants are provided by the module’s library arguments, for example `reaperActions`, `reaperMenus`, `reaperAppearance`, and `reaperWindows`.
 
@@ -142,8 +142,10 @@ Theme packages can install more than a color theme: they may also provide script
         inputs.reaper-flake.packages.${pkgs.system}.reapertips-theme
         inputs.reaper-flake.packages.${pkgs.system}.smooth6-theme
       ];
+      colorThemes = [./themes/MyTheme.ReaperThemeZip];
     };
 
+    # Linux SWELL UI colors. This does not affect macOS's native UI.
     swell.colortheme = {
       enable = true;
       preset = "reapertips";
@@ -152,16 +154,18 @@ Theme packages can install more than a color theme: they may also provide script
 }
 ```
 
-`swell.colortheme.preset` remains authoritative when explicitly configured; theme packages do not silently replace it.
+`theme.active`, `theme.colorThemes`, and theme-package resources are cross-platform: they manage REAPER themes, scripts, fonts, and other files in the selected REAPER resource path. `swell.colortheme` is different: it generates a `libSwell.colortheme` resource for REAPER's Linux SWELL UI and is effective on Linux, including the native-Wayland SWELL. macOS uses REAPER's native UI path, so this option is accepted for shared configurations but does not change macOS UI colors. Theme packages may still contain SWELL color-theme files; those files are ignored by macOS.
+
+`swell.colortheme.preset` remains authoritative when explicitly configured; theme packages do not silently replace it. There is also a Stylix preset for the SWELL colortheme: set `preset = "stylix"` when using Stylix.
 
 ## Packages
 
-| Package             | Version  | Description                                       |
-| ------------------- | -------- | ------------------------------------------------- |
-| `reaper`            | 7.78     | REAPER, with optional Python ReaScript support    |
-| `reapack` (patched) | 1.2.6    | ReaPack with the managed-package API              |
-| `sws`               | 2.14.0.7 | SWS/S&M Extension                                 |
-| `swell-wayland`     | 0.1      | Experimental native-Wayland SWELL build for Linux |
+| Package             | Version  | Description                                         |
+| ------------------- | -------- | --------------------------------------------------- |
+| `reaper`            | 7.78     | REAPER, with optional Python ReaScript support      |
+| `reapack` (patched) | 1.2.6    | ReaPack with the managed-package API                |
+| `sws`               | 2.14.0.7 | SWS/S&M Extension                                   |
+| `swell-wayland`     | 0.1      | Experimental native-Wayland SWELL library for Linux |
 
 The flake’s package outputs target `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`, and `aarch64-darwin` where the upstream package supports them. REAPER is proprietary software; enable unfree packages in the Nixpkgs configuration used to build it.
 
