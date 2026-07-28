@@ -126,9 +126,9 @@ in {
       active = "Smooth_6.ReaperThemeZip";
 
       # Link individual theme archives from any Nix path-producing expression.
-      colorThemes = [
-        ./themes/MyTheme.ReaperThemeZip
-      ];
+      # Add a local archive here when it exists in your configuration:
+      # colorThemes = [./themes/MyTheme.ReaperThemeZip];
+      colorThemes = [];
 
       # Theme packages contribute ColorThemes plus other REAPER resources such
       # as scripts. Their fonts are installed through home.packages.
