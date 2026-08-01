@@ -96,8 +96,22 @@ For a larger, copyable configuration covering themes, layouts, menus, actions, p
 - REAPER themes and theme packages, including `.ReaperTheme`/`.ReaperThemeZip` assets, scripts, and fonts. Direct `theme.colorThemes` links currently accept `.ReaperThemeZip` files; packages can provide either format.
 - VST, VST3, CLAP, and LV2 search paths, including Nix-installed plugins.
 - Linux SWELL color themes and the experimental native-Wayland build.
+- Additional runtime libraries for community extensions and plug-ins.
 
 The option names generally follow the labels in REAPER’s Preferences window. Enumerations and shared constants are provided by the module’s library arguments, for example `reaperActions`, `reaperMenus`, `reaperAppearance`, and `reaperWindows`.
+
+## Runtime libraries for extensions
+
+Some community extensions and plug-ins expect libraries such as GTK or libpng to be available through the process environment. Add the required Nix packages to `programs.reaper.packages`; the REAPER wrapper adds their `lib` directories to the dynamic-library search path while preserving existing search-path variables:
+
+```nix
+programs.reaper.packages = with pkgs; [
+  gtk3
+  libpng
+];
+```
+
+This option makes the libraries available to REAPER and its child processes; it does not add their executables to `PATH`. Prefer packages with compatible versions for the extension, since forcing a library search path can expose ABI incompatibilities.
 
 ## ReaPack example
 

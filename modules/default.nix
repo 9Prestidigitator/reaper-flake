@@ -8,6 +8,7 @@
 
   cfg = config.programs.reaper;
   reaperLib = import ./lib {inherit lib;};
+  runtimeLibraryPath = lib.makeLibraryPath cfg.packages;
 
   # Base Reaper package that comes with this flake
   defaultBaseReaperPackage = pkgs.callPackage ../packages/reaper.nix {
@@ -31,6 +32,15 @@
       cat > "$out/bin/reaper" <<'EOF'
       #!${pkgs.runtimeShell}
       has_cfgfile=0
+
+      ${optionalString (cfg.packages != []) ''
+        # Community extensions and plug-ins may rely on libraries that are
+        # not discoverable through their own RPATHs. Keep the user's existing
+        # search paths after the declared Nix package libraries.
+        export LD_LIBRARY_PATH=${lib.escapeShellArg runtimeLibraryPath}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+        export DYLD_LIBRARY_PATH=${lib.escapeShellArg runtimeLibraryPath}''${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}
+      ''}
+
       for arg in "$@"; do
         case "$arg" in
           -cfgfile|--cfgfile|-cfgfile=*|--cfgfile=*)
@@ -108,6 +118,21 @@ in {
         }
       '';
       description = "Unwrapped REAPER package to use.";
+    };
+
+    packages = mkOption {
+      type = types.listOf types.package;
+      default = [];
+      example = literalExpression "[ pkgs.gtk3 pkgs.libpng ]";
+      description = ''
+        Nix packages whose library directories are added to REAPER's dynamic
+        library search path by the installed wrapper. This is useful for
+        community extensions and plug-ins that require libraries such as
+        GTK or libpng but do not provide a usable RPATH themselves. Existing
+        `LD_LIBRARY_PATH` and `DYLD_LIBRARY_PATH` values are preserved after
+        these libraries. The packages are not added to REAPER's executable
+        `PATH`.
+      '';
     };
 
     # Want to put the default path in a place that doesn't automatically overwrite the original REAPER configuration path
