@@ -1,5 +1,5 @@
 {lib}: let
-  inherit (lib) concatLists filterAttrs optional;
+  inherit (lib) concatLists filterAttrs;
 
   sum = builtins.foldl' (total: value: total + value) 0;
 
@@ -56,24 +56,39 @@
 
   contribution = key: spec: let
     bitfield = part spec;
-  in
-    optional (bitfield.mask != 0) (
+    declaredMask =
+      if spec ? mask
+      then spec.mask
+      else spec.bit;
+    valueType =
+      if spec ? valueType
+      then spec.valueType
+      else if spec ? importAssignments
+      then "assignments"
+      else if spec ? importValues
+      then "enum"
+      else if spec ? bit || spec ? trueValue || spec ? falseValue
+      then "bool"
+      else "integer";
+  in [
+    (
       {
         kind = "bitfield";
         inherit key;
-        mask = bitfield.mask;
+        configured = bitfield.mask != 0;
+        mask = declaredMask;
         value = bitfield.value;
         falseValue = bitfield.falseValue;
         trueValue = bitfield.trueValue;
+        inherit valueType;
       }
       // lib.optionalAttrs (spec ? optionPath) {inherit (spec) optionPath;}
       // lib.optionalAttrs (spec ? gui) {inherit (spec) gui;}
-      // lib.optionalAttrs (spec ? option && builtins.isBool spec.option) {valueType = "bool";}
-      // lib.optionalAttrs (spec ? option && builtins.isString spec.option) {valueType = "enum";}
-      // lib.optionalAttrs (spec ? importValues) {valueType = "enum";}
-      // lib.optionalAttrs (spec ? option && builtins.isInt spec.option && !(spec ? importValues)) {valueType = "integer";}
       // lib.optionalAttrs (spec ? importValues) {inherit (spec) importValues;}
-    );
+      // lib.optionalAttrs (spec ? importAssignments) {inherit (spec) importAssignments;}
+      // lib.optionalAttrs (spec ? ignoredValues) {inherit (spec) ignoredValues;}
+    )
+  ];
 in {
   inherit from;
 

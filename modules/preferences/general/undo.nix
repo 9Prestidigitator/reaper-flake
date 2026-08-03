@@ -106,6 +106,7 @@ in {
         value = cfg.showLastUndoPointInMenuBar;
         section = "reaper";
         key = "showlastundo";
+        codec = "bool";
       }
     ]
     ++ map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {

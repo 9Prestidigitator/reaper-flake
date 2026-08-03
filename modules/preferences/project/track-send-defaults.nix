@@ -419,6 +419,20 @@ in {
             else if cfg.freeItemPositioning or false
             then 4
             else 0;
+          importAssignments = {
+            "0" = {
+              "preferences.project.trackSendDefaults.freeItemPositioning" = false;
+              "preferences.project.trackSendDefaults.fixedItemLanes" = false;
+            };
+            "4" = {
+              "preferences.project.trackSendDefaults.freeItemPositioning" = true;
+              "preferences.project.trackSendDefaults.fixedItemLanes" = false;
+            };
+            "8" = {
+              "preferences.project.trackSendDefaults.freeItemPositioning" = false;
+              "preferences.project.trackSendDefaults.fixedItemLanes" = true;
+            };
+          };
         }
         {
           optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.laneSize";
@@ -472,6 +486,7 @@ in {
           mask = 4587520;
           value = fixedLaneRecordingBehaviors.${cfg.fixedLaneDefaults.newRecordingBehavior};
           importValues = fixedLaneRecordingBehaviors;
+          ignoredValues = [0];
         }
         {
           optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.automaticallyDeleteEmptyLanesAtBottomOfTrack";

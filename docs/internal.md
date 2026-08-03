@@ -130,7 +130,211 @@ Preference modules should eventually emit normalized contributions through `prog
 }
 ```
 
-Bitfield contributions additionally provide `mask` and a masked `value`. Separate modules may contribute different masks to the same physical INI key; the reducer combines them before activation. Overlapping masks fail evaluation and report both source option paths. The module generates a schema for migrated contributions during Home Manager activation at `<configPath>/.nix-managed/reaper-flake-schema.json`. The `reaper2nix` app discovers that file automatically when given an INI from the same REAPER resource directory:
+Bitfield contributions additionally provide `mask` and a masked `value`. Separate modules may contribute different masks to the same physical INI key; the reducer combines them before activation. Overlapping masks fail evaluation and report both source option paths.
+
+Contribution records exist even when their public option is unset. Their `configured` field determines whether they participate in the forward INI writer, while every record remains available to the reverse schema. This keeps the `reaper2nix` vocabulary independent of the configuration used to build the app.
+
+## Adding a GUI preference mapping
+
+A supported preference has one source of truth for both directions: its INI contribution. Do not add a direct `ini.sections` assignment when the setting should round-trip through `reaper2nix`, because direct assignments write the file but do not provide reverse-schema metadata.
+
+### Discover the encoding
+
+Use an isolated REAPER resource directory and change only one GUI control at a time:
+
+1. Record the original file, section, key, and value.
+2. Change the GUI control, close REAPER cleanly, and compare the files.
+3. Repeat for every user-facing enum or compound state.
+4. For a bitfield, XOR the before and after integers to identify candidate bits, then test all states to determine the complete mask.
+5. Restart REAPER and verify that the value is persistent configuration rather than transient runtime state.
+
+The resulting mapping should identify the public option path and type, physical file, INI section and key, encoding or mask, inversion rules, and the corresponding GUI label.
+
+### Define the public option
+
+Preferences should normally be nullable and default to `null`. Null means that the flake knows about the option but does not manage its value:
+
+```nix
+options.programs.reaper.preferences.audio.example.enable =
+  reaperPreference.option {
+    type = types.nullOr types.bool;
+    default = null;
+    example = true;
+    description = "Whether the example feature is enabled.";
+  };
+```
+
+The static schema still contains the contribution when this option is null.
+
+### Whole-key values
+
+Register an independently encoded value with `reaperPreference.contributions`:
+
+```nix
+config.programs.reaper.ini.contributions =
+  reaperPreference.contributions [
+    {
+      path = "preferences.audio.example.enable";
+      value = cfg.enable;
+      section = "reaper";
+      key = "example_enable";
+      codec = "bool";
+      gui = "Enable example feature";
+    }
+  ];
+```
+
+Contribution paths are relative to `programs.reaper`. `file` defaults to `reaper.ini`; set it explicitly for another INI file. A contributed file is automatically added to the schema source allowlist.
+
+Use the codec that describes the public value and its stored representation:
+
+| Public value | Codec                      | Stored representation                 |
+| ------------ | -------------------------- | ------------------------------------- |
+| String       | `"identity"`               | Unmodified string                     |
+| Boolean      | `"bool"`                   | `0` or `1`                            |
+| Integer      | `"integer"`                | Decimal integer                       |
+| Float        | `"float"`                  | Decimal number                        |
+| String list  | `"list"`                   | Semicolon-separated values            |
+| Named enum   | `reaperCodecs.enum values` | Name mapped to an INI value           |
+| Decibels     | `{ type = "decibels"; }`   | REAPER linear amplitude decoded as dB |
+
+Named enums should normally expose readable strings. Use the attribute names as the option type and the same mapping as the codec:
+
+```nix
+let
+  modes = {
+    disabled = 0;
+    automatic = 1;
+    always = 2;
+  };
+in {
+  options.programs.reaper.preferences.audio.example.mode = mkOption {
+    type = types.nullOr (types.enum (builtins.attrNames modes));
+    default = null;
+  };
+
+  config.programs.reaper.ini.contributions =
+    reaperPreference.contributions [
+      {
+        path = "preferences.audio.example.mode";
+        value = cfg.mode;
+        section = "reaper";
+        key = "example_mode";
+        codec = reaperCodecs.enum modes;
+        gui = "Example mode";
+      }
+    ];
+}
+```
+
+If the public interface intentionally exposes REAPER's raw encoded values, use a numeric option type with the `integer` codec (or `valueType = "integer"` for a bitfield) instead of a named enum reverse mapping.
+
+### Bitfields
+
+Use `reaperBitfield.contributions` when multiple settings occupy independent masks in one integer key. A normal boolean bit needs only `bit`; `inverted = true` means that a set bit represents false:
+
+```nix
+config.programs.reaper.ini.contributions =
+  map
+  (entry: entry // { section = "reaper"; })
+  (reaperBitfield.contributions {
+    exampleflags = [
+      {
+        optionPath = "preferences.audio.example.enable";
+        option = cfg.enable;
+        bit = 8;
+        inverted = true;
+        gui = "Enable example feature";
+      }
+    ];
+  });
+```
+
+For a boolean with a multi-bit or nonstandard encoding, provide its exact mask and values:
+
+```nix
+{
+  optionPath = "preferences.audio.example.enable";
+  option = cfg.enable;
+  mask = 14;
+  trueValue = 6;
+  falseValue = 8;
+}
+```
+
+For a named bitfield enum, provide both the forward value and reverse mapping:
+
+```nix
+{
+  optionPath = "preferences.audio.example.mode";
+  option = cfg.mode;
+  mask = 48;
+  value = modes.${cfg.mode};
+  importValues = modes;
+}
+```
+
+A genuinely numeric masked field can set `valueType = "integer"`. Use `ignoredValues` for encoded states that mean the public option should remain unset.
+
+When one encoded state controls multiple public options, use `importAssignments`:
+
+```nix
+{
+  optionPath = "preferences.audio.example.freeMode";
+  configured = cfg.freeMode != null || cfg.fixedMode != null;
+  mask = 12;
+  value =
+    if cfg.fixedMode or false
+    then 8
+    else if cfg.freeMode or false
+    then 4
+    else 0;
+  importAssignments = {
+    "0" = {
+      "preferences.audio.example.freeMode" = false;
+      "preferences.audio.example.fixedMode" = false;
+    };
+    "4" = {
+      "preferences.audio.example.freeMode" = true;
+      "preferences.audio.example.fixedMode" = false;
+    };
+    "8" = {
+      "preferences.audio.example.freeMode" = false;
+      "preferences.audio.example.fixedMode" = true;
+    };
+  };
+}
+```
+
+Always declare the full mask owned by the GUI control. The INI reducer rejects overlapping contributions and the activation writer preserves all unmanaged bits.
+
+### Codecs, adapters, and module imports
+
+Add a codec when one value has a local reversible transformation, such as unit conversion or serialization. Implement the forward encoder in `modules/lib/codecs.nix`, the reverse decoder in `scripts/reaper2nix.py`, and add a round-trip test.
+
+Use a semantic adapter instead when decoding requires relationships between multiple keys or records, dynamic identities, an ordered line format, or a non-INI structure. Databases should remain unsupported unless they have a stable public representation and can be changed safely; knowing a database field is not sufficient justification for managing it.
+
+If the option is placed in a new module, ensure that module is reachable through both the runtime imports in `modules/default.nix` and the configuration-independent evaluation in `modules/schema.nix`. Prefer adding it beneath a directory-level module imported by both.
+
+### Validation
+
+Test both directions:
+
+1. Set the Nix option, activate it, and inspect the resulting INI value or masked bits.
+2. Confirm unrelated bits in a shared key remain unchanged.
+3. Change the option in REAPER, close REAPER, and run `reaper2nix`.
+4. Confirm the generated declaration uses the intended public path and user-facing value.
+5. Apply that declaration and verify the same state appears in REAPER.
+
+Run the repository checks before committing:
+
+```console
+python3 -m unittest discover -s tests -v
+nix flake check
+git diff --check
+```
+
+The flake bundles this static schema into `reaper2nix` and exposes it as the `reaper-schema` package. Home Manager also installs the schema at `<configPath>/.nix-managed/reaper-flake-schema.json`. An explicit `--schema` takes precedence; otherwise the bundled schema is used.
 
 ```console
 nix run .#reaper2nix -- \
@@ -147,30 +351,32 @@ nix run .#reaper2nix -- \
   /path/to/reaper.ini
 ```
 
-The importer emits supported declarations and comments for unmapped or unsupported values. The schema is intentionally incremental while legacy preference producers are migrated.
+The importer emits supported declarations and diagnostics when a schema-backed value cannot be decoded. Unmapped keys are silent because the schema is intentionally a proper subset of REAPER's state-bearing files. Pass `--show-unmapped` when developing new mappings and you need those keys reported.
 
-To inspect other parseable INI files in a resource directory, opt in to raw imports:
+Generated output is a complete Nix attribute set. Public option paths are expanded into nested attribute sets, ordered records remain lists, and attribute names are quoted only when Nix syntax requires it. The output is formatted so it passes Alejandra without another rewrite.
+
+The schema also contains a source catalog. A resource-directory import opens only files declared in that catalog; it never discovers inputs with an `*.ini` glob. Consequently, cache, window-position, recent-item, and other state files without a Nix mapping are skipped completely. A single-file import is narrower still and does not import supported sibling files.
+
+Each non-INI structure has a named adapter. The first line-file adapter decodes `SCR`, `ACT`, and `KEY` records from `reaper-kb.ini` into `programs.reaper.actions.scripts`, `customActions`, and `keyBindings`. Unknown record types remain unmanaged instead of being copied into raw line options.
+
+A physical source can also declare additional semantic adapters. `reaper.ini` uses this to combine ordinary preference mappings with the layout adapter. The layout adapter imports the first-class main window, mixer, master mixer, transport, docker topology, selected tabs, edge sizes, and `[REAPERdockpref]` values under `programs.reaper.layout`. It deliberately leaves unrelated editor and extension window state unmanaged.
+
+To inspect unmapped keys inside the schema-declared INI sources, opt in to raw imports:
 
 ```console
 nix run .#reaper2nix -- --all-files \
   /path/to/reaper-resource-directory
 ```
 
-This scans `*.ini` files besides `reaper.ini` and emits their unmapped values under `programs.reaper.ini.files`, while unmapped values from `reaper.ini` are placed under `programs.reaper.ini.sections`. The line-oriented `reaper-kb.ini` and `reaper-jsfx.ini` are emitted under `programs.reaper.lineFiles.files`. Values already represented by the generated schema are still emitted as their higher-level declarations. The raw form is intentionally opt-in: REAPER stores runtime state, window positions, recent files, and other user-specific data in these files, so blindly importing every key can make a configuration noisy and can replay state that should remain mutable.
+This does not broaden the source allowlist. It only emits unmapped values from already-declared INI sources under `programs.reaper.ini`; files absent from the schema still are not opened. The raw form is intentionally opt-in because even a configuration-bearing file may contain runtime state alongside settings.
 
-For example, an entry from `reaper-menu.ini` is represented as:
-
-```nix
-programs.reaper = {
-  ini.files."reaper-menu.ini"."Main file".item_0 = "40023 &New project";
-};
-```
-
-This raw importer is a migration aid. It does not infer the richer `programs.reaper.menus`, `programs.reaper.actions`, or ReaPack schemas from arbitrary files; those need dedicated importers because their records have ordering and identity semantics beyond ordinary INI key/value pairs.
+Future ordered formats should receive dedicated adapters that emit their public semantic options. They should not be copied wholesale into `programs.reaper.lineFiles`, because ordering, identity, and ownership semantics differ between formats.
 
 ## Relevant implementation files
 
 - `modules/ini.nix` — internal INI, bitfield, payload, and writer options.
+- `modules/schema.nix` — configuration-independent schema evaluation.
+- `scripts/reaper2nix.py` — schema allowlist and reverse-format adapters.
 - `scripts/write_config.py` — preservation-aware and atomic INI merge logic.
 - `modules/line-files.nix` — generated line-file fragments.
 - `modules/resources.nix` — generated resource-file and immutable-link

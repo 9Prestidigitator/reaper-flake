@@ -56,9 +56,9 @@
         bit = 64;
       }
       {
-        optionPath = "windows.mixer.allowEmptySlotsInFxLists";
-        gui = "Allow empty slots in FX lists";
-        option = mixer.allowEmptySlotsInFxLists;
+        optionPath = "preferences.appearance.trackControlPanels.allowReorderingEmptySlotsInTcpMcpFxLists";
+        gui = "Allow reordering/empty slots in TCP/MCP FX lists";
+        option = cfg.allowReorderingEmptySlotsInTcpMcpFxLists;
         bit = 128;
         inverted = true;
       }
@@ -95,6 +95,13 @@
   };
 in {
   options.programs.reaper.preferences.appearance.trackControlPanels = {
+    allowReorderingEmptySlotsInTcpMcpFxLists = mkOption {
+      type = types.nullOr types.bool;
+      default = null;
+      example = true;
+      description = "Whether reordering and empty slots are allowed in TCP/MCP FX lists.";
+    };
+
     setTrackLabelBackgroundToCustomTrackColors = mkOption {
       type = types.nullOr types.bool;
       default = null;

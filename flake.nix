@@ -43,10 +43,17 @@
             prettier --write "$repo/docs/preferences.md"
           '';
         };
+        reaperSchema = import ./modules/schema.nix {
+          inherit pkgs;
+          lib = pkgs.lib;
+        };
         reaper2nix = pkgs.writeShellApplication {
           name = "reaper2nix";
           runtimeInputs = [pkgs.python3];
-          text = ''exec python3 ${./scripts/reaper2nix.py} "$@"'';
+          text = ''
+            export REAPER_FLAKE_SCHEMA=${pkgs.lib.escapeShellArg reaperSchema}
+            exec python3 ${./scripts/reaper2nix.py} "$@"
+          '';
         };
       in {
         apps.generate-preferences-docs = {
@@ -61,6 +68,16 @@
           meta.description = "Convert supported REAPER INI values to reaper-flake declarations";
         };
 
+        checks.reaper2nix =
+          pkgs.runCommand "reaper2nix-tests" {
+            nativeBuildInputs = [pkgs.python3];
+            REAPER2NIX_SCRIPT = ./scripts/reaper2nix.py;
+            REAPER_SCHEMA_PATH = reaperSchema;
+          } ''
+            python3 -m unittest discover -s ${./tests} -v
+            touch "$out"
+          '';
+
         devShells.default = pkgs.callPackage ./devshell.nix {};
         packages =
           rec {
@@ -74,6 +91,7 @@
             reapertips-theme = pkgs.callPackage ./packages/themes/reapertips.nix {};
             smooth6-theme = pkgs.callPackage ./packages/themes/smooth6.nix {};
             reapack = pkgs.callPackage ./packages/reapack {};
+            reaper-schema = reaperSchema;
             sws = pkgs.callPackage ./packages/sws {};
           }
           // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {

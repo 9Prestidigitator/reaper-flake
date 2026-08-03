@@ -333,6 +333,11 @@ in {
     ];
 
     programs.reaper = {
+      schema.sources."reaper-kb.ini" = {
+        format = "line";
+        adapter = "reaper-kb";
+      };
+
       lineFiles.files."reaper-kb.ini" =
         (map (script: formatScript (lineScript script)) cfg.scripts)
         ++ (map (action: formatCustomAction (lineCustomAction action)) cfg.customActions)

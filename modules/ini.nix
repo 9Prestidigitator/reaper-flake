@@ -6,7 +6,7 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) concatLists concatMapStringsSep filter filterAttrs generators imap0 intersectLists mapAttrs mapAttrsToList mkMerge mkOption optionalAttrs types;
+  inherit (lib) concatLists concatMapStringsSep filter filterAttrs generators imap0 intersectLists listToAttrs mapAttrs mapAttrsToList mkMerge mkOption nameValuePair types unique;
   cfg = config.programs.reaper;
 
   # Generic contribution records are the forward-compatible interface for
@@ -32,8 +32,14 @@
         description = "INI key receiving this contribution.";
       };
       value = mkOption {
-        type = reaperLib.reaperTypes.iniValue;
+        type = types.nullOr reaperLib.reaperTypes.iniValue;
+        default = null;
         description = "Value produced by this contribution.";
+      };
+      configured = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Whether this mapping currently contributes a managed value.";
       };
       mask = mkOption {
         type = types.nullOr types.ints.unsigned;
@@ -51,7 +57,7 @@
         description = "REAPER GUI label associated with this contribution.";
       };
       valueType = mkOption {
-        type = types.nullOr (types.enum ["bool" "enum" "integer" "float" "list" "string"]);
+        type = types.nullOr (types.enum ["assignments" "bool" "enum" "integer" "float" "list" "string"]);
         default = null;
         description = "Nix value type expected by the importer.";
       };
@@ -73,6 +79,18 @@
         internal = true;
         description = "Reverse enum mapping used by the INI importer.";
       };
+      importAssignments = mkOption {
+        type = types.nullOr types.attrs;
+        default = null;
+        internal = true;
+        description = "Reverse composite bitfield assignments used by the INI importer.";
+      };
+      ignoredValues = mkOption {
+        type = types.listOf types.ints.unsigned;
+        default = [];
+        internal = true;
+        description = "Encoded bitfield values that mean the public option remains unset.";
+      };
       codec = mkOption {
         type = types.anything;
         default = "identity";
@@ -83,7 +101,7 @@
   };
 
   contributions = cfg.ini.contributions;
-  valueContributions = filter (contribution: contribution.kind == "value") contributions;
+  valueContributions = filter (contribution: contribution.kind == "value" && contribution.configured) contributions;
 
   addValue = result: contribution:
     if contribution.file == "reaper.ini"
@@ -158,8 +176,10 @@
   };
 
   bitfieldContributions = cfg.ini.bitfieldContributions;
-  genericBitfieldContributions = filter (contribution: contribution.kind == "bitfield") contributions;
+  genericBitfieldMappings = filter (contribution: contribution.kind == "bitfield") contributions;
+  genericBitfieldContributions = filter (contribution: contribution.kind == "bitfield" && contribution.configured) contributions;
   allBitfieldContributions = bitfieldContributions ++ genericBitfieldContributions;
+  allBitfieldMappings = bitfieldContributions ++ genericBitfieldMappings;
 
   groupBitfieldContributions = contributions:
     builtins.foldl'
@@ -168,14 +188,18 @@
         file = contribution.file;
         section = contribution.section;
         key = contribution.key;
-        current =
-          if file == "reaper.ini"
-          then result.${section}.${key} or []
-          else result.${file}.${section}.${key} or [];
+        current = result.${file}.${section}.${key} or [];
       in
-        if file == "reaper.ini"
-        then result // {${section} = (result.${section} or {}) // {${key} = current ++ [contribution];};}
-        else result // {${file} = (result.${file} or {}) // {${section} = (result.${file}.${section} or {}) // {${key} = current ++ [contribution];};};}
+        result
+        // {
+          ${file} =
+            (result.${file} or {})
+            // {
+              ${section} =
+                (result.${file}.${section} or {})
+                // {${key} = current ++ [contribution];};
+            };
+        }
     )
     {}
     contributions;
@@ -187,20 +211,16 @@
     value = builtins.foldl' (total: entry: total + entry.value) 0 entries;
   };
 
-  reducedBitfields = optionalAttrs (bitfieldGroups ? reaper) {
-    reaper =
-      builtins.mapAttrs
-      (_: contributions: reduceBitfield contributions)
-      bitfieldGroups.reaper;
-  };
+  reduceBitfieldSections = sections:
+    builtins.mapAttrs
+    (_: entries: builtins.mapAttrs (_: entriesForKey: reduceBitfield entriesForKey) entries)
+    sections;
+
+  reducedBitfields = reduceBitfieldSections (bitfieldGroups."reaper.ini" or {});
 
   reducedFileBitfields =
-    builtins.mapAttrs
-    (_: sections:
-      builtins.mapAttrs
-      (_: entries: builtins.mapAttrs (_: contributions: reduceBitfield contributions) entries)
-      sections)
-    (filterAttrs (file: _: file != "reaper") bitfieldGroups);
+    builtins.mapAttrs (_: reduceBitfieldSections)
+    (filterAttrs (file: _: file != "reaper.ini") bitfieldGroups);
 
   bitfieldBitPositions = number:
     if number == 0
@@ -221,8 +241,8 @@
 
   bitfieldContributionPairs = concatLists (
     imap0
-    (index: entry: map (other: {inherit entry other;}) (lib.drop (index + 1) allBitfieldContributions))
-    allBitfieldContributions
+    (index: entry: map (other: {inherit entry other;}) (lib.drop (index + 1) allBitfieldMappings))
+    allBitfieldMappings
   );
 
   bitfieldConflictAssertions =
@@ -306,24 +326,61 @@
 
   emptyIniFile = pkgs.writeText "reaper-managed-empty.ini" "";
   emptyPayloadFile = pkgs.writeText "reaper-managed-empty.json" (renderPayload {} {} []);
+  schemaContributions = filter (contribution: contribution.optionPath != null) contributions;
+  automaticSchemaSources = listToAttrs (map
+    (file:
+      nameValuePair file {
+        format = "ini";
+        adapter = "ini";
+      })
+    (unique (map (contribution: contribution.file) schemaContributions)));
+  schemaSources = automaticSchemaSources // cfg.schema.sources;
   schemaFile = pkgs.writeText "reaper-managed-schema.json" (builtins.toJSON {
-    version = 1;
-    options = map (contribution: {
-      path = contribution.optionPath;
-      kind = contribution.kind;
-      file = contribution.file;
-      section = contribution.section;
-      key = contribution.key;
-      mask = contribution.mask;
-      codec = contribution.codec;
-      gui = contribution.gui;
-      valueType = contribution.valueType;
-      trueValue = contribution.trueValue;
-      falseValue = contribution.falseValue;
-      importValues = contribution.importValues;
-    }) (filter (contribution: contribution.optionPath != null) contributions);
+    version = 2;
+    sources = schemaSources;
+    options =
+      map (contribution: {
+        path = contribution.optionPath;
+        kind = contribution.kind;
+        file = contribution.file;
+        section = contribution.section;
+        key = contribution.key;
+        mask = contribution.mask;
+        codec = contribution.codec;
+        gui = contribution.gui;
+        valueType = contribution.valueType;
+        trueValue = contribution.trueValue;
+        falseValue = contribution.falseValue;
+        importValues = contribution.importValues;
+        importAssignments = contribution.importAssignments;
+        ignoredValues = contribution.ignoredValues;
+      })
+      schemaContributions;
   });
 in {
+  options.programs.reaper.schema.sources = mkOption {
+    type = types.attrsOf (types.submodule {
+      options = {
+        format = mkOption {
+          type = types.enum ["ini" "line"];
+          description = "Physical configuration format used by this REAPER file.";
+        };
+        adapter = mkOption {
+          type = types.str;
+          description = "Importer adapter responsible for this configuration source.";
+        };
+        adapters = mkOption {
+          type = types.listOf types.str;
+          default = [];
+          description = "Additional semantic importer adapters for this configuration source.";
+        };
+      };
+    });
+    default = {};
+    internal = true;
+    description = "Curated configuration sources supported by reaper2nix.";
+  };
+
   options.programs.reaper.ini = {
     # Modules assign `programs.reaper.ini.sections.<section>.<key> = value`
     # when the target file is `reaper.ini`.

@@ -408,6 +408,12 @@ in {
   };
 
   config = {
+    programs.reaper.schema.sources."reaper.ini" = {
+      format = "ini";
+      adapter = "ini";
+      adapters = ["reaper-layout"];
+    };
+
     programs.reaper.ini.sections = mkMerge [
       {
         reaper =
