@@ -1,5 +1,9 @@
-{lib}: {
+{lib}: let
+  reaperCodecs = import ./codecs.nix {inherit lib;};
+in {
   reaperTypes = import ./types.nix {inherit lib;};
+  inherit reaperCodecs;
+  reaperPreference = import ./preference.nix {inherit lib reaperCodecs;};
   # helper method that really smooths out associating bitfields with reaper options
   reaperBitfield = import ./bitfield.nix {inherit lib;};
 

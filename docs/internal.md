@@ -115,6 +115,59 @@ This prevents an updated script or custom action from leaving an older record wi
 
 For a link that would replace an existing user-owned regular file, activation refuses by default. Set `programs.reaper.resourceLinks.backupFileExtension` (or the equivalent Home Manager backup option) to request an explicit backup before replacement.
 
+## Preference contributions
+
+Preference modules should eventually emit normalized contributions through `programs.reaper.ini.contributions`. A contribution identifies the physical INI target and records its semantic source:
+
+```nix
+{
+  kind = "value";
+  section = "reaper";
+  key = "somekey";
+  value = config.programs.reaper.preferences.example;
+  codec = "identity";
+  optionPath = "preferences.example";
+}
+```
+
+Bitfield contributions additionally provide `mask` and a masked `value`. Separate modules may contribute different masks to the same physical INI key; the reducer combines them before activation. Overlapping masks fail evaluation and report both source option paths. The module generates a schema for migrated contributions during Home Manager activation at `<configPath>/.nix-managed/reaper-flake-schema.json`. The `reaper2nix` app discovers that file automatically when given an INI from the same REAPER resource directory:
+
+```console
+nix run .#reaper2nix -- \
+  /path/to/reaper-resource-directory
+```
+
+The argument may be either the REAPER resource directory or its `reaper.ini` file.
+
+Use `--schema` as an escape hatch for another configuration directory or a hand-authored schema:
+
+```console
+nix run .#reaper2nix -- \
+  --schema /path/to/generated-schema.json \
+  /path/to/reaper.ini
+```
+
+The importer emits supported declarations and comments for unmapped or unsupported values. The schema is intentionally incremental while legacy preference producers are migrated.
+
+To inspect other parseable INI files in a resource directory, opt in to raw imports:
+
+```console
+nix run .#reaper2nix -- --all-files \
+  /path/to/reaper-resource-directory
+```
+
+This scans `*.ini` files besides `reaper.ini` and emits their unmapped values under `programs.reaper.ini.files`, while unmapped values from `reaper.ini` are placed under `programs.reaper.ini.sections`. The line-oriented `reaper-kb.ini` and `reaper-jsfx.ini` are emitted under `programs.reaper.lineFiles.files`. Values already represented by the generated schema are still emitted as their higher-level declarations. The raw form is intentionally opt-in: REAPER stores runtime state, window positions, recent files, and other user-specific data in these files, so blindly importing every key can make a configuration noisy and can replay state that should remain mutable.
+
+For example, an entry from `reaper-menu.ini` is represented as:
+
+```nix
+programs.reaper = {
+  ini.files."reaper-menu.ini"."Main file".item_0 = "40023 &New project";
+};
+```
+
+This raw importer is a migration aid. It does not infer the richer `programs.reaper.menus`, `programs.reaper.actions`, or ReaPack schemas from arbitrary files; those need dedicated importers because their records have ordering and identity semantics beyond ordinary INI key/value pairs.
+
 ## Relevant implementation files
 
 - `modules/ini.nix` — internal INI, bitfield, payload, and writer options.

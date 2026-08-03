@@ -21,7 +21,7 @@
     then mixer.groupFxParametersWithInserts
     else cfg.groupFxParametersWithInserts;
 
-  reaperBitfields = reaperBitfield.entries {
+  reaperBitfieldContributions = reaperBitfield.contributions {
     tcpalign = [
       {
         optionPath = "preferences.appearance.trackControlPanels.alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed";
@@ -67,12 +67,14 @@
         gui = "Folder collapse button cycles track heights";
         option = cfg.folderCollapseButtonCyclesTrackHeights;
         mask = 768;
+        importValues = reaperLib.reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights;
       }
       {
         optionPath = "preferences.appearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay";
         gui = "Fixed lane collapse button changes display";
         option = cfg.fixedLaneCollapseButtonChangesDisplay;
         mask = 1024;
+        importValues = reaperLib.reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay;
       }
     ];
 
@@ -230,5 +232,5 @@ in {
     // optionalAttrs (cfg.volumeFaderShape != null) {slidershex = cfg.volumeFaderShape;}
     // optionalAttrs (cfg.panFaderUnitDisplay != null) {pandispmode = cfg.panFaderUnitDisplay;};
 
-  config.programs.reaper.ini.bitfields.reaper = reaperBitfields;
+  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) reaperBitfieldContributions;
 }

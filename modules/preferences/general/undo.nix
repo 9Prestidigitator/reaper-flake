@@ -7,10 +7,10 @@
   cfg = config.programs.reaper.preferences.general.undo;
 
   inherit (lib) mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield;
+  inherit (reaperLib) reaperBitfield reaperPreference;
 in {
   options.programs.reaper.preferences.general.undo = {
-    maximumUndoMemory = mkOption {
+    maximumUndoMemory = reaperPreference.option {
       type = types.nullOr types.ints.unsigned;
       default = null;
       example = 256;
@@ -84,7 +84,7 @@ in {
       description = "Whether REAPER is allowed to load saved undo history.";
     };
 
-    showLastUndoPointInMenuBar = mkOption {
+    showLastUndoPointInMenuBar = reaperPreference.option {
       type = types.nullOr types.bool;
       default = null;
       example = true;
@@ -92,81 +92,89 @@ in {
     };
   };
 
-  config.programs.reaper.ini.sections.reaper =
-    optionalAttrs (cfg.maximumUndoMemory != null) {
-      undomaxmem = cfg.maximumUndoMemory;
-    }
-    // optionalAttrs (cfg.showLastUndoPointInMenuBar != null) {
-      showlastundo = cfg.showLastUndoPointInMenuBar;
-    };
+  config.programs.reaper.ini.contributions =
+    reaperPreference.contributions [
+      {
+        path = "preferences.general.undo.maximumUndoMemory";
+        value = cfg.maximumUndoMemory;
+        section = "reaper";
+        key = "undomaxmem";
+        codec = "integer";
+      }
+      {
+        path = "preferences.general.undo.showLastUndoPointInMenuBar";
+        value = cfg.showLastUndoPointInMenuBar;
+        section = "reaper";
+        key = "showlastundo";
+      }
+    ]
+    ++ map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
+      undomask = [
+        # TODO(max): Check this toggle, I'm warry about this bitfield
+        {
+          optionPath = "preferences.general.undo.includeSelection.item";
+          gui = "Include selection: item";
+          option = cfg.includeSelection.item;
+          bit = 1;
+        }
+        {
+          optionPath = "preferences.general.undo.includeSelection.time";
+          gui = "Include selection: time selection";
+          option = cfg.includeSelection.time;
+          bit = 2;
+        }
+        {
+          optionPath = "preferences.general.undo.keepNewestStateWhenApproachingMemoryLimit";
+          gui = "When approaching full undo memory, keep newest state";
+          option = cfg.keepNewestStateWhenApproachingMemoryLimit;
+          bit = 4;
+        }
+        {
+          optionPath = "preferences.general.undo.includeSelection.cursorPosition";
+          gui = "Include selection: cursor position";
+          option = cfg.includeSelection.cursorPosition;
+          bit = 8;
+        }
+        {
+          optionPath = "preferences.general.undo.includeSelection.track";
+          gui = "Include selection: track";
+          option = cfg.includeSelection.track;
+          bit = 16;
+        }
+        {
+          optionPath = "preferences.general.undo.includeSelection.envelopePoint";
+          gui = "Include selection: envelope points";
+          option = cfg.includeSelection.envelopePoint;
+          bit = 32;
+        }
+        {
+          optionPath = "preferences.general.undo.includeSelection.midiEvents";
+          gui = "Include selection: MIDI events";
+          option = cfg.includeSelection.midiEvents;
+          bit = 128;
+        }
+      ];
 
-  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
-    undomask = [
-      # TODO(max): Check this toggle, I'm warry about this bitfield
-      {
-        optionPath = "preferences.general.undo.includeSelection.item";
-        gui = "Include selection: item";
-        option = cfg.includeSelection.item;
-        bit = 1;
-      }
-      {
-        optionPath = "preferences.general.undo.includeSelection.time";
-        gui = "Include selection: time selection";
-        option = cfg.includeSelection.time;
-        bit = 2;
-      }
-      {
-        optionPath = "preferences.general.undo.keepNewestStateWhenApproachingMemoryLimit";
-        gui = "When approaching full undo memory, keep newest state";
-        option = cfg.keepNewestStateWhenApproachingMemoryLimit;
-        bit = 4;
-      }
-      {
-        optionPath = "preferences.general.undo.includeSelection.cursorPosition";
-        gui = "Include selection: cursor position";
-        option = cfg.includeSelection.cursorPosition;
-        bit = 8;
-      }
-      {
-        optionPath = "preferences.general.undo.includeSelection.track";
-        gui = "Include selection: track";
-        option = cfg.includeSelection.track;
-        bit = 16;
-      }
-      {
-        optionPath = "preferences.general.undo.includeSelection.envelopePoint";
-        gui = "Include selection: envelope points";
-        option = cfg.includeSelection.envelopePoint;
-        bit = 32;
-      }
-      {
-        optionPath = "preferences.general.undo.includeSelection.midiEvents";
-        gui = "Include selection: MIDI events";
-        option = cfg.includeSelection.midiEvents;
-        bit = 128;
-      }
-    ];
-
-    saveundostatesproj = [
-      {
-        optionPath = "preferences.general.undo.saveHistoryWithProjectFiles";
-        gui = "Save undo history with project files";
-        option = cfg.saveHistoryWithProjectFiles;
-        bit = 1;
-      }
-      {
-        optionPath = "preferences.general.undo.allowLoadingHistory";
-        gui = "Allow load of undo history";
-        option = cfg.allowLoadingHistory;
-        bit = 4;
-        inverted = true;
-      }
-      {
-        optionPath = "preferences.general.undo.storeMultipleRedoPathsWhenPossible";
-        gui = "Store multiple redo paths when possible";
-        option = cfg.storeMultipleRedoPathsWhenPossible;
-        bit = 256;
-      }
-    ];
-  });
+      saveundostatesproj = [
+        {
+          optionPath = "preferences.general.undo.saveHistoryWithProjectFiles";
+          gui = "Save undo history with project files";
+          option = cfg.saveHistoryWithProjectFiles;
+          bit = 1;
+        }
+        {
+          optionPath = "preferences.general.undo.allowLoadingHistory";
+          gui = "Allow load of undo history";
+          option = cfg.allowLoadingHistory;
+          bit = 4;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.general.undo.storeMultipleRedoPathsWhenPossible";
+          gui = "Store multiple redo paths when possible";
+          option = cfg.storeMultipleRedoPathsWhenPossible;
+          bit = 256;
+        }
+      ];
+    });
 }

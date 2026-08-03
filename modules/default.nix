@@ -173,6 +173,8 @@ in {
     {
       _module.args.reaperLib = reaperLib;
       _module.args.reaperBitfield = reaperLib.reaperBitfield;
+      _module.args.reaperCodecs = reaperLib.reaperCodecs;
+      _module.args.reaperPreference = reaperLib.reaperPreference;
       _module.args.reaperLayout = reaperLib.reaperLayout;
       _module.args.reaperMenus = reaperLib.reaperMenus;
       _module.args.reaperWindows = reaperLib.reaperWindows;
@@ -208,6 +210,8 @@ in {
           fi
 
           mkdir -p "$reaper_resource_path"
+          mkdir -p "$reaper_resource_path/.nix-managed"
+          install -m 0644 ${lib.escapeShellArg cfg.ini.generatedSchemaFile} "$reaper_resource_path/.nix-managed/reaper-flake-schema.json"
 
           # Seeds initial REAPER resource path by copying files that are not
           # present in configured resource path.
@@ -364,6 +368,8 @@ in {
 
             find "$state_root" -type f -print | while IFS= read -r state_file; do
               rel_path=''${state_file#"$state_root"/}
+
+              [ "$rel_path" = "reaper-flake-schema.json" ] && continue
 
               case "$rel_path" in
                 *.ini)

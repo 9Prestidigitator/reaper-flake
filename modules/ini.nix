@@ -2,10 +2,11 @@
   config,
   lib,
   pkgs,
+  reaperCodecs,
   reaperLib,
   ...
 }: let
-  inherit (lib) concatMapStringsSep filter filterAttrs generators mapAttrs mkMerge mkOption optionalAttrs types;
+  inherit (lib) concatLists concatMapStringsSep filter filterAttrs generators imap0 intersectLists mapAttrs mapAttrsToList mkMerge mkOption optionalAttrs types;
   cfg = config.programs.reaper;
 
   # Generic contribution records are the forward-compatible interface for
@@ -49,6 +50,35 @@
         default = null;
         description = "REAPER GUI label associated with this contribution.";
       };
+      valueType = mkOption {
+        type = types.nullOr (types.enum ["bool" "enum" "integer" "float" "list" "string"]);
+        default = null;
+        description = "Nix value type expected by the importer.";
+      };
+      trueValue = mkOption {
+        type = types.nullOr types.ints.unsigned;
+        default = null;
+        internal = true;
+        description = "Encoded bitfield value corresponding to true.";
+      };
+      falseValue = mkOption {
+        type = types.nullOr types.ints.unsigned;
+        default = null;
+        internal = true;
+        description = "Encoded bitfield value corresponding to false.";
+      };
+      importValues = mkOption {
+        type = types.nullOr (types.attrsOf types.ints.unsigned);
+        default = null;
+        internal = true;
+        description = "Reverse enum mapping used by the INI importer.";
+      };
+      codec = mkOption {
+        type = types.anything;
+        default = "identity";
+        internal = true;
+        description = "Named codec used to encode this contribution.";
+      };
     };
   };
 
@@ -63,7 +93,7 @@
         ${contribution.section} =
           (result.${contribution.section} or {})
           // {
-            ${contribution.key} = contribution.value;
+            ${contribution.key} = reaperCodecs.encode contribution.codec contribution.value;
           };
       }
     else result;
@@ -80,7 +110,7 @@
             ${contribution.section} =
               (result.${contribution.file}.${contribution.section} or {})
               // {
-                ${contribution.key} = contribution.value;
+                ${contribution.key} = reaperCodecs.encode contribution.codec contribution.value;
               };
           };
       };
@@ -170,7 +200,47 @@
       builtins.mapAttrs
       (_: entries: builtins.mapAttrs (_: contributions: reduceBitfield contributions) entries)
       sections)
-    (filterAttrs (file: _: file != "reaper.ini") bitfieldGroups);
+    (filterAttrs (file: _: file != "reaper") bitfieldGroups);
+
+  bitfieldBitPositions = number:
+    if number == 0
+    then []
+    else let
+      half = builtins.div number 2;
+      remainder = number - (half * 2);
+    in
+      (
+        if remainder == 1
+        then [0]
+        else []
+      )
+      ++ map (position: position + 1) (bitfieldBitPositions half);
+
+  overlappingBits = left: right:
+    intersectLists (bitfieldBitPositions left) (bitfieldBitPositions right) != [];
+
+  bitfieldContributionPairs = concatLists (
+    imap0
+    (index: entry: map (other: {inherit entry other;}) (lib.drop (index + 1) allBitfieldContributions))
+    allBitfieldContributions
+  );
+
+  bitfieldConflictAssertions =
+    map
+    (pair: {
+      assertion = false;
+      message = ''
+        REAPER INI bitfield conflict for ${pair.entry.file}:[${pair.entry.section}].${pair.entry.key}: masks ${toString pair.entry.mask} and ${toString pair.other.mask} overlap.
+        ${pair.entry.optionPath or "First contribution"} conflicts with ${pair.other.optionPath or "Second contribution"}.
+      '';
+    })
+    (filter (pair:
+      pair.entry.file
+      == pair.other.file
+      && pair.entry.section == pair.other.section
+      && pair.entry.key == pair.other.key
+      && overlappingBits pair.entry.mask pair.other.mask)
+    bitfieldContributionPairs);
 
   bitfieldNumberType = types.mkOptionType {
     name = "bitfield number";
@@ -236,6 +306,23 @@
 
   emptyIniFile = pkgs.writeText "reaper-managed-empty.ini" "";
   emptyPayloadFile = pkgs.writeText "reaper-managed-empty.json" (renderPayload {} {} []);
+  schemaFile = pkgs.writeText "reaper-managed-schema.json" (builtins.toJSON {
+    version = 1;
+    options = map (contribution: {
+      path = contribution.optionPath;
+      kind = contribution.kind;
+      file = contribution.file;
+      section = contribution.section;
+      key = contribution.key;
+      mask = contribution.mask;
+      codec = contribution.codec;
+      gui = contribution.gui;
+      valueType = contribution.valueType;
+      trueValue = contribution.trueValue;
+      falseValue = contribution.falseValue;
+      importValues = contribution.importValues;
+    }) (filter (contribution: contribution.optionPath != null) contributions);
+  });
 in {
   options.programs.reaper.ini = {
     # Modules assign `programs.reaper.ini.sections.<section>.<key> = value`
@@ -354,6 +441,13 @@ in {
       description = "Generated JSON payloads merged into mutable REAPER config files.";
     };
 
+    generatedSchemaFile = mkOption {
+      type = types.path;
+      internal = true;
+      readOnly = true;
+      description = "Machine-readable schema for normalized preference contributions.";
+    };
+
     writerPackage = mkOption {
       type = types.package;
       internal = true;
@@ -367,6 +461,7 @@ in {
       programs.reaper.ini.files = builtins.foldl' addFileValue {} valueContributions;
       programs.reaper.ini.bitfields = reducedBitfields;
       programs.reaper.ini.fileBitfields = reducedFileBitfields;
+      assertions = bitfieldConflictAssertions;
     }
     {
       programs.reaper.ini = {
@@ -414,6 +509,8 @@ in {
           in
             pkgs.writeText "reaper-managed-${fileName}.json" (renderPayload sections bitfields removeSections))
           cfg.ini.generatedFiles;
+
+        generatedSchemaFile = schemaFile;
 
         writerPackage = pkgs.writeShellApplication {
           name = "write-config";

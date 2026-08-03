@@ -6,7 +6,7 @@
   ...
 }: let
   inherit (lib) mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield reaperTypes;
+  inherit (reaperLib) reaperBitfield reaperTypes reaperPreference reaperCodecs;
   inherit (reaperProject) decibelsToSlider envelopePointShapes automationModes fixedLaneRecordingBehaviors recordConfigMonitorInputModes recordConfigRecordModes sendHardwareOutputModes trackHeights trackMeterDisplays;
 
   cfg = config.programs.reaper.preferences.project.trackSendDefaults;
@@ -287,269 +287,314 @@ in {
     }
   ];
 
-  config.programs.reaper.ini.sections.reaper =
-    optionalAttrs (cfg.trackVolumeFaderGain != null) {
-      deftrackvol = decibelsToSlider cfg.trackVolumeFaderGain;
-    }
-    // optionalAttrs (cfg.trackHeightInNewProjects != null) {
-      defvzoom = trackHeights.${cfg.trackHeightInNewProjects};
-    }
-    // optionalAttrs (cfg.recordConfig.input != null) {
-      deftrackrecinput = cfg.recordConfig.input;
-    }
-    // optionalAttrs (cfg.sendsTrackHardwareOutputs.sendGain != null) {
-      defsendvol = decibelsToSlider cfg.sendsTrackHardwareOutputs.sendGain;
-    }
-    // optionalAttrs (cfg.sendsTrackHardwareOutputs.hardwareOutputGain != null) {
-      defhwvol = decibelsToSlider cfg.sendsTrackHardwareOutputs.hardwareOutputGain;
-    };
-
-  config.programs.reaper.ini.bitfields.reaper = reaperBitfield.entries {
-    defenvs = [
+  config.programs.reaper.ini.contributions =
+    reaperPreference.contributions [
       {
-        optionPath = "preferences.project.trackSendDefaults.visibleEnvelopes.preFxVolume";
-        gui = "Default visible envelope: Volume (pre-FX)";
-        option = cfg.visibleEnvelopes.preFxVolume;
-        bit = 1;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.visibleEnvelopes.preFxPan";
-        gui = "Default visible envelope: Pan (pre-FX)";
-        option = cfg.visibleEnvelopes.preFxPan;
-        bit = 2;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.visibleEnvelopes.volume";
-        gui = "Default visible envelope: Volume";
-        option = cfg.visibleEnvelopes.volume;
-        bit = 4;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.visibleEnvelopes.pan";
-        gui = "Default visible envelope: Pan";
-        option = cfg.visibleEnvelopes.pan;
-        bit = 8;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.visibleEnvelopes.mute";
-        gui = "Default visible envelope: Mute";
-        option = cfg.visibleEnvelopes.mute;
-        bit = 32768;
-      }
-
-      {
-        optionPath = "preferences.project.trackSendDefaults.envelopePointShape";
-        gui = "Default envelope point shape";
-        option = cfg.envelopePointShape;
-        mask = 458752;
-        value = envelopePointShapes.${cfg.envelopePointShape};
-      }
-    ];
-
-    defautomode = [
-      {
-        optionPath = "preferences.project.trackSendDefaults.automationMode";
-        gui = "Default automation mode";
-        option = cfg.automationMode;
-        mask = 7;
-        value = automationModes.${cfg.automationMode};
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.armNewEnvelopes";
-        gui = "Arm new envelopes";
-        option = cfg.armNewEnvelopes;
-        bit = 512;
-        inverted = true;
-      }
-    ];
-
-    newtflag = [
-      {
-        optionPath = "preferences.project.trackSendDefaults.showInMixer";
-        gui = "Show in mixer";
-        option = cfg.showInMixer;
-        bit = 1;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.mainParentSend";
-        gui = "Main (parent) send";
-        option = cfg.mainParentSend;
-        bit = 2;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.freeItemPositioning";
-        gui = "Free item positioning / Fixed item lanes";
-        configured = cfg.freeItemPositioning != null || cfg.fixedItemLanes != null;
-        mask = 12;
+        path = "preferences.project.trackSendDefaults.trackVolumeFaderGain";
         value =
-          if cfg.fixedItemLanes or false
-          then 8
-          else if cfg.freeItemPositioning or false
-          then 4
-          else 0;
+          if cfg.trackVolumeFaderGain != null
+          then decibelsToSlider cfg.trackVolumeFaderGain
+          else null;
+        section = "reaper";
+        key = "deftrackvol";
+        codec = {type = "decibels";};
       }
       {
-        optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.laneSize";
-        gui = "Fixed lane defaults: Small lanes / Big lanes";
-        option = cfg.fixedLaneDefaults.laneSize;
-        mask = 16;
+        path = "preferences.project.trackSendDefaults.trackHeightInNewProjects";
+        value = cfg.trackHeightInNewProjects;
+        section = "reaper";
+        key = "defvzoom";
+        codec = reaperCodecs.enum trackHeights;
+      }
+      {
+        path = "preferences.project.trackSendDefaults.recordConfig.input";
+        value = cfg.recordConfig.input;
+        section = "reaper";
+        key = "deftrackrecinput";
+        codec = "integer";
+      }
+      {
+        path = "preferences.project.trackSendDefaults.sendsTrackHardwareOutputs.sendGain";
         value =
-          if cfg.fixedLaneDefaults.laneSize == "smallLanes"
-          then 16
-          else 0;
+          if cfg.sendsTrackHardwareOutputs.sendGain != null
+          then decibelsToSlider cfg.sendsTrackHardwareOutputs.sendGain
+          else null;
+        section = "reaper";
+        key = "defsendvol";
+        codec = {type = "decibels";};
       }
       {
-        optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.showPlayOnlyOneLane";
-        gui = "Fixed lane defaults: Show/play only one lane";
-        option = cfg.fixedLaneDefaults.showPlayOnlyOneLane;
-        bit = 1048576;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.hideLaneButtons";
-        gui = "Fixed lane defaults: Hide lane buttons";
-        option = cfg.fixedLaneDefaults.hideLaneButtons;
-        bit = 524288;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.mediaItemsInHigherNumberedLanesMaskPlaybackOfLowerNumberedLanes";
-        gui = "Fixed lane defaults: Media items in higher numbered lanes mask playback of lower numbered lanes";
-        option = cfg.fixedLaneDefaults.mediaItemsInHigherNumberedLanesMaskPlaybackOfLowerNumberedLanes;
-        bit = 2097152;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.allowEditingSourceMediaWhileComping";
-        gui = "Fixed lane defaults: Allow editing source media while comping";
-        option = cfg.fixedLaneDefaults.allowEditingSourceMediaWhileComping;
-        bit = 65536;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.createCompAreasForNewRecordingWhileComping";
-        gui = "Fixed lane defaults: Create comp areas for new recording while comping";
-        option = cfg.fixedLaneDefaults.createCompAreasForNewRecordingWhileComping;
-        bit = 64;
-        inverted = true;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.newRecordingBehavior";
-        gui = "Fixed lane defaults: Override project recording behavior";
-        option = cfg.fixedLaneDefaults.newRecordingBehavior;
-        mask = 4587520;
-        value = fixedLaneRecordingBehaviors.${cfg.fixedLaneDefaults.newRecordingBehavior};
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.automaticallyDeleteEmptyLanesAtBottomOfTrack";
-        gui = "Fixed lane defaults: Automatically delete empty lanes at bottom of track";
-        option = cfg.fixedLaneDefaults.automaticallyDeleteEmptyLanesAtBottomOfTrack;
-        bit = 32;
-        inverted = true;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.trackMeterDisplay.display";
-        gui = "Track meter display";
-        option = cfg.trackMeterDisplay.display;
-        mask = 7296;
-        value = trackMeterDisplays.${cfg.trackMeterDisplay.display};
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.trackMeterDisplay.lufsMeasuresFirstTwoChannelsOnlyIgnoreSidechain";
-        gui = "LUFS measures first two channels only (ignore sidechain)";
-        option = cfg.trackMeterDisplay.lufsMeasuresFirstTwoChannelsOnlyIgnoreSidechain;
-        bit = 8192;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.trackMeterDisplay.displayGainReductionForPlugInsThatSupportIt";
-        gui = "Display gain reduction for plug-ins that support it";
-        option = cfg.trackMeterDisplay.displayGainReductionForPlugInsThatSupportIt;
-        bit = 16384;
-      }
-    ];
-
-    deftrackrecflags = [
-      {
-        optionPath = "preferences.project.trackSendDefaults.recordArm";
-        gui = "Record arm";
-        option = cfg.recordArm;
-        bit = 1;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.recordConfig.automaticRecordArmWhenTrackSelected";
-        gui = "Automatic record-arm when track selected";
-        option = cfg.recordConfig.automaticRecordArmWhenTrackSelected;
-        bit = 2;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.recordConfig.record";
-        gui = "Record";
-        option = cfg.recordConfig.record;
-        mask = 240;
-        value = recordConfigRecordModes.${cfg.recordConfig.record};
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.recordConfig.monitorInput";
-        gui = "Monitor Input";
-        option = cfg.recordConfig.monitorInput;
-        mask = 768;
-        value = recordConfigMonitorInputModes.${cfg.recordConfig.monitorInput};
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.recordConfig.monitorTrackMediaWhenRecording";
-        gui = "Monitor track media when recording";
-        option = cfg.recordConfig.monitorTrackMediaWhenRecording;
-        bit = 4096;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.recordConfig.preservePdcDelayedMonitoringInRecordedItems";
-        gui = "Preserve PDC delayed monitoring in recorded items";
-        option = cfg.recordConfig.preservePdcDelayedMonitoringInRecordedItems;
-        bit = 8192;
-      }
-    ];
-
-    volenvrange = [
-      {
-        optionPath = "preferences.project.trackSendDefaults.newVolumeEnvelopes.scaling";
-        gui = "Scaling for new volume envelopes";
-        option = cfg.newVolumeEnvelopes.scaling;
-        mask = 2;
+        path = "preferences.project.trackSendDefaults.sendsTrackHardwareOutputs.hardwareOutputGain";
         value =
-          if cfg.newVolumeEnvelopes.scaling == "volumeFader"
-          then 2
-          else 0;
+          if cfg.sendsTrackHardwareOutputs.hardwareOutputGain != null
+          then decibelsToSlider cfg.sendsTrackHardwareOutputs.hardwareOutputGain
+          else null;
+        section = "reaper";
+        key = "defhwvol";
+        codec = {type = "decibels";};
       }
-    ];
+    ]
+    ++ map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
+      defenvs = [
+        {
+          optionPath = "preferences.project.trackSendDefaults.visibleEnvelopes.preFxVolume";
+          gui = "Default visible envelope: Volume (pre-FX)";
+          option = cfg.visibleEnvelopes.preFxVolume;
+          bit = 1;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.visibleEnvelopes.preFxPan";
+          gui = "Default visible envelope: Pan (pre-FX)";
+          option = cfg.visibleEnvelopes.preFxPan;
+          bit = 2;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.visibleEnvelopes.volume";
+          gui = "Default visible envelope: Volume";
+          option = cfg.visibleEnvelopes.volume;
+          bit = 4;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.visibleEnvelopes.pan";
+          gui = "Default visible envelope: Pan";
+          option = cfg.visibleEnvelopes.pan;
+          bit = 8;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.visibleEnvelopes.mute";
+          gui = "Default visible envelope: Mute";
+          option = cfg.visibleEnvelopes.mute;
+          bit = 32768;
+        }
 
-    errnowarn = [
-      {
-        optionPath = "preferences.project.trackSendDefaults.newVolumeEnvelopes.warnWhenChangingScalingChangesEnvelopeSound";
-        gui = "Warn when changing volume envelope scaling changes envelope sound";
-        option = cfg.newVolumeEnvelopes.warnWhenChangingScalingChangesEnvelopeSound;
-        bit = 16;
-        inverted = true;
-      }
-    ];
+        {
+          optionPath = "preferences.project.trackSendDefaults.envelopePointShape";
+          gui = "Default envelope point shape";
+          option = cfg.envelopePointShape;
+          mask = 458752;
+          value = envelopePointShapes.${cfg.envelopePointShape};
+          importValues = envelopePointShapes;
+        }
+      ];
 
-    defsendflag = [
-      {
-        optionPath = "preferences.project.trackSendDefaults.sendsTrackHardwareOutputs.sendHardwareOutputMode";
-        gui = "Send/hardware output default mode";
-        option = cfg.sendsTrackHardwareOutputs.sendHardwareOutputMode;
-        mask = 3;
-        value = sendHardwareOutputModes.${cfg.sendsTrackHardwareOutputs.sendHardwareOutputMode};
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.sendsTrackHardwareOutputs.sendsSendMidiByDefault";
-        gui = "Sends send MIDI by default";
-        option = cfg.sendsTrackHardwareOutputs.sendsSendMidiByDefault;
-        bit = 256;
-        inverted = true;
-      }
-      {
-        optionPath = "preferences.project.trackSendDefaults.sendsTrackHardwareOutputs.sendsSendAudioByDefault";
-        gui = "Sends send audio by default";
-        option = cfg.sendsTrackHardwareOutputs.sendsSendAudioByDefault;
-        bit = 512;
-        inverted = true;
-      }
-    ];
-  };
+      defautomode = [
+        {
+          optionPath = "preferences.project.trackSendDefaults.automationMode";
+          gui = "Default automation mode";
+          option = cfg.automationMode;
+          mask = 7;
+          value = automationModes.${cfg.automationMode};
+          importValues = automationModes;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.armNewEnvelopes";
+          gui = "Arm new envelopes";
+          option = cfg.armNewEnvelopes;
+          bit = 512;
+          inverted = true;
+        }
+      ];
+
+      newtflag = [
+        {
+          optionPath = "preferences.project.trackSendDefaults.showInMixer";
+          gui = "Show in mixer";
+          option = cfg.showInMixer;
+          bit = 1;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.mainParentSend";
+          gui = "Main (parent) send";
+          option = cfg.mainParentSend;
+          bit = 2;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.freeItemPositioning";
+          gui = "Free item positioning / Fixed item lanes";
+          configured = cfg.freeItemPositioning != null || cfg.fixedItemLanes != null;
+          mask = 12;
+          value =
+            if cfg.fixedItemLanes or false
+            then 8
+            else if cfg.freeItemPositioning or false
+            then 4
+            else 0;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.laneSize";
+          gui = "Fixed lane defaults: Small lanes / Big lanes";
+          option = cfg.fixedLaneDefaults.laneSize;
+          mask = 16;
+          value =
+            if cfg.fixedLaneDefaults.laneSize == "smallLanes"
+            then 16
+            else 0;
+          importValues = {
+            smallLanes = 16;
+            bigLanes = 0;
+          };
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.showPlayOnlyOneLane";
+          gui = "Fixed lane defaults: Show/play only one lane";
+          option = cfg.fixedLaneDefaults.showPlayOnlyOneLane;
+          bit = 1048576;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.hideLaneButtons";
+          gui = "Fixed lane defaults: Hide lane buttons";
+          option = cfg.fixedLaneDefaults.hideLaneButtons;
+          bit = 524288;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.mediaItemsInHigherNumberedLanesMaskPlaybackOfLowerNumberedLanes";
+          gui = "Fixed lane defaults: Media items in higher numbered lanes mask playback of lower numbered lanes";
+          option = cfg.fixedLaneDefaults.mediaItemsInHigherNumberedLanesMaskPlaybackOfLowerNumberedLanes;
+          bit = 2097152;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.allowEditingSourceMediaWhileComping";
+          gui = "Fixed lane defaults: Allow editing source media while comping";
+          option = cfg.fixedLaneDefaults.allowEditingSourceMediaWhileComping;
+          bit = 65536;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.createCompAreasForNewRecordingWhileComping";
+          gui = "Fixed lane defaults: Create comp areas for new recording while comping";
+          option = cfg.fixedLaneDefaults.createCompAreasForNewRecordingWhileComping;
+          bit = 64;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.newRecordingBehavior";
+          gui = "Fixed lane defaults: Override project recording behavior";
+          option = cfg.fixedLaneDefaults.newRecordingBehavior;
+          mask = 4587520;
+          value = fixedLaneRecordingBehaviors.${cfg.fixedLaneDefaults.newRecordingBehavior};
+          importValues = fixedLaneRecordingBehaviors;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.fixedLaneDefaults.automaticallyDeleteEmptyLanesAtBottomOfTrack";
+          gui = "Fixed lane defaults: Automatically delete empty lanes at bottom of track";
+          option = cfg.fixedLaneDefaults.automaticallyDeleteEmptyLanesAtBottomOfTrack;
+          bit = 32;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.trackMeterDisplay.display";
+          gui = "Track meter display";
+          option = cfg.trackMeterDisplay.display;
+          mask = 7296;
+          value = trackMeterDisplays.${cfg.trackMeterDisplay.display};
+          importValues = trackMeterDisplays;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.trackMeterDisplay.lufsMeasuresFirstTwoChannelsOnlyIgnoreSidechain";
+          gui = "LUFS measures first two channels only (ignore sidechain)";
+          option = cfg.trackMeterDisplay.lufsMeasuresFirstTwoChannelsOnlyIgnoreSidechain;
+          bit = 8192;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.trackMeterDisplay.displayGainReductionForPlugInsThatSupportIt";
+          gui = "Display gain reduction for plug-ins that support it";
+          option = cfg.trackMeterDisplay.displayGainReductionForPlugInsThatSupportIt;
+          bit = 16384;
+        }
+      ];
+
+      deftrackrecflags = [
+        {
+          optionPath = "preferences.project.trackSendDefaults.recordArm";
+          gui = "Record arm";
+          option = cfg.recordArm;
+          bit = 1;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.recordConfig.automaticRecordArmWhenTrackSelected";
+          gui = "Automatic record-arm when track selected";
+          option = cfg.recordConfig.automaticRecordArmWhenTrackSelected;
+          bit = 2;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.recordConfig.record";
+          gui = "Record";
+          option = cfg.recordConfig.record;
+          mask = 240;
+          value = recordConfigRecordModes.${cfg.recordConfig.record};
+          importValues = recordConfigRecordModes;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.recordConfig.monitorInput";
+          gui = "Monitor Input";
+          option = cfg.recordConfig.monitorInput;
+          mask = 768;
+          value = recordConfigMonitorInputModes.${cfg.recordConfig.monitorInput};
+          importValues = recordConfigMonitorInputModes;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.recordConfig.monitorTrackMediaWhenRecording";
+          gui = "Monitor track media when recording";
+          option = cfg.recordConfig.monitorTrackMediaWhenRecording;
+          bit = 4096;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.recordConfig.preservePdcDelayedMonitoringInRecordedItems";
+          gui = "Preserve PDC delayed monitoring in recorded items";
+          option = cfg.recordConfig.preservePdcDelayedMonitoringInRecordedItems;
+          bit = 8192;
+        }
+      ];
+
+      volenvrange = [
+        {
+          optionPath = "preferences.project.trackSendDefaults.newVolumeEnvelopes.scaling";
+          gui = "Scaling for new volume envelopes";
+          option = cfg.newVolumeEnvelopes.scaling;
+          mask = 2;
+          value =
+            if cfg.newVolumeEnvelopes.scaling == "volumeFader"
+            then 2
+            else 0;
+          importValues = {
+            amplitude = 0;
+            volumeFader = 2;
+          };
+        }
+      ];
+
+      errnowarn = [
+        {
+          optionPath = "preferences.project.trackSendDefaults.newVolumeEnvelopes.warnWhenChangingScalingChangesEnvelopeSound";
+          gui = "Warn when changing volume envelope scaling changes envelope sound";
+          option = cfg.newVolumeEnvelopes.warnWhenChangingScalingChangesEnvelopeSound;
+          bit = 16;
+          inverted = true;
+        }
+      ];
+
+      defsendflag = [
+        {
+          optionPath = "preferences.project.trackSendDefaults.sendsTrackHardwareOutputs.sendHardwareOutputMode";
+          gui = "Send/hardware output default mode";
+          option = cfg.sendsTrackHardwareOutputs.sendHardwareOutputMode;
+          mask = 3;
+          value = sendHardwareOutputModes.${cfg.sendsTrackHardwareOutputs.sendHardwareOutputMode};
+          importValues = sendHardwareOutputModes;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.sendsTrackHardwareOutputs.sendsSendMidiByDefault";
+          gui = "Sends send MIDI by default";
+          option = cfg.sendsTrackHardwareOutputs.sendsSendMidiByDefault;
+          bit = 256;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.project.trackSendDefaults.sendsTrackHardwareOutputs.sendsSendAudioByDefault";
+          gui = "Sends send audio by default";
+          option = cfg.sendsTrackHardwareOutputs.sendsSendAudioByDefault;
+          bit = 512;
+          inverted = true;
+        }
+      ];
+    });
 }

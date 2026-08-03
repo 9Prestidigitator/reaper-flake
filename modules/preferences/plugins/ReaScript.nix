@@ -32,7 +32,7 @@ in {
       pythonlibdll64 = "libpython${cfg.python.package.pythonVersion}.so";
     };
 
-    bitfields.reaper = reaperBitfield.entries {
+    contributions = map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
       reascript = [
         {
           optionPath = "preferences.plugIns.reascript.python.enable";
@@ -42,6 +42,6 @@ in {
           bit = 1;
         }
       ];
-    };
+    });
   };
 }

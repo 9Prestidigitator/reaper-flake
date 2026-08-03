@@ -15,13 +15,17 @@
   verticalScrollStep = scroll.verticalScrollStep;
   overlap = scroll.overlappingMediaItems;
 
-  reaperBitfields = reaperBitfield.entries {
+  reaperBitfieldContributions = reaperBitfield.contributions {
     vscrollflag = [
       {
         optionPath = "preferences.appearance.zoomScrollOffset.verticalScrollStep.unit";
         gui = "Vertical scroll step unit";
         option = verticalScrollStep.unit;
         mask = 1;
+        importValues = {
+          trackHeight = 0;
+          arrangeViewHeight = 1;
+        };
         value =
           if verticalScrollStep.unit == reaperLib.reaperAppearance.zoomScrollOffset.verticalScrollStep.units.arrangeViewHeight
           then 1
@@ -174,5 +178,5 @@ in {
     // optionalAttrs (cfg.zoomScrollOffset.verticalScrollStep.trackHeight != null) {vscrollstep = cfg.zoomScrollOffset.verticalScrollStep.trackHeight;}
     // optionalAttrs (cfg.zoomScrollOffset.verticalScrollStep.arrangeViewHeight != null) {vscrollstep2 = cfg.zoomScrollOffset.verticalScrollStep.arrangeViewHeight;};
 
-  config.programs.reaper.ini.bitfields.reaper = reaperBitfields;
+  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) reaperBitfieldContributions;
 }

@@ -59,7 +59,6 @@
   reaperBitfieldContributions = reaperBitfield.contributions {
     saveopts = [
       {
-        optionPath = "preferences.project.backups.whenSaving.*";
         gui = "Preserve previous project versions when saving";
         configured = configuredSaveBackupMode;
         mask = 1;
@@ -111,6 +110,10 @@
           if timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.unit == "uniqueDays"
           then 64
           else 0;
+        importValues = {
+          copies = 0;
+          uniqueDays = 64;
+        };
       }
       {
         optionPath = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInProjectDirectory.limitAutoSavedBackupsToMostRecent.enable";
@@ -127,6 +130,10 @@
           if projectDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.unit == "uniqueDays"
           then 256
           else 0;
+        importValues = {
+          copies = 0;
+          uniqueDays = 256;
+        };
       }
       {
         optionPath = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInAdditionalDirectory.limitAutoSavedBackupsToMostRecent.enable";
@@ -140,6 +147,7 @@
         option = additionalDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.mode;
         mask = 3072;
         value = additionalDirectoryLimitModes.${additionalDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.mode};
+        importValues = additionalDirectoryLimitModes;
       }
       {
         optionPath = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.saveTimestampedBackupsToProjectBackupsSubdirectory";

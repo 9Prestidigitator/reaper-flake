@@ -15,13 +15,14 @@
   # TODO(max): This option set is scoped terribly. Will likely move these
   # options somewhere else that makes more sense.
 
-  reaperBitfields = reaperBitfield.entries {
+  reaperBitfieldContributions = reaperBitfield.contributions {
     help = [
       {
         optionPath = "windows.tcpHelpBar.informationDisplay";
         gui = "TCP help bar information display";
         option = tcpHelpBar.informationDisplay;
         mask = 7;
+        importValues = reaperLib.reaperWindows.tcpHelpBar.informationDisplay;
       }
       {
         optionPath = "windows.tcpHelpBar.showMouseEditingHelp";
@@ -35,6 +36,7 @@
         gui = "Performance meter CPU utilization display";
         option = performanceMeter.cpuUtilizationDisplay;
         mask = 393216;
+        importValues = reaperLib.reaperWindows.performanceMeter.cpuUtilizationDisplay;
       }
     ];
 
@@ -400,6 +402,6 @@ in {
     programs.reaper.ini.sections.reaper =
       optionalAttrs (mixer.scrollViewWhenTracksActivated != null) {showctinmix = mixer.scrollViewWhenTracksActivated;};
 
-    programs.reaper.ini.bitfields.reaper = reaperBitfields;
+    programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) reaperBitfieldContributions;
   };
 }

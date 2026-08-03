@@ -44,7 +44,7 @@
       if configured
       then mask
       else 0;
-    inherit value;
+    inherit falseValue trueValue value;
   };
 
   from = specs: let
@@ -63,9 +63,16 @@
         inherit key;
         mask = bitfield.mask;
         value = bitfield.value;
+        falseValue = bitfield.falseValue;
+        trueValue = bitfield.trueValue;
       }
       // lib.optionalAttrs (spec ? optionPath) {inherit (spec) optionPath;}
       // lib.optionalAttrs (spec ? gui) {inherit (spec) gui;}
+      // lib.optionalAttrs (spec ? option && builtins.isBool spec.option) {valueType = "bool";}
+      // lib.optionalAttrs (spec ? option && builtins.isString spec.option) {valueType = "enum";}
+      // lib.optionalAttrs (spec ? importValues) {valueType = "enum";}
+      // lib.optionalAttrs (spec ? option && builtins.isInt spec.option && !(spec ? importValues)) {valueType = "integer";}
+      // lib.optionalAttrs (spec ? importValues) {inherit (spec) importValues;}
     );
 in {
   inherit from;

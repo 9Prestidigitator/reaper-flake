@@ -43,11 +43,22 @@
             prettier --write "$repo/docs/preferences.md"
           '';
         };
+        reaper2nix = pkgs.writeShellApplication {
+          name = "reaper2nix";
+          runtimeInputs = [pkgs.python3];
+          text = ''exec python3 ${./scripts/reaper2nix.py} "$@"'';
+        };
       in {
         apps.generate-preferences-docs = {
           type = "app";
           program = pkgs.lib.getExe generatePreferencesDocs;
           meta.description = "Generate Markdown documentation for REAPER preference options";
+        };
+
+        apps.reaper2nix = {
+          type = "app";
+          program = pkgs.lib.getExe reaper2nix;
+          meta.description = "Convert supported REAPER INI values to reaper-flake declarations";
         };
 
         devShells.default = pkgs.callPackage ./devshell.nix {};

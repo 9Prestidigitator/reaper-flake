@@ -19,7 +19,7 @@
     then 1
     else 2 * powerOfTwo (exponent - 1);
 
-  reaperBitfields = reaperBitfield.entries {
+  reaperBitfieldContributions = reaperBitfield.contributions {
     multinst = [
       {
         optionPath = "preferences.general.startupSettings.createNewProjectTabWhenOpeningMedia";
@@ -72,6 +72,7 @@
         gui = "Recent project list display";
         option = recentProjectList.display;
         mask = 11;
+        importValues = reaperLib.reaperGeneral.recentProjectListDisplay;
       }
       {
         optionPath = "preferences.general.recentProjectList.addLoadedProjects";
@@ -416,9 +417,8 @@ in {
       workset_max = advancedUiSystemTweaks.processWorkingSet.maximum;
     };
 
-  config.programs.reaper.ini.bitfields.reaper =
-    reaperBitfields
-    // reaperBitfield.entries {
+  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) (reaperBitfieldContributions
+    ++ reaperBitfield.contributions {
       restrictcpu = [
         {
           optionPath = "preferences.general.advancedUiSystemTweaks.cpuAffinity.enable";
@@ -433,5 +433,5 @@ in {
           bit = 2;
         }
       ];
-    };
+    });
 }

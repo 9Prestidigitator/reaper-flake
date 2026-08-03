@@ -72,7 +72,7 @@ in {
     // optionalAttrs (cfg.peakCache.useAlternatePathForPaths != null) {altpeaksopathlist = cfg.peakCache.useAlternatePathForPaths;}
     // optionalAttrs (cfg.doNotCopyOrMoveMediaFromTheFollowingPaths != null) {nocopyfrompaths = cfg.doNotCopyOrMoveMediaFromTheFollowingPaths;};
 
-  config.programs.reaper.ini.bitfields.reaper = reaperBitfield.entries {
+  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
     altpeaks = [
       {
         optionPath = "preferences.general.paths.peakCache.storeAllInAlternatePath";
@@ -81,5 +81,5 @@ in {
         bit = 1;
       }
     ];
-  };
+  });
 }

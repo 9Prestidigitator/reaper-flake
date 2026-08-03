@@ -178,7 +178,7 @@ in {
       multitouch_ignorewheel_ms = cfg.multitouch.ignoreScrollAfterGestureMilliseconds;
     };
 
-  config.programs.reaper.ini.bitfields.reaper = reaperBitfield.entries {
+  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
     kbd_usealt = [
       {
         optionPath = "preferences.general.keyboardMultitouch.useAlternateKeyboardSectionWhenRecording";
@@ -287,5 +287,5 @@ in {
         bit = 1024;
       }
     ];
-  };
+  });
 }

@@ -102,7 +102,7 @@ in {
       projversuffix = cfg.projectSaving.saveNewVersionSuffix;
     };
 
-  config.programs.reaper.ini.bitfields.reaper = reaperBitfield.entries {
+  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
     newprojdo = [
       {
         optionPath = "preferences.project.promptToSaveOnNewProject";
@@ -127,5 +127,5 @@ in {
         inverted = true;
       }
     ];
-  };
+  });
 }
