@@ -100,7 +100,7 @@ in {
       showlastundo = cfg.showLastUndoPointInMenuBar;
     };
 
-  config.programs.reaper.ini.bitfields.reaper = reaperBitfield.entries {
+  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
     undomask = [
       # TODO(max): Check this toggle, I'm warry about this bitfield
       {
@@ -168,5 +168,5 @@ in {
         bit = 256;
       }
     ];
-  };
+  });
 }

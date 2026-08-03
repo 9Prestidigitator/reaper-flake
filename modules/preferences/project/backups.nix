@@ -56,7 +56,7 @@
       (timestampedSaveBackups.enable == true)
     ]);
 
-  reaperBitfields = reaperBitfield.entries {
+  reaperBitfieldContributions = reaperBitfield.contributions {
     saveopts = [
       {
         optionPath = "preferences.project.backups.whenSaving.*";
@@ -370,5 +370,5 @@ in {
     // optionalAttrs (additionalDirectoryAutoSave.path != null) {autosavedir = additionalDirectoryAutoSave.path;}
     // optionalAttrs (autoSave.autoSavePathForUnsavedProjects.path != null) {autosavedir_unsaved = autoSave.autoSavePathForUnsavedProjects.path;};
 
-  config.programs.reaper.ini.bitfields.reaper = reaperBitfields;
+  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) reaperBitfieldContributions;
 }

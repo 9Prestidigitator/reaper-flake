@@ -1,5 +1,5 @@
 {lib}: let
-  inherit (lib) filterAttrs;
+  inherit (lib) concatLists filterAttrs optional;
 
   sum = builtins.foldl' (total: value: total + value) 0;
 
@@ -53,6 +53,20 @@
     mask = sum (map (entry: entry.mask) parts);
     value = sum (map (entry: entry.value) parts);
   };
+
+  contribution = key: spec: let
+    bitfield = part spec;
+  in
+    optional (bitfield.mask != 0) (
+      {
+        kind = "bitfield";
+        inherit key;
+        mask = bitfield.mask;
+        value = bitfield.value;
+      }
+      // lib.optionalAttrs (spec ? optionPath) {inherit (spec) optionPath;}
+      // lib.optionalAttrs (spec ? gui) {inherit (spec) gui;}
+    );
 in {
   inherit from;
 
@@ -66,4 +80,7 @@ in {
   entries = fields:
     filterAttrs (_: bitfield: bitfield.mask != 0)
     (builtins.mapAttrs (_: specs: from specs) fields);
+
+  contributions = fields:
+    concatLists (lib.mapAttrsToList (key: specs: concatLists (map (contribution key) specs)) fields);
 }
