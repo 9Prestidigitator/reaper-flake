@@ -68,15 +68,44 @@
           meta.description = "Convert supported REAPER INI values to reaper-flake declarations";
         };
 
-        checks.reaper2nix =
-          pkgs.runCommand "reaper2nix-tests" {
-            nativeBuildInputs = [pkgs.python3];
-            REAPER2NIX_SCRIPT = ./scripts/reaper2nix.py;
-            REAPER_SCHEMA_PATH = reaperSchema;
-          } ''
-            python3 -m unittest discover -s ${./tests} -v
-            touch "$out"
-          '';
+        checks = {
+          reaper2nix =
+            pkgs.runCommand "reaper2nix-tests" {
+              nativeBuildInputs = [pkgs.python3];
+              REAPER2NIX_SCRIPT = ./scripts/reaper2nix.py;
+            } ''
+              python3 ${./tests/test_reaper2nix.py} -v
+              touch "$out"
+            '';
+
+          schema =
+            pkgs.runCommand "reaper-schema-tests" {
+              nativeBuildInputs = [pkgs.python3];
+              REAPER_SCHEMA_PATH = reaperSchema;
+            } ''
+              python3 ${./tests/test_schema.py} -v
+              touch "$out"
+            '';
+
+          reapack-startup =
+            pkgs.runCommand "reapack-startup-tests" {
+              nativeBuildInputs = [pkgs.lua];
+              LUA = pkgs.lib.getExe pkgs.lua;
+              REAPACK_MODULE = ./modules/extensions/reapack.nix;
+            } ''
+              ${pkgs.python3.interpreter} ${./tests/test_reapack_startup.py} -v
+              touch "$out"
+            '';
+
+          write-config =
+            pkgs.runCommand "reaper-write-config-tests" {
+              nativeBuildInputs = [pkgs.python3];
+              WRITE_CONFIG_SCRIPT = ./scripts/write_config.py;
+            } ''
+              python3 ${./tests/test_write_config.py} -v
+              touch "$out"
+            '';
+        };
 
         devShells.default = pkgs.callPackage ./devshell.nix {};
         packages =

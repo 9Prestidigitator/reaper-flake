@@ -9,8 +9,9 @@ index 5e8dabc..fdca930 100644
    extern APIFunc ProcessQueue;
  
    // api_package.cpp
-@@ -57,4 +58,6 @@ namespace API {
+@@ -57,4 +58,7 @@ namespace API {
    extern APIFunc GetEntryInfo;
++  extern APIFunc GetInstalledPackageInfo;
    extern APIFunc GetOwner;
 +  extern APIFunc QueuePackage;
 +  extern APIFunc QueueUninstallPackage;
@@ -38,10 +39,35 @@ diff --git a/src/api_package.cpp b/src/api_package.cpp
 index 2a43cad..5a6da39 100644
 --- a/src/api_package.cpp
 +++ b/src/api_package.cpp
-@@ -167,3 +167,102 @@ R"(Returns the package entry owning the given file.
+@@ -167,3 +167,127 @@ R"(Returns the package entry owning the given file.
      return nullptr;
    }
  });
++
++DEFINE_API(bool, GetInstalledPackageInfo, ((const char*, repoName))
++  ((const char*, categoryName))((const char*, packageName))
++  ((char*, versionOut))((int, versionOut_sz))((int*, flagsOut)),
++R"(Return whether the identified package is installed. When installed,
++versionOut receives its installed version and flagsOut receives its registry
++flags (&1=Pinned, &2=BleedingEdge).)",
++{
++  try {
++    const Registry registry(Path::REGISTRY.prependRoot());
++    for(const Registry::Entry &entry : registry.getEntries(repoName)) {
++      if(entry.category == categoryName && entry.package == packageName) {
++        if(versionOut)
++          snprintf(versionOut, versionOut_sz, "%s", entry.version.toString().c_str());
++        if(flagsOut)
++          *flagsOut = entry.flags;
++        return true;
++      }
++    }
++  }
++  catch(const reapack_error &) {
++  }
++
++  return false;
++});
 +
 +DEFINE_API(bool, QueuePackage, ((const char*, repoName))
 +  ((const char*, categoryName))((const char*, packageName))
@@ -145,8 +171,9 @@ diff --git a/src/reapack.cpp b/src/reapack.cpp
 index a14e0ce..632db99 100644
 --- a/src/reapack.cpp
 +++ b/src/reapack.cpp
-@@ -137,7 +137,10 @@ void ReaPack::setupAPI()
+@@ -137,7 +137,11 @@ void ReaPack::setupAPI()
    m_api.emplace_back(&API::GetEntryInfo);
++  m_api.emplace_back(&API::GetInstalledPackageInfo);
    m_api.emplace_back(&API::GetOwner);
    m_api.emplace_back(&API::GetRepositoryInfo);
 +  m_api.emplace_back(&API::IsBusy);
@@ -156,7 +183,7 @@ index a14e0ce..632db99 100644
  }
  
  void ReaPack::synchronizeAll()
-@@ -272,7 +275,7 @@ void ReaPack::aboutSelf()
+@@ -272,7 +276,7 @@ void ReaPack::aboutSelf()
    about(remote("ReaPack"));
  }
  
@@ -165,12 +192,13 @@ index a14e0ce..632db99 100644
  {
    if(m_progress && m_progress->isVisible())
      m_progress->setFocus();
-@@ -296,7 +299,7 @@ Transaction *ReaPack::setupTransaction()
+@@ -296,7 +300,8 @@ Transaction *ReaPack::setupTransaction()
    m_tx->onFinish >> [=] {
      m_progress.reset();
  
 -    if(!m_tx->isCancelled() && !m_tx->receipt()->empty()) {
-+    if(showReport && !m_tx->isCancelled() && !m_tx->receipt()->empty()) {
++    if((showReport || m_tx->receipt()->test(Receipt::ErrorFlag)) &&
++        !m_tx->isCancelled() && !m_tx->receipt()->empty()) {
        LockDialog managerLock(m_manager.get());
        LockDialog browserLock(m_browser.get());
  

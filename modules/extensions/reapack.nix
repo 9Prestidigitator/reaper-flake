@@ -182,6 +182,7 @@
     local function wait_for_api()
       attempts = attempts + 1
       local required_apis = {
+        "ReaPack_GetInstalledPackageInfo",
         "ReaPack_IsBusy",
         "ReaPack_QueuePackage",
         "ReaPack_QueueUninstallPackage",
@@ -250,11 +251,53 @@
       os.remove(package_request)
     end
 
+    local removed = {}
+
+    local function verify_packages()
+      local errors = {}
+
+      for _, entry in ipairs(desired) do
+        local installed, version, flags = reaper.ReaPack_GetInstalledPackageInfo(
+          entry[1], entry[2], entry[3])
+        if not installed then
+          errors[#errors + 1] = identity(entry) .. ": package was not installed"
+        elseif entry[4] ~= "" and version ~= entry[4] then
+          errors[#errors + 1] = identity(entry) ..
+            ": requested version " .. entry[4] .. ", installed " .. (version or "unknown")
+        else
+          local expected_flags = (entry[5] == "1" and 1 or 0) +
+            (entry[6] == "1" and 2 or 0)
+          if flags ~= expected_flags then
+            errors[#errors + 1] = identity(entry) ..
+              ": requested registry flags " .. expected_flags ..
+              ", installed flags " .. tostring(flags)
+          end
+        end
+      end
+
+      for _, entry in ipairs(removed) do
+        if reaper.ReaPack_GetInstalledPackageInfo(entry[1], entry[2], entry[3]) then
+          errors[#errors + 1] = identity(entry) .. ": package was not removed"
+        end
+      end
+
+      return errors
+    end
+
     local function wait_for_package_transaction()
       if reaper.ReaPack_IsBusy(false) then
         reaper.defer(wait_for_package_transaction)
       else
-        write_managed()
+        local errors = verify_packages()
+        if #errors == 0 then
+          write_managed()
+        else
+          reaper.ShowMessageBox(
+            "ReaPack did not apply the requested package state. " ..
+              "The request was retained and will be retried next startup.\n\n" ..
+              table.concat(errors, "\n"),
+            "reaper-flake: ReaPack package transaction failed", 0)
+        end
       end
     end
 
@@ -275,6 +318,7 @@
 
       for _, entry in ipairs(read_lines(managed_packages)) do
         if not desired_by_identity[identity(entry)] then
+          removed[#removed + 1] = entry
           local ok, err = reaper.ReaPack_QueueUninstallPackage(
             entry[1], entry[2], entry[3])
           if not ok then

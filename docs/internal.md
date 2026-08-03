@@ -40,6 +40,7 @@ The module records the last values it managed under:
 This is a state directory, not REAPER input. It lets a later activation answer two important questions:
 
 - Which keys or records did the previous Nix generation own?
+- Which masks within a shared bitfield key did it own?
 - Has the user changed one of those values since that generation?
 
 The state is what permits scoped cleanup rather than replacing an entire configuration file. Deleting `.nix-managed` is safe in the sense that REAPER will still run, but the next activation treats existing configuration as unmanaged and cannot remove stale entries from an earlier generation.
@@ -87,6 +88,15 @@ new = (old & ~mask) | (value & mask)
 ```
 
 This allows independent Nix options to control separate bits without clobbering unmanaged bits in the same REAPER setting. Direct key/value assignments take precedence over a bitfield result for the same key.
+
+The ownership state records the aggregate mask managed for every bitfield key. When a previously managed option becomes null or is removed, the writer computes and clears only the released mask:
+
+```text
+releasedMask = previousMask & ~currentMask
+new = (old & ~(releasedMask | currentMask)) | (value & currentMask)
+```
+
+REAPER's default value for an individual bit is zero, so clearing the released mask restores the default for those options while preserving every bit Nix never owned. A bitfield option that has always been null has no previous mask and therefore does not alter the existing key. Ownership-state version 1 did not distinguish direct keys from resolved bitfield values; it is migrated conservatively to the mask-aware version 2 format after one activation.
 
 ### Removing sections
 
@@ -152,7 +162,7 @@ The resulting mapping should identify the public option path and type, physical 
 
 ### Define the public option
 
-Preferences should normally be nullable and default to `null`. Null means that the flake knows about the option but does not manage its value:
+Preferences should normally be nullable and default to `null`. Null means that the flake knows about the option but it is not part of the current generation's managed values:
 
 ```nix
 options.programs.reaper.preferences.audio.example.enable =
@@ -164,7 +174,7 @@ options.programs.reaper.preferences.audio.example.enable =
   };
 ```
 
-The static schema still contains the contribution when this option is null.
+The static schema still contains the contribution when this option is null. An option that has always been null leaves the existing INI value untouched. Transitioning a previously managed whole-key option to null invokes safe stale-key cleanup; transitioning a previously managed bitfield option to null clears its formerly owned mask to zero.
 
 ### Whole-key values
 

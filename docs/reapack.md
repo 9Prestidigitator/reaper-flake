@@ -364,9 +364,12 @@ The activation and startup sequence is:
 6. The script queues declared installs and upgrades.
 7. It queues removals that were in the previous managed set but are no longer
    declared.
-8. ReaPack processes the transaction without an interactive completion dialog.
-9. After the transaction finishes, the script writes `.nix-managed-packages`
-   and removes the package request.
+8. ReaPack processes the transaction without an interactive success dialog.
+   Its native report is still shown if the transaction records an error.
+9. After the transaction finishes, the script verifies the requested installs,
+   versions, flags, and removals against ReaPack's registry.
+10. Only after verification succeeds does it write `.nix-managed-packages` and
+    remove the package request. A failed request is retained for the next start.
 
 The files under `ReaPack/` have separate responsibilities:
 
@@ -415,11 +418,18 @@ The exact `version` is absent from the current repository index. Inspect the pac
 
 ### Missing managed-package API
 
-If the startup dialog lists `ReaPack_IsBusy`, `ReaPack_QueuePackage`, or `ReaPack_QueueUninstallPackage`, the configured extension is an unpatched upstream build. Remove the `package` override or select this flake's `packages.${pkgs.system}.reapack` output.
+If the startup dialog lists `ReaPack_GetInstalledPackageInfo`, `ReaPack_IsBusy`,
+`ReaPack_QueuePackage`, or `ReaPack_QueueUninstallPackage`, the configured
+extension is an unpatched upstream build. Remove the `package` override or
+select this flake's `packages.${pkgs.system}.reapack` output.
 
 ### A rejected request reappears at every startup
 
-The package request is deliberately retained after a lookup or queueing error. Correct the declaration, close REAPER, activate the new configuration, and start REAPER again. A completed transaction removes the request.
+The package request is deliberately retained after a lookup, queueing,
+transaction, or post-transaction verification error. ReaPack shows its native
+error report for download and installation failures, followed by a concise list
+of desired entries that remain unsatisfied. Correct the reported issue and
+restart REAPER to retry. A verified transaction removes the request.
 
 ### A package was not removed
 

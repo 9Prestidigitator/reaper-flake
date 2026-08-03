@@ -20,6 +20,13 @@ class Line:
     key: str | None = None
 
 
+@dataclass
+class ManagedState:
+    sections: dict[str, dict[str, str]]
+    bitfields: dict[str, dict[str, dict[str, int]]]
+    legacy: bool = False
+
+
 def is_entry_line(text: str) -> bool:
     stripped = text.lstrip()
     return "=" in text and not stripped.startswith(("#", ";", "["))
@@ -60,8 +67,16 @@ def save_target(path: Path, lines: list[Line]) -> None:
     write_atomic(path, content)
 
 
-def save_state(path: Path, sections: dict[str, dict[str, str]]) -> None:
-    content = json.dumps({"version": 1, "sections": sections}, sort_keys=True, indent=4)
+def save_state(
+    path: Path,
+    sections: dict[str, dict[str, str]],
+    bitfields: dict[str, dict[str, dict[str, int]]],
+) -> None:
+    content = json.dumps(
+        {"version": 2, "sections": sections, "bitfields": bitfields},
+        sort_keys=True,
+        indent=4,
+    )
     content += "\n"
     write_atomic(path, content)
 
@@ -166,6 +181,12 @@ def has_managed_values(sections: dict[str, dict[str, str]]) -> bool:
     return any(entries for entries in sections.values())
 
 
+def has_managed_bitfields(
+    bitfields: dict[str, dict[str, dict[str, int]]],
+) -> bool:
+    return any(entries for entries in bitfields.values())
+
+
 # Only remove stale keys if it contains the exact old value
 def remove_stale(
     lines: list[Line],
@@ -216,36 +237,49 @@ def intish(value: str) -> int:
         return 0
 
 
-def resolve_current(
-    payload: dict[str, Any], lines: list[Line]
-) -> dict[str, dict[str, str]]:
-    direct = normalize_sections(payload.get("sections", {}))
-    bitfields = payload.get("bitfields", {})
-    current_values: dict[tuple[str, str], str] = {}
+def current_values(lines: list[Line]) -> dict[tuple[str, str], str]:
+    values: dict[tuple[str, str], str] = {}
     for line in lines:
         if line.key is not None:
-            current_values[(line.section or "", line.key)] = value_part(line.text)
-    resolved: dict[str, dict[str, str]] = {}
+            values[(line.section or "", line.key)] = value_part(line.text)
+    return values
 
-    if isinstance(bitfields, dict):
-        for section, entries in bitfields.items():
-            if not isinstance(entries, dict):
-                continue
-            section_name = str(section)
-            for key, entry in entries.items():
-                if not isinstance(entry, dict):
-                    continue
-                key_name = str(key)
-                mask = int(entry.get("mask", 0))
-                value = int(entry.get("value", 0))
-                old_value = intish(current_values.get((section_name, key_name), "0"))
-                new_value = (old_value & ~mask) | (value & mask)
-                resolved.setdefault(section_name, {})[key_name] = str(new_value)
 
-    for section, entries in direct.items():
-        resolved.setdefault(section, {}).update(entries)
+def resolve_bitfield_updates(
+    current: dict[str, dict[str, dict[str, int]]],
+    previous: dict[str, dict[str, dict[str, int]]],
+    lines: list[Line],
+) -> dict[str, dict[str, str]]:
+    """Apply current masks and clear masks released since the prior generation."""
 
-    return resolved
+    existing = current_values(lines)
+    updates: dict[str, dict[str, str]] = {}
+    identities = {
+        (section, key)
+        for bitfields in (current, previous)
+        for section, entries in bitfields.items()
+        for key in entries
+    }
+
+    for section, key in sorted(identities):
+        previous_entry = previous.get(section, {}).get(key, {})
+        current_entry = current.get(section, {}).get(key, {})
+        previous_mask = int(previous_entry.get("mask", 0))
+        mask = int(current_entry.get("mask", 0))
+        value = int(current_entry.get("value", 0))
+        released_mask = previous_mask & ~mask
+        touched_mask = released_mask | mask
+        if touched_mask == 0:
+            continue
+        if mask == 0 and (section, key) not in existing:
+            # The key already uses REAPER's all-zero default implicitly.
+            continue
+
+        old_value = intish(existing.get((section, key), "0"))
+        new_value = (old_value & ~touched_mask) | (value & mask)
+        updates.setdefault(section, {})[key] = str(new_value)
+
+    return updates
 
 
 # Convert everything that looks like a section map into INI string values
@@ -266,6 +300,30 @@ def normalize_sections(value: Any) -> dict[str, dict[str, str]]:
     return sections
 
 
+def normalize_bitfields(
+    value: Any,
+) -> dict[str, dict[str, dict[str, int]]]:
+    bitfields: dict[str, dict[str, dict[str, int]]] = {}
+    if not isinstance(value, dict):
+        return bitfields
+
+    for section, entries in value.items():
+        if not isinstance(entries, dict):
+            continue
+        for key, entry in entries.items():
+            if not isinstance(entry, dict):
+                continue
+            mask = int(entry.get("mask", 0))
+            if mask == 0:
+                continue
+            bitfields.setdefault(str(section), {})[str(key)] = {
+                "mask": mask,
+                "value": int(entry.get("value", 0)) & mask,
+            }
+
+    return bitfields
+
+
 def load_payload(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         payload = json.load(handle)
@@ -276,25 +334,32 @@ def load_payload(path: Path) -> dict[str, Any]:
     return payload
 
 
-def load_previous_state(path: Path) -> dict[str, dict[str, str]]:
+def load_previous_state(path: Path) -> ManagedState:
     try:
         text = path.read_text(encoding="utf-8")
     except FileNotFoundError:
-        return {}
+        return ManagedState({}, {})
     if not text.strip():
-        return {}
+        return ManagedState({}, {})
 
     try:
         decoded = json.loads(text)
     except json.JSONDecodeError:
-        return parse_legacy_state(text)
+        return ManagedState(parse_legacy_state(text), {}, legacy=True)
 
     if not isinstance(decoded, dict):
-        return {}
+        return ManagedState({}, {})
+    if decoded.get("version") == 2:
+        return ManagedState(
+            normalize_sections(decoded.get("sections", {})),
+            normalize_bitfields(decoded.get("bitfields", {})),
+        )
     if decoded.get("version") == 1:
-        return normalize_sections(decoded.get("sections", {}))
+        return ManagedState(
+            normalize_sections(decoded.get("sections", {})), {}, legacy=True
+        )
 
-    return normalize_sections(decoded)
+    return ManagedState(normalize_sections(decoded), {}, legacy=True)
 
 
 def read_target(path: Path) -> list[Line]:
@@ -318,22 +383,30 @@ def main():
     previous = load_previous_state(args.state)
     lines = read_target(args.target)
 
-    payload_identities = {
+    current_sections = normalize_sections(payload.get("sections", {}))
+    current_bitfields = normalize_bitfields(payload.get("bitfields", {}))
+    current_direct_identities = {
         (section, key)
-        for section, entries in normalize_sections(payload.get("sections", {})).items()
+        for section, entries in current_sections.items()
         for key in entries
     }
-    bitfield_identities: set[tuple[str, str]] = set()
-    if isinstance(payload.get("bitfields"), dict):
-        for section, entries in payload["bitfields"].items():
-            if isinstance(entries, dict):
-                for key in entries:
-                    bitfield_identities.add((str(section), str(key)))
+    current_bitfield_identities = {
+        (section, key)
+        for section, entries in current_bitfields.items()
+        for key in entries
+    }
+    # Version 1 did not distinguish direct keys from resolved bitfield keys.
+    # Preserve its old key-level transition behavior for this one migration.
+    stale_blockers = current_direct_identities | (
+        current_bitfield_identities if previous.legacy else set()
+    )
+    lines = remove_stale(lines, previous.sections, stale_blockers)
 
-    current_identities = payload_identities | bitfield_identities
-    lines = remove_stale(lines, previous, current_identities)
-    current = resolve_current(payload, lines)
-    lines = apply_managed_values(lines, current)
+    bitfield_updates = resolve_bitfield_updates(
+        current_bitfields, previous.bitfields, lines
+    )
+    lines = apply_managed_values(lines, bitfield_updates)
+    lines = apply_managed_values(lines, current_sections)
     remove_sections_value = payload.get("removeSections", [])
     remove_sections_set = (
         {str(section) for section in remove_sections_value}
@@ -344,13 +417,17 @@ def main():
 
     save_target(args.target, lines)
 
-    if args.remove_empty_state and not has_managed_values(current):
+    if (
+        args.remove_empty_state
+        and not has_managed_values(current_sections)
+        and not has_managed_bitfields(current_bitfields)
+    ):
         try:
             args.state.unlink()
         except FileNotFoundError:
             pass
     else:
-        save_state(args.state, current)
+        save_state(args.state, current_sections, current_bitfields)
 
 
 if __name__ == "__main__":
