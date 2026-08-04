@@ -691,7 +691,6 @@ in {
           command = commands.transport.play;
           actionName = "Transport: Play";
         })
-
         (shortcut {
           shortcut = "Ctrl+Alt+C";
           command = "RS_toggle_click";
@@ -703,6 +702,12 @@ in {
           command = commands.transport.stop;
           scope = "global";
           actionName = "Transport: Stop";
+        })
+        (globalShortcut {
+          shortcut = "Shift+M";
+          command = 40716;
+          actionName = "Toggle midi editor";
+          scope = "global";
         })
       ];
     };
