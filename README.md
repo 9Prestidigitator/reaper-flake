@@ -138,9 +138,16 @@ The importer reads ReaPack repositories and preferences from `reapack.ini`. The 
 Some community extensions and plug-ins expect libraries such as GTK or libpng to be available through the process environment. Add the required Nix packages to `programs.reaper.packages`; the REAPER wrapper adds their `lib` directories to the dynamic-library search path while preserving existing search-path variables:
 
 ```nix
+# ReaImGui dependencies
 programs.reaper.packages = with pkgs; [
-  gtk3
+  freetype
   libpng
+  zlib
+  fontconfig
+  libepoxy
+  gtk3
+  cairo
+  glib
 ];
 ```
 
@@ -156,12 +163,26 @@ programs.reaper.extensions.reapack = {
 
   repositories = [
     {
+      name = "Bird-Bird";
+      url = "https://github.com/Bird-Bird/ReaScript_Testing/raw/main/index.xml";
+    }
+    {
       name = "reaper-keys";
       url = "https://raw.githubusercontent.com/gwatcha/reaper-keys/master/index.xml";
     }
   ];
 
   packages = [
+    {
+      repository = "ReaTeam Extensions";
+      category = "API";
+      name = "js_ReaScriptAPI.ext";
+    }
+    {
+      repository = "ReaTeam Extensions";
+      category = "API";
+      name = "reaper_imgui.ext";
+    }
     {
       repository = "reaper-keys";
       category = "Scripts";
