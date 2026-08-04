@@ -1,5 +1,5 @@
 {lib}: let
-  inherit (lib) concatLists filterAttrs;
+  inherit (lib) concatLists;
 
   sum = builtins.foldl' (total: value: total + value) 0;
 
@@ -90,18 +90,12 @@
     )
   ];
 in {
-  inherit from;
-
   entry = name: specs: let
     bitfield = from specs;
   in
     lib.optionalAttrs (bitfield.mask != 0) {
       ${name} = bitfield;
     };
-
-  entries = fields:
-    filterAttrs (_: bitfield: bitfield.mask != 0)
-    (builtins.mapAttrs (_: specs: from specs) fields);
 
   contributions = fields:
     concatLists (lib.mapAttrsToList (key: specs: concatLists (map (contribution key) specs)) fields);

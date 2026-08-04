@@ -20,16 +20,9 @@ in {
       readOnly = true;
       description = "Generated line-oriented REAPER config fragments.";
     };
-    emptyFile = mkOption {
-      type = types.path;
-      internal = true;
-      readOnly = true;
-      description = "Empty generated line fragment used for stale cleanup.";
-    };
   };
 
   config.programs.reaper.lineFiles = {
-    emptyFile = pkgs.writeText "reaper-managed-empty-lines" "";
     generatedFiles =
       mapAttrs
       (fileName: lines: pkgs.writeText "reaper-managed-${fileName}" (concatStringsSep "\n" lines + "\n"))

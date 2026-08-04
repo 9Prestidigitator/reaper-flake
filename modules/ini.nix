@@ -6,12 +6,11 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) concatLists concatMapStringsSep filter filterAttrs generators imap0 intersectLists listToAttrs mapAttrs mapAttrsToList mkMerge mkOption nameValuePair types unique;
+  inherit (lib) concatLists concatMapStringsSep filter filterAttrs imap0 intersectLists listToAttrs mapAttrs mkMerge mkOption nameValuePair types unique;
   cfg = config.programs.reaper;
 
-  # Generic contribution records are the forward-compatible interface for
-  # preference modules. Bitfield contributions remain separate below while
-  # the existing modules are migrated incrementally.
+  # Normalized contribution records are the source of truth shared by the
+  # forward INI writer and reaper2nix's reverse schema.
   contributionType = types.submodule {
     options = {
       kind = mkOption {
@@ -133,53 +132,8 @@
           };
       };
 
-  bitfieldContributionType = types.submodule {
-    options = {
-      kind = mkOption {
-        type = types.enum ["bitfield"];
-        default = "bitfield";
-        internal = true;
-        description = "Contribution kind.";
-      };
-      file = mkOption {
-        type = types.str;
-        default = "reaper.ini";
-        description = "Mutable INI file receiving this bitfield contribution.";
-      };
-      section = mkOption {
-        type = types.str;
-        description = "INI section receiving this bitfield contribution.";
-      };
-      key = mkOption {
-        type = types.str;
-        description = "INI key receiving this bitfield contribution.";
-      };
-      mask = mkOption {
-        type = types.ints.unsigned;
-        description = "Managed bit mask.";
-      };
-      value = mkOption {
-        type = types.ints.unsigned;
-        description = "Masked value to write.";
-      };
-      optionPath = mkOption {
-        type = types.nullOr types.str;
-        default = null;
-        description = "Public Nix option that produced this contribution.";
-      };
-      gui = mkOption {
-        type = types.nullOr types.str;
-        default = null;
-        description = "REAPER GUI label associated with this contribution.";
-      };
-    };
-  };
-
-  bitfieldContributions = cfg.ini.bitfieldContributions;
-  genericBitfieldMappings = filter (contribution: contribution.kind == "bitfield") contributions;
-  genericBitfieldContributions = filter (contribution: contribution.kind == "bitfield" && contribution.configured) contributions;
-  allBitfieldContributions = bitfieldContributions ++ genericBitfieldContributions;
-  allBitfieldMappings = bitfieldContributions ++ genericBitfieldMappings;
+  bitfieldMappings = filter (contribution: contribution.kind == "bitfield") contributions;
+  bitfieldContributions = filter (contribution: contribution.kind == "bitfield" && contribution.configured) contributions;
 
   groupBitfieldContributions = contributions:
     builtins.foldl'
@@ -204,7 +158,7 @@
     {}
     contributions;
 
-  bitfieldGroups = groupBitfieldContributions allBitfieldContributions;
+  bitfieldGroups = groupBitfieldContributions bitfieldContributions;
 
   reduceBitfield = entries: {
     mask = builtins.foldl' (total: entry: total + entry.mask) 0 entries;
@@ -241,8 +195,8 @@
 
   bitfieldContributionPairs = concatLists (
     imap0
-    (index: entry: map (other: {inherit entry other;}) (lib.drop (index + 1) allBitfieldMappings))
-    allBitfieldMappings
+    (index: entry: map (other: {inherit entry other;}) (lib.drop (index + 1) bitfieldMappings))
+    bitfieldMappings
   );
 
   bitfieldConflictAssertions =
@@ -295,12 +249,6 @@
     then concatMapStringsSep ";" formatIniValue value
     else toString value;
 
-  renderIni = sections:
-    generators.toINI {} (builtins.mapAttrs (_: entries: builtins.mapAttrs (_: formatIniValue) entries) sections);
-
-  renderBitfields = sections:
-    generators.toINI {} (builtins.mapAttrs (_: entries: builtins.mapAttrs (_: entry: "${toString entry.mask}:${toString entry.value}") entries) sections);
-
   renderPayload = sections: bitfields: removeSections:
     builtins.toJSON {
       sections = builtins.mapAttrs (_: entries: builtins.mapAttrs (_: formatIniValue) entries) sections;
@@ -324,8 +272,13 @@
 
   nonEmptyFileRemovedSections = filterAttrs (_: sections: sections != []) cfg.ini.removeSections;
 
-  emptyIniFile = pkgs.writeText "reaper-managed-empty.ini" "";
   emptyPayloadFile = pkgs.writeText "reaper-managed-empty.json" (renderPayload {} {} []);
+  managedIniFileNames = unique (
+    ["reaper.ini"]
+    ++ builtins.attrNames nonEmptyFileSections
+    ++ builtins.attrNames nonEmptyFileBitfieldSections
+    ++ builtins.attrNames nonEmptyFileRemovedSections
+  );
   schemaContributions = filter (contribution: contribution.optionPath != null) contributions;
   automaticSchemaSources = listToAttrs (map
     (file:
@@ -413,13 +366,6 @@ in {
       description = "Bitfield updates generated for mutable `reaper.ini` keys.";
     };
 
-    bitfieldContributions = mkOption {
-      type = types.listOf bitfieldContributionType;
-      default = [];
-      internal = true;
-      description = "Bitfield contributions collected from preference modules before reduction.";
-    };
-
     contributions = mkOption {
       type = types.listOf contributionType;
       default = [];
@@ -439,55 +385,6 @@ in {
       default = {};
       internal = true;
       description = "INI sections to remove completely from additional mutable REAPER INI files.";
-    };
-
-    generatedFile = mkOption {
-      type = types.path;
-      internal = true;
-      readOnly = true;
-      description = "Generated INI fragment merged into mutable `reaper.ini`.";
-    };
-
-    generatedFiles = mkOption {
-      type = types.attrsOf types.path;
-      internal = true;
-      readOnly = true;
-      description = "Generated INI fragments merged into mutable REAPER config files.";
-    };
-
-    emptyFile = mkOption {
-      type = types.path;
-      internal = true;
-      readOnly = true;
-      description = "Empty INI fragment used for stale cleanup.";
-    };
-
-    generatedBitfieldFile = mkOption {
-      type = types.path;
-      internal = true;
-      readOnly = true;
-      description = "Generated bitfield fragment merged into mutable `reaper.ini`.";
-    };
-
-    emptyBitfieldFile = mkOption {
-      type = types.path;
-      internal = true;
-      readOnly = true;
-      description = "Empty bitfield fragment used for files without bitfield updates.";
-    };
-
-    generatedBitfieldFiles = mkOption {
-      type = types.attrsOf types.path;
-      internal = true;
-      readOnly = true;
-      description = "Generated bitfield fragments merged into mutable REAPER config files.";
-    };
-
-    generatedPayloadFile = mkOption {
-      type = types.path;
-      internal = true;
-      readOnly = true;
-      description = "Generated JSON payload merged into mutable `reaper.ini`.";
     };
 
     emptyPayloadFile = mkOption {
@@ -528,50 +425,26 @@ in {
     }
     {
       programs.reaper.ini = {
-        generatedFile = pkgs.writeText "reaper-managed.ini" (renderIni nonEmptySections);
-        emptyFile = emptyIniFile;
-        generatedBitfieldFile = pkgs.writeText "reaper-managed-bitfields.ini" (renderBitfields nonEmptyBitfieldSections);
-        emptyBitfieldFile = pkgs.writeText "reaper-managed-empty-bitfields.ini" "";
-
-        generatedFiles =
-          {"reaper.ini" = cfg.ini.generatedFile;}
-          // mapAttrs (_: _: emptyIniFile)
-          nonEmptyFileBitfieldSections
-          // mapAttrs
-          (fileName: sections: pkgs.writeText "reaper-managed-${fileName}" (renderIni sections))
-          nonEmptyFileSections
-          // mapAttrs (_: _: emptyIniFile) nonEmptyFileRemovedSections;
-
-        generatedBitfieldFiles =
-          {"reaper.ini" = cfg.ini.generatedBitfieldFile;}
-          // mapAttrs
-          (_: _: cfg.ini.emptyBitfieldFile)
-          nonEmptyFileSections
-          // mapAttrs
-          (fileName: sections: pkgs.writeText "reaper-managed-bitfields-${fileName}" (renderBitfields sections))
-          nonEmptyFileBitfieldSections;
-
-        generatedPayloadFile = pkgs.writeText "reaper-managed.json" (renderPayload nonEmptySections nonEmptyBitfieldSections []);
         emptyPayloadFile = emptyPayloadFile;
 
-        generatedPayloadFiles =
-          mapAttrs
-          (fileName: _: let
-            sections =
-              if fileName == "reaper.ini"
-              then nonEmptySections
-              else nonEmptyFileSections.${fileName} or {};
-            bitfields =
-              if fileName == "reaper.ini"
-              then nonEmptyBitfieldSections
-              else nonEmptyFileBitfieldSections.${fileName} or {};
-            removeSections =
-              if fileName == "reaper.ini"
-              then []
-              else nonEmptyFileRemovedSections.${fileName} or [];
-          in
-            pkgs.writeText "reaper-managed-${fileName}.json" (renderPayload sections bitfields removeSections))
-          cfg.ini.generatedFiles;
+        generatedPayloadFiles = listToAttrs (map
+          (fileName:
+            nameValuePair fileName (let
+              sections =
+                if fileName == "reaper.ini"
+                then nonEmptySections
+                else nonEmptyFileSections.${fileName} or {};
+              bitfields =
+                if fileName == "reaper.ini"
+                then nonEmptyBitfieldSections
+                else nonEmptyFileBitfieldSections.${fileName} or {};
+              removeSections =
+                if fileName == "reaper.ini"
+                then []
+                else nonEmptyFileRemovedSections.${fileName} or [];
+            in
+              pkgs.writeText "reaper-managed-${fileName}.json" (renderPayload sections bitfields removeSections)))
+          managedIniFileNames);
 
         generatedSchemaFile = schemaFile;
 

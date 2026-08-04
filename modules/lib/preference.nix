@@ -1,7 +1,4 @@
-{
-  lib,
-  reaperCodecs,
-}: let
+{lib}: let
   inherit (lib) mkOption;
 
   option = spec:

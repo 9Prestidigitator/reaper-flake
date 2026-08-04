@@ -3,7 +3,7 @@
 in {
   reaperTypes = import ./types.nix {inherit lib;};
   inherit reaperCodecs;
-  reaperPreference = import ./preference.nix {inherit lib reaperCodecs;};
+  reaperPreference = import ./preference.nix {inherit lib;};
   # helper method that really smooths out associating bitfields with reaper options
   reaperBitfield = import ./bitfield.nix {inherit lib;};
 
@@ -15,7 +15,7 @@ in {
   reaperActions = import ./actions.nix {inherit lib;};
 
   reaperGeneral = import ./general.nix;
-  reaperProject = import ./project.nix {inherit lib;};
+  reaperProject = import ./project.nix;
   reaperAppearance = import ./appearance.nix;
   reaperControlOscWeb = import ./control-osc-web.nix;
 

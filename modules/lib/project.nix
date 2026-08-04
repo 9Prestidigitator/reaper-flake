@@ -1,4 +1,4 @@
-{lib}: let
+let
   # REAPER stores fader gains as linear amplitudes, while its preferences GUI
   # presents them in decibels. Nix has no exponentiation builtin, so calculate
   # e^x with a scaled Taylor series and square it back up.

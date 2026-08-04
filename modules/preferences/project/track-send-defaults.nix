@@ -5,7 +5,7 @@
   reaperProject,
   ...
 }: let
-  inherit (lib) mkOption optionalAttrs types;
+  inherit (lib) mkOption types;
   inherit (reaperLib) reaperBitfield reaperTypes reaperPreference reaperCodecs;
   inherit (reaperProject) decibelsToSlider envelopePointShapes automationModes fixedLaneRecordingBehaviors recordConfigMonitorInputModes recordConfigRecordModes sendHardwareOutputModes trackHeights trackMeterDisplays;
 

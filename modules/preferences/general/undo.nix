@@ -6,7 +6,7 @@
 }: let
   cfg = config.programs.reaper.preferences.general.undo;
 
-  inherit (lib) mkOption optionalAttrs types;
+  inherit (lib) mkOption types;
   inherit (reaperLib) reaperBitfield reaperPreference;
 in {
   options.programs.reaper.preferences.general.undo = {
