@@ -233,7 +233,7 @@ Set `swell.colortheme.preset` to a theme package to select that package's declar
 | `reaper`            | 7.78     | REAPER                                              |
 | `reapack` (patched) | 1.2.6    | ReaPack with the managed-package API                |
 | `sws`               | 2.14.0.7 | SWS/S&M Extension                                   |
-| `swell-wayland`     | 0.1      | Experimental native-Wayland SWELL library for Linux |
+| `swell-wayland`     | 0.3      | Experimental native-Wayland SWELL library for Linux |
 
 The flake’s package outputs target `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`, and `aarch64-darwin` where the upstream package supports them. REAPER is proprietary software; enable unfree packages in the Nixpkgs configuration used to build it.
 
