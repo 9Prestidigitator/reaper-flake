@@ -220,6 +220,16 @@ Raw configuration without helpers:
 }
 ```
 
+## Importing existing mouse modifiers
+
+`reaper2nix` reads `reaper-mouse.ini` when given a REAPER resource directory and emits the corresponding `importedContexts` and `contexts` declarations:
+
+```console
+nix run .#reaper2nix -- --options programs.reaper.preferences.editingBehavior.mouseModifiers /path/to/reaper-resource-directory
+```
+
+Bindings are emitted in the structured `{ action; mode; }` form. Unknown keys are left unmanaged unless `--all-keys` is requested.
+
 ## All Contexts
 
 | Library path                                            | REAPER context                    |

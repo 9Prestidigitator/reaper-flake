@@ -207,6 +207,70 @@ item_1=40023 New project
         self.assertIn("submenu(s) are not closed", diagnostics[0])
 
 
+class ReaperMouseAdapterTests(unittest.TestCase):
+    @staticmethod
+    def parser(text):
+        parser = REAPER2NIX.configparser.ConfigParser(
+            interpolation=None, delimiters=("=",), strict=False
+        )
+        parser.optionxform = str
+        parser.read_string(text)
+        return parser
+
+    def test_imported_contexts_and_bindings_are_decoded(self):
+        parser = self.parser(
+            """
+[hasimported]
+MM_CTX_MIDI_NOTE_CLK=1
+MM_CTX_ARRANGE_MMOUSE=1
+MM_CTX_UNUSED=0
+
+[MM_CTX_ARRANGE_MMOUSE]
+mm_0=9 m
+mm_1=_RSabc command mode
+
+[unrelated]
+mm_0=7 m
+"""
+        )
+
+        decoded, consumed, diagnostics = REAPER2NIX.parse_reaper_mouse(parser)
+
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(
+            decoded["importedContexts"],
+            ["MM_CTX_ARRANGE_MMOUSE", "MM_CTX_MIDI_NOTE_CLK"],
+        )
+        self.assertEqual(
+            decoded["contexts"]["MM_CTX_ARRANGE_MMOUSE"],
+            {
+                "mm_0": {"action": 9, "mode": "m"},
+                "mm_1": {"action": "_RSabc", "mode": "command mode"},
+            },
+        )
+        self.assertIn(("hasimported", "MM_CTX_UNUSED"), consumed)
+        self.assertIn(("MM_CTX_ARRANGE_MMOUSE", "mm_0"), consumed)
+        self.assertNotIn(("unrelated", "mm_0"), consumed)
+
+    def test_invalid_values_remain_unconsumed(self):
+        parser = self.parser(
+            """
+[hasimported]
+MM_CTX_BAD=not-a-number
+
+[MM_CTX_ARRANGE_MMOUSE]
+mm_0=
+unknown=preserve-me
+"""
+        )
+
+        decoded, consumed, diagnostics = REAPER2NIX.parse_reaper_mouse(parser)
+
+        self.assertEqual(decoded, {})
+        self.assertEqual(consumed, set())
+        self.assertEqual(len(diagnostics), 2)
+
+
 class LayoutAdapterTests(unittest.TestCase):
     def test_fixed_windows_docks_and_preferences_are_decoded(self):
         parser = REAPER2NIX.configparser.ConfigParser(
@@ -442,6 +506,70 @@ size=2
 
 
 class SourceAllowlistTests(unittest.TestCase):
+    def test_mouse_source_uses_semantic_options_and_preserves_unknown_keys(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            resource_dir = Path(temporary_directory)
+            schema_path = resource_dir / "schema.json"
+            schema_path.write_text(
+                json.dumps(
+                    {
+                        "version": 2,
+                        "sources": {
+                            "reaper-mouse.ini": {
+                                "format": "ini",
+                                "adapter": "ini",
+                                "adapters": ["reaper-mouse"],
+                            }
+                        },
+                        "options": [],
+                    }
+                )
+            )
+            (resource_dir / "reaper-mouse.ini").write_text(
+                "[hasimported]\n"
+                "MM_CTX_ARRANGE_MMOUSE=1\n"
+                "[MM_CTX_ARRANGE_MMOUSE]\n"
+                "mm_0=9 m\n"
+                "unknown=preserve-me\n"
+            )
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    str(resource_dir),
+                    "--schema",
+                    str(schema_path),
+                    "--all-keys",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            filtered = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    str(resource_dir),
+                    "--schema",
+                    str(schema_path),
+                    "--options",
+                    "programs.reaper.preferences.editingBehavior.mouseModifiers",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertIn("mouseModifiers = {", result.stdout)
+        self.assertIn('action = 9;', result.stdout)
+        self.assertIn('mode = "m";', result.stdout)
+        self.assertIn('unknown = "preserve-me";', result.stdout)
+        self.assertEqual(result.stdout.count("mm_0 ="), 1)
+        self.assertIn("mouseModifiers = {", filtered.stdout)
+        self.assertNotIn("preserve-me", filtered.stdout)
+
     def test_menu_source_is_imported_through_its_semantic_adapter(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             resource_dir = Path(temporary_directory)

@@ -428,6 +428,72 @@ def parse_reaper_menu(
     return decoded, consumed, diagnostics
 
 
+MOUSE_CONTEXT_RE = re.compile(r"^MM_CTX_[A-Za-z0-9_]+$")
+MOUSE_MODIFIER_RE = re.compile(r"^mm_[0-9]+$")
+
+
+def parse_reaper_mouse(
+    current_ini: configparser.ConfigParser,
+) -> tuple[dict[str, Any], set[tuple[str, str]], list[str]]:
+    """Decode ``reaper-mouse.ini`` into public mouse-modifier options."""
+
+    decoded: dict[str, Any] = {}
+    consumed: set[tuple[str, str]] = set()
+    diagnostics: list[str] = []
+    imported_contexts: list[str] = []
+
+    if current_ini.has_section("hasimported"):
+        for context, raw in current_ini.items("hasimported"):
+            identity = ("hasimported", context)
+            try:
+                imported = int(raw) != 0
+            except ValueError:
+                diagnostics.append(
+                    "# reaper-mouse.ini [hasimported]: "
+                    f"{context} is not an integer: {raw!r}"
+                )
+                continue
+
+            consumed.add(identity)
+            if imported:
+                imported_contexts.append(context)
+
+    contexts: dict[str, dict[str, Any]] = {}
+    for section in current_ini.sections():
+        if not MOUSE_CONTEXT_RE.match(section):
+            continue
+
+        bindings: dict[str, Any] = {}
+        for modifier, raw in current_ini.items(section):
+            if not MOUSE_MODIFIER_RE.match(modifier):
+                continue
+
+            stripped = raw.strip()
+            if not stripped:
+                diagnostics.append(
+                    f"# reaper-mouse.ini [{section}]: {modifier} is empty"
+                )
+                continue
+
+            action_text, separator, mode = stripped.partition(" ")
+            binding: dict[str, Any] = {"action": command_value(action_text)}
+            if separator:
+                binding["mode"] = mode.lstrip()
+
+            bindings[modifier] = binding
+            consumed.add((section, modifier))
+
+        if bindings:
+            contexts[section] = bindings
+
+    if imported_contexts:
+        decoded["importedContexts"] = sorted(imported_contexts)
+    if contexts:
+        decoded["contexts"] = contexts
+
+    return decoded, consumed, diagnostics
+
+
 def parse_reaper_kb(lines: list[str]) -> tuple[dict[str, list[Any]], list[str]]:
     """Decode supported reaper-kb.ini records into public action options."""
 
@@ -1067,6 +1133,25 @@ def main() -> int:
                     print(diagnostic)
                 if decoded:
                     merge_tree(semantic_collections, {"menus": decoded})
+                semantically_consumed.update(
+                    (file_name, section, key) for section, key in consumed
+                )
+            elif adapter == "reaper-mouse":
+                current_ini = inis.get(file_name)
+                if current_ini is None:
+                    continue
+                decoded, consumed, diagnostics = parse_reaper_mouse(current_ini)
+                for diagnostic in diagnostics:
+                    print(diagnostic)
+                if decoded:
+                    merge_tree(
+                        semantic_collections,
+                        {
+                            "preferences": {
+                                "editingBehavior": {"mouseModifiers": decoded}
+                            }
+                        },
+                    )
                 semantically_consumed.update(
                     (file_name, section, key) for section, key in consumed
                 )

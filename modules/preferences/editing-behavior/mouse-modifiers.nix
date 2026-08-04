@@ -55,13 +55,21 @@ in {
     };
   };
 
-  config.programs.reaper.ini.files."reaper-mouse.ini" =
-    {
-      hasimported = builtins.listToAttrs (map (context: {
-          name = context;
-          value = true;
-        })
-        cfg.importedContexts);
-    }
-    // mapAttrs (_: bindings: mapAttrs (_: formatBinding) bindings) cfg.contexts;
+  config.programs.reaper = {
+    schema.sources."reaper-mouse.ini" = {
+      format = "ini";
+      adapter = "ini";
+      adapters = ["reaper-mouse"];
+    };
+
+    ini.files."reaper-mouse.ini" =
+      {
+        hasimported = builtins.listToAttrs (map (context: {
+            name = context;
+            value = true;
+          })
+          cfg.importedContexts);
+      }
+      // mapAttrs (_: bindings: mapAttrs (_: formatBinding) bindings) cfg.contexts;
+  };
 }

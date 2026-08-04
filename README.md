@@ -116,7 +116,7 @@ nix run github:9Prestidigitator/reaper-flake#reaper2nix -- ~/.config/reaper-flak
 
 REAPER stores both durable configuration and mutable application state in its resource files. For that reason, `reaper2nix` is intentionally schema-driven: it emits only settings represented by public Nix options and semantic adapters. It does not convert every INI key, and it skips files for which the schema has no definition. Close REAPER before importing if you want its latest in-memory GUI changes to be written to disk first.
 
-The semantic importers include actions and key bindings from `reaper-kb.ini`, menus and toolbars from `reaper-menu.ini`, layout, and ReaPack repositories and installed packages. Menu imports preserve nested submenus, separators, disabled labels, toolbar icons, text-icon modes, and toolbar flags.
+The semantic importers include actions and key bindings from `reaper-kb.ini`, menus and toolbars from `reaper-menu.ini`, mouse modifiers from `reaper-mouse.ini`, layout, and ReaPack repositories and installed packages. Menu imports preserve nested submenus, separators, disabled labels, toolbar icons, text-icon modes, and toolbar flags.
 
 Generated output retains proper Nix nesting. To inspect only one option or subtree, pass its complete public path:
 

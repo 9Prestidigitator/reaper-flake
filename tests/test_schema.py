@@ -22,6 +22,7 @@ class StaticSchemaTests(unittest.TestCase):
                 "reapack.ini",
                 "reaper-kb.ini",
                 "reaper-menu.ini",
+                "reaper-mouse.ini",
             },
         )
         self.assertEqual(
@@ -33,6 +34,10 @@ class StaticSchemaTests(unittest.TestCase):
                 "toolbarTextIcons"
             ],
             {"normal": "text", "tooltip": "text_tt", "wide": "text_wide"},
+        )
+        self.assertEqual(
+            self.schema["sources"]["reaper-mouse.ini"]["adapters"],
+            ["reaper-mouse"],
         )
 
     def test_unset_options_remain_in_the_schema(self):
