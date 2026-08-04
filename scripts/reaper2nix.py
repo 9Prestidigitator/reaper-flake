@@ -671,7 +671,6 @@ def parse_reapack_ini(
                         "installNewPackages": auto_install,
                     }
                 )
-            decoded["addDefaultRepositories"] = False
             decoded["repositories"] = repositories
 
     return decoded, consumed, diagnostics

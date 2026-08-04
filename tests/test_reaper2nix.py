@@ -439,7 +439,7 @@ size=2
         decoded, consumed, diagnostics = REAPER2NIX.parse_reapack_ini(parser)
 
         self.assertEqual(diagnostics, [])
-        self.assertFalse(decoded["addDefaultRepositories"])
+        self.assertNotIn("addDefaultRepositories", decoded)
         self.assertFalse(decoded["installNewPackagesWhenSynchronizing"])
         self.assertTrue(decoded["enablePrereleasesGlobally"])
         self.assertEqual(decoded["network"]["fallbackProxy"], "ask")
@@ -570,7 +570,7 @@ size=2
 
         self.assertIn("extensions = {", result.stdout)
         self.assertIn("reapack = {", result.stdout)
-        self.assertIn("addDefaultRepositories = false;", result.stdout)
+        self.assertNotIn("addDefaultRepositories", result.stdout)
         self.assertIn('name = "Tool.lua";', result.stdout)
 
 
