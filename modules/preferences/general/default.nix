@@ -5,7 +5,7 @@
   ...
 }: let
   inherit (lib) literalExpression mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield;
+  inherit (reaperLib) reaperBitfield reaperPreference;
 
   cfg = config.programs.reaper.preferences.general;
 
@@ -364,7 +364,6 @@ in {
 
   config.programs.reaper.ini.sections.reaper =
     optionalAttrs (cfg.languagePack != null) {langpack = cfg.languagePack;}
-    // optionalAttrs (startupSettings.openProjectOnStartup != null) {loadlastproj = startupSettings.openProjectOnStartup;}
     // optionalAttrs (startupSettings.showSplashScreenOnStartup != null) {splash = startupSettings.showSplashScreenOnStartup;}
     // optionalAttrs (startupSettings.skipAnimation != null) {
       splashanim =
@@ -417,21 +416,29 @@ in {
       workset_max = advancedUiSystemTweaks.processWorkingSet.maximum;
     };
 
-  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) (reaperBitfieldContributions
-    ++ reaperBitfield.contributions {
-      restrictcpu = [
-        {
-          optionPath = "preferences.general.advancedUiSystemTweaks.cpuAffinity.enable";
-          gui = "Restrict REAPER to specific CPUs";
-          option = advancedUiSystemTweaks.cpuAffinity.enable;
-          bit = 1;
-        }
-        {
-          optionPath = "preferences.general.advancedUiSystemTweaks.cpuAffinity.preventOsRelocatingWorkerThreads";
-          gui = "Do not allow the OS to relocate worker threads to different CPUs";
-          option = advancedUiSystemTweaks.cpuAffinity.preventOsRelocatingWorkerThreads;
-          bit = 2;
-        }
-      ];
-    });
+  config.programs.reaper.ini.contributions =
+    reaperPreference.contribution {
+      path = "preferences.general.startupSettings.openProjectOnStartup";
+      value = startupSettings.openProjectOnStartup;
+      section = "reaper";
+      key = "loadlastproj";
+      codec = "integer";
+    }
+    ++ map (entry: entry // {section = "reaper";}) (reaperBitfieldContributions
+      ++ reaperBitfield.contributions {
+        restrictcpu = [
+          {
+            optionPath = "preferences.general.advancedUiSystemTweaks.cpuAffinity.enable";
+            gui = "Restrict REAPER to specific CPUs";
+            option = advancedUiSystemTweaks.cpuAffinity.enable;
+            bit = 1;
+          }
+          {
+            optionPath = "preferences.general.advancedUiSystemTweaks.cpuAffinity.preventOsRelocatingWorkerThreads";
+            gui = "Do not allow the OS to relocate worker threads to different CPUs";
+            option = advancedUiSystemTweaks.cpuAffinity.preventOsRelocatingWorkerThreads;
+            bit = 2;
+          }
+        ];
+      });
 }

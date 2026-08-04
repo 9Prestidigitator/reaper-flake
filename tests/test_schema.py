@@ -63,6 +63,18 @@ class StaticSchemaTests(unittest.TestCase):
                 self.assertEqual(options[path]["key"], key)
                 self.assertEqual(options[path]["codec"], "list")
 
+    def test_open_project_on_startup_is_mapped(self):
+        options = {option["path"]: option for option in self.schema["options"]}
+        option = options[
+            "preferences.general.startupSettings.openProjectOnStartup"
+        ]
+
+        self.assertEqual(option["kind"], "value")
+        self.assertEqual(option["file"], "reaper.ini")
+        self.assertEqual(option["section"], "reaper")
+        self.assertEqual(option["key"], "loadlastproj")
+        self.assertEqual(option["codec"], "integer")
+
     def test_every_bitfield_has_reverse_decoding_metadata(self):
         incomplete = [
             option["path"]
