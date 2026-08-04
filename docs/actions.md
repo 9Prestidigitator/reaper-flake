@@ -126,6 +126,8 @@ reaperActions.shortcut {
 | `actionName` | Human-readable comment                            |
 | `comment`    | Full custom comment                               |
 
+Printable punctuation keys can be used directly, including `!@#$%^&*()`, `.`, and `+`. Literal punctuation uses REAPER's character-key encoding, so `$` is distinct from the physical combination `Shift+4`. Named forms such as `period`, `plus`, and `leftBracket` remain available when the physical key is intended.
+
 `reaperActions.globalShortcut`
 
 Creates the normal shortcut and the extra global-scope line.

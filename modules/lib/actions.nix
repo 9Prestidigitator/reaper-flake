@@ -1,5 +1,5 @@
 {lib}: let
-  inherit (lib) concatLists hasPrefix init last splitString toLower;
+  inherit (lib) concatLists hasPrefix hasSuffix init last splitString toLower unique;
 
   sectionIds = {
     main = 0;
@@ -35,6 +35,38 @@
     "7" = 55;
     "8" = 56;
     "9" = 57;
+    "!" = 33;
+    "\"" = 34;
+    "#" = 35;
+    "$" = 36;
+    "%" = 37;
+    "&" = 38;
+    "'" = 39;
+    "(" = 40;
+    ")" = 41;
+    "*" = 42;
+    "+" = 43;
+    "," = 44;
+    "-" = 45;
+    "." = 46;
+    "/" = 47;
+    ":" = 58;
+    ";" = 59;
+    "<" = 60;
+    "=" = 61;
+    ">" = 62;
+    "?" = 63;
+    "@" = 64;
+    "[" = 91;
+    "\\" = 92;
+    "]" = 93;
+    "^" = 94;
+    "_" = 95;
+    "`" = 96;
+    "{" = 123;
+    "|" = 124;
+    "}" = 125;
+    "~" = 126;
     a = 65;
     b = 66;
     c = 67;
@@ -149,6 +181,8 @@
     mousewheel = 2040;
   };
 
+  characterKeys = ["!" "\"" "#" "$" "%" "&" "'" "(" ")" "*" "+" "," "-" "." "/" ":" ";" "<" "=" ">" "?" "@" "[" "\\" "]" "^" "_" "`" "{" "|" "}" "~"];
+
   modifierValues = {
     shift = 4;
     ctrl = 8;
@@ -164,8 +198,13 @@
 
   normalize = value: toLower (builtins.replaceStrings ["-" "_" " "] ["" "" ""] value);
 
+  normalizeKey = key:
+    if builtins.hasAttr key keyCodes
+    then key
+    else normalize key;
+
   keyCodeFor = key: let
-    normalized = normalize key;
+    normalized = normalizeKey key;
   in
     if builtins.hasAttr normalized keyCodes
     then builtins.getAttr normalized keyCodes
@@ -180,10 +219,23 @@
 
   parseShortcut = shortcut: let
     parts = splitString "+" shortcut;
-    key = last parts;
-    modifierParts = init parts;
+    keyIsPlus = hasSuffix "+" shortcut;
+    key =
+      if keyIsPlus
+      then "+"
+      else last parts;
+    modifierParts =
+      if keyIsPlus
+      then init (init parts)
+      else init parts;
+    normalizedKey = normalizeKey key;
+    baseModifierFlags =
+      if builtins.elem normalizedKey characterKeys
+      then 0
+      else 1;
+    modifierValuesForShortcut = map modifierValueFor modifierParts;
   in {
-    modifierFlags = 1 + builtins.foldl' (total: modifier: total + modifierValueFor modifier) 0 modifierParts;
+    modifierFlags = baseModifierFlags + builtins.foldl' (total: modifier: total + modifier) 0 (unique modifierValuesForShortcut);
     keyCode = keyCodeFor key;
   };
 

@@ -72,6 +72,8 @@
         checks = {
           reapack = reapackPackage;
 
+          actions-shortcuts = pkgs.callPackage ./tests/actions-shortcuts.nix {};
+
           activation-guard =
             pkgs.runCommand "reaper-activation-guard-tests" {
               nativeBuildInputs = [pkgs.python3 pkgs.procps];
