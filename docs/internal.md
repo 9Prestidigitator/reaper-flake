@@ -379,6 +379,8 @@ The schema also contains a source catalog. A resource-directory import opens onl
 
 Each non-INI structure has a named adapter. The first line-file adapter decodes `SCR`, `ACT`, and `KEY` records from `reaper-kb.ini` into `programs.reaper.actions.scripts`, `customActions`, and `keyBindings`. Unknown record types remain unmanaged instead of being copied into raw line options.
 
+`reaper-menu.ini` combines the ordinary INI reader with the `reaper-menu` semantic adapter. The source's `adapterConfig` carries the known section kinds and REAPER toolbar text-icon spellings from `reaperLib.reaperMenus`, keeping the forward module and reverse importer synchronized. The adapter numerically orders indexed records, reconstructs nested submenus, and maps `icon_N` and `tbf_N` metadata onto toolbar entries. REAPER's generated `default` fingerprint is consumed as state rather than exposed as an option. Structurally invalid sections produce diagnostics and are not emitted.
+
 ReaPack uses two semantic adapters. The `reapack` adapter decodes preferences and ordered repository records from `reapack.ini`. The `reapack-packages` adapter reads the versioned `ReaPack/reaper-flake-state.json` snapshot exported by the patched extension and emits `extensions.reapack.packages`. It never opens `registry.db`; SQLite remains an implementation detail owned by ReaPack. Unpinned packages use `version = null` unless the importer is invoked with `--reapack-exact-versions`.
 
 A physical source can also declare additional semantic adapters. `reaper.ini` uses this to combine ordinary preference mappings with the layout adapter. The layout adapter imports the first-class main window, mixer, master mixer, transport, docker topology, selected tabs, edge sizes, and `[REAPERdockpref]` values under `programs.reaper.layout`. It deliberately leaves unrelated editor and extension window state unmanaged.
@@ -386,8 +388,7 @@ A physical source can also declare additional semantic adapters. `reaper.ini` us
 To inspect unmapped keys inside the schema-declared INI sources, opt in to raw imports:
 
 ```console
-nix run .#reaper2nix -- --all-files \
-  /path/to/reaper-resource-directory
+nix run .#reaper2nix -- --all-files /path/to/reaper-resource-directory
 ```
 
 This does not broaden the source allowlist. It only emits unmapped values from already-declared INI sources under `programs.reaper.ini`; files absent from the schema still are not opened. The raw form is intentionally opt-in because even a configuration-bearing file may contain runtime state alongside settings.

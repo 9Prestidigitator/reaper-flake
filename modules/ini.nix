@@ -374,6 +374,12 @@ in {
           default = [];
           description = "Additional semantic importer adapters for this configuration source.";
         };
+        adapterConfig = mkOption {
+          type = types.attrsOf types.anything;
+          default = {};
+          internal = true;
+          description = "Adapter-specific, JSON-serializable reverse-import metadata.";
+        };
       };
     });
     default = {};

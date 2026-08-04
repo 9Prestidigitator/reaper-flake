@@ -253,6 +253,181 @@ def command_value(value: str) -> int | str:
     return value
 
 
+MENU_ITEM_RE = re.compile(r"^item_([0-9]+)$")
+MENU_ICON_RE = re.compile(r"^icon_([0-9]+)$")
+MENU_FLAGS_RE = re.compile(r"^tbf_([0-9]+)$")
+FLOATING_TOOLBAR_RE = re.compile(r"^Floating toolbar ([1-9]|[12][0-9]|3[0-2])$")
+FLOATING_MIDI_TOOLBAR_RE = re.compile(r"^Floating MIDI toolbar ([1-9]|1[0-6])$")
+
+
+def parse_reaper_menu(
+    current_ini: configparser.ConfigParser,
+    adapter_config: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], set[tuple[str, str]], list[str]]:
+    """Decode ``reaper-menu.ini`` into public menu and toolbar options."""
+
+    config = adapter_config or {}
+    section_kinds = config.get("sectionKinds", {})
+    if not isinstance(section_kinds, dict):
+        section_kinds = {}
+    text_icons = config.get("toolbarTextIcons", {})
+    if not isinstance(text_icons, dict):
+        text_icons = {}
+    text_icon_modes = {
+        text_icons.get("normal", "text"): ("textIcon", "normal"),
+        text_icons.get("wide", "text_wide"): ("textIcon", "wide"),
+        text_icons.get("tooltip", "text_tt"): ("useTextAsTooltip", True),
+    }
+
+    decoded: dict[str, Any] = {}
+    consumed: set[tuple[str, str]] = set()
+    diagnostics: list[str] = []
+
+    for section in current_ini.sections():
+        items: dict[int, tuple[str, str]] = {}
+        icons: dict[int, tuple[str, str]] = {}
+        flags: dict[int, tuple[str, str]] = {}
+        title: str | None = None
+        recognized: set[tuple[str, str]] = set()
+
+        for key, value in current_ini.items(section):
+            item_match = MENU_ITEM_RE.match(key)
+            icon_match = MENU_ICON_RE.match(key)
+            flags_match = MENU_FLAGS_RE.match(key)
+            if item_match:
+                items[int(item_match.group(1))] = (key, value)
+                recognized.add((section, key))
+            elif icon_match:
+                icons[int(icon_match.group(1))] = (key, value)
+                recognized.add((section, key))
+            elif flags_match:
+                flags[int(flags_match.group(1))] = (key, value)
+                recognized.add((section, key))
+            elif key == "title":
+                title = value
+                recognized.add((section, key))
+            elif key == "default":
+                # REAPER owns this generated default-menu fingerprint. It is
+                # intentionally not represented by a public Nix option.
+                recognized.add((section, key))
+
+        if not items and title is None:
+            consumed.update(recognized)
+            continue
+
+        known_kind = section_kinds.get(section)
+        dynamic_toolbar = bool(
+            FLOATING_TOOLBAR_RE.match(section)
+            or FLOATING_MIDI_TOOLBAR_RE.match(section)
+        )
+        inferred_toolbar = bool(icons or flags or "toolbar" in section.lower())
+        kind = known_kind or ("toolbar" if dynamic_toolbar or inferred_toolbar else "menu")
+        fatal: list[str] = []
+
+        orphan_indices = sorted((set(icons) | set(flags)) - set(items))
+        for index in orphan_indices:
+            diagnostics.append(
+                f"# reaper-menu.ini [{section}]: toolbar metadata has no item_{index}"
+            )
+
+        root_entries: list[dict[str, Any]] = []
+        entry_stack: list[list[dict[str, Any]]] = [root_entries]
+
+        for index in sorted(items):
+            _, raw_item = items[index]
+            command, separator, label = raw_item.strip().partition(" ")
+            label = label.lstrip() if separator else None
+            if not command:
+                fatal.append(f"item_{index} has no command")
+                continue
+
+            action = command_value(command)
+            metadata: dict[str, Any] = {}
+            if index in icons and icons[index][1]:
+                icon_value = icons[index][1]
+                mapped_icon = text_icon_modes.get(icon_value)
+                if mapped_icon is None:
+                    metadata["icon"] = icon_value
+                else:
+                    metadata[mapped_icon[0]] = mapped_icon[1]
+            if index in flags:
+                flag_value = flags[index][1]
+                try:
+                    parsed_flags = int(flag_value)
+                    if parsed_flags < 0:
+                        raise ValueError
+                    metadata["toolbarFlags"] = parsed_flags
+                except ValueError:
+                    fatal.append(f"tbf_{index} is not an unsigned integer: {flag_value!r}")
+
+            if metadata and kind != "toolbar":
+                fatal.append(f"item_{index} has toolbar metadata in a {kind} section")
+
+            if action == -3:
+                if label:
+                    fatal.append(f"item_{index} submenu terminator has a label")
+                if metadata:
+                    fatal.append(f"item_{index} submenu terminator has toolbar metadata")
+                if len(entry_stack) == 1:
+                    fatal.append(f"item_{index} closes a submenu that is not open")
+                else:
+                    entry_stack.pop()
+                continue
+
+            if action == -2:
+                if kind == "toolbar":
+                    fatal.append(f"item_{index} opens a submenu in a toolbar")
+                if not label:
+                    fatal.append(f"item_{index} submenu has no label")
+                if metadata:
+                    fatal.append(f"item_{index} submenu has toolbar metadata")
+                entry = {"label": label, "entries": []}
+                entry_stack[-1].append(entry)
+                entry_stack.append(entry["entries"])
+                continue
+
+            if action == -1:
+                if label:
+                    fatal.append(f"item_{index} separator has a label")
+                if metadata:
+                    fatal.append(f"item_{index} separator has toolbar metadata")
+                entry_stack[-1].append({"separator": True})
+                continue
+
+            if action == -4:
+                if not label:
+                    fatal.append(f"item_{index} disabled entry has no label")
+                if metadata:
+                    fatal.append(f"item_{index} disabled entry has toolbar metadata")
+                entry_stack[-1].append({"disabled": True, "label": label})
+                continue
+
+            entry = {"action": action}
+            if label is not None:
+                entry["label"] = label
+            entry.update(metadata)
+            entry_stack[-1].append(entry)
+
+        if len(entry_stack) != 1:
+            fatal.append(f"{len(entry_stack) - 1} submenu(s) are not closed")
+
+        if fatal:
+            diagnostics.extend(
+                f"# reaper-menu.ini [{section}]: {message}" for message in fatal
+            )
+            continue
+
+        menu: dict[str, Any] = {"entries": root_entries}
+        if title is not None:
+            menu["title"] = title
+        if known_kind is None and not dynamic_toolbar and kind != "menu":
+            menu["kind"] = kind
+        decoded[section] = menu
+        consumed.update(recognized)
+
+    return decoded, consumed, diagnostics
+
+
 def parse_reaper_kb(lines: list[str]) -> tuple[dict[str, list[Any]], list[str]]:
     """Decode supported reaper-kb.ini records into public action options."""
 
@@ -880,6 +1055,21 @@ def main() -> int:
                     print(diagnostic)
                 if decoded:
                     merge_tree(semantic_collections, {"actions": decoded})
+            elif adapter == "reaper-menu":
+                current_ini = inis.get(file_name)
+                if current_ini is None:
+                    continue
+                decoded, consumed, diagnostics = parse_reaper_menu(
+                    current_ini,
+                    source.get("adapterConfig"),
+                )
+                for diagnostic in diagnostics:
+                    print(diagnostic)
+                if decoded:
+                    merge_tree(semantic_collections, {"menus": decoded})
+                semantically_consumed.update(
+                    (file_name, section, key) for section, key in consumed
+                )
             elif adapter == "reapack":
                 current_ini = inis.get(file_name)
                 if current_ini is None:

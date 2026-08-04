@@ -49,10 +49,7 @@ programs.reaper.extensions.reapack.package =
 
 The default is this flake's ReaPack package, built from the latest packaged Codeberg release for Linux and macOS. It includes a small patch that exposes ReaPack's transaction engine to the generated startup script.
 
-The patch also atomically exports `ReaPack/reaper-flake-state.json` when the
-extension starts and after package transactions. This versioned, read-only
-snapshot lets `reaper2nix` inspect installed packages without depending on
-ReaPack's private SQLite schema.
+The patch also atomically exports `ReaPack/reaper-flake-state.json` when the extension starts and after package transactions. This versioned, read-only snapshot lets `reaper2nix` inspect installed packages without depending on ReaPack's private SQLite schema.
 
 An unmodified upstream ReaPack binary still supports normal interactive ReaPack use and INI configuration, but it does not provide the managed-package APIs required by `packages`. The current startup runner also checks these APIs when only `synchronizeOnActivation` is enabled, so use the flake's patched build for either automated workflow.
 

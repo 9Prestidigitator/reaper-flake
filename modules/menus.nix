@@ -297,7 +297,18 @@ in {
         ++ entryAssertions menu.entries)
       (builtins.attrNames configuredMenus);
 
-    programs.reaper.ini.files."reaper-menu.ini" = mapAttrs (_: menu: menuAttrs menu) configuredMenus;
-    programs.reaper.ini.removeSections."reaper-menu.ini" = resetMenus;
+    programs.reaper = {
+      schema.sources."reaper-menu.ini" = {
+        format = "ini";
+        adapter = "ini";
+        adapters = ["reaper-menu"];
+        adapterConfig = {
+          inherit (reaperLib.reaperMenus) sectionKinds toolbarTextIcons;
+        };
+      };
+
+      ini.files."reaper-menu.ini" = mapAttrs (_: menu: menuAttrs menu) configuredMenus;
+      ini.removeSections."reaper-menu.ini" = resetMenus;
+    };
   };
 }

@@ -11,6 +11,7 @@
       ./line-files.nix
       ./resources.nix
       ./actions.nix
+      ./menus.nix
       ./extensions/reapack-schema.nix
       ./layout
       ./windows.nix

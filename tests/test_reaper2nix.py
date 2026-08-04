@@ -93,6 +93,120 @@ class ReaperKbAdapterTests(unittest.TestCase):
         self.assertEqual(decoded["keyBindings"][0]["comment"], "Main : Ctrl+Shift+I")
 
 
+class ReaperMenuAdapterTests(unittest.TestCase):
+    @staticmethod
+    def parser(text):
+        parser = REAPER2NIX.configparser.ConfigParser(
+            interpolation=None, delimiters=("=",), strict=False
+        )
+        parser.optionxform = str
+        parser.read_string(text)
+        return parser
+
+    def test_nested_menus_are_decoded_to_public_entries(self):
+        parser = self.parser(
+            """
+[Main file]
+title=&Project
+item_0=40023 &New project
+item_1=-1
+item_2=-2 Project &templates
+item_3=_RSabc Save as template
+item_4=-4 Utilities
+item_5=-3
+default=generated-fingerprint
+"""
+        )
+
+        decoded, consumed, diagnostics = REAPER2NIX.parse_reaper_menu(
+            parser,
+            {"sectionKinds": {"Main file": "menu"}},
+        )
+
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(
+            decoded["Main file"],
+            {
+                "entries": [
+                    {"action": 40023, "label": "&New project"},
+                    {"separator": True},
+                    {
+                        "label": "Project &templates",
+                        "entries": [
+                            {"action": "_RSabc", "label": "Save as template"},
+                            {"disabled": True, "label": "Utilities"},
+                        ],
+                    },
+                ],
+                "title": "&Project",
+            },
+        )
+        self.assertIn(("Main file", "default"), consumed)
+        self.assertIn(("Main file", "item_5"), consumed)
+
+    def test_toolbar_metadata_and_numeric_item_order_are_decoded(self):
+        parser = self.parser(
+            """
+[Custom toolbar]
+item_2=40003 Stop
+icon_2=text_tt
+tbf_2=1
+item_0=40044 Play
+icon_0=text
+item_1=_RSabc Render
+icon_1=toolbar_render.png
+"""
+        )
+
+        decoded, consumed, diagnostics = REAPER2NIX.parse_reaper_menu(
+            parser,
+            {
+                "toolbarTextIcons": {
+                    "normal": "text",
+                    "wide": "text_wide",
+                    "tooltip": "text_tt",
+                }
+            },
+        )
+
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(decoded["Custom toolbar"]["kind"], "toolbar")
+        self.assertEqual(
+            decoded["Custom toolbar"]["entries"],
+            [
+                {"action": 40044, "label": "Play", "textIcon": "normal"},
+                {
+                    "action": "_RSabc",
+                    "label": "Render",
+                    "icon": "toolbar_render.png",
+                },
+                {
+                    "action": 40003,
+                    "label": "Stop",
+                    "useTextAsTooltip": True,
+                    "toolbarFlags": 1,
+                },
+            ],
+        )
+        self.assertIn(("Custom toolbar", "icon_1"), consumed)
+        self.assertIn(("Custom toolbar", "tbf_2"), consumed)
+
+    def test_malformed_submenu_does_not_emit_an_invalid_option(self):
+        parser = self.parser(
+            """
+[Main file]
+item_0=-2 Unclosed submenu
+item_1=40023 New project
+"""
+        )
+
+        decoded, consumed, diagnostics = REAPER2NIX.parse_reaper_menu(parser)
+
+        self.assertEqual(decoded, {})
+        self.assertEqual(consumed, set())
+        self.assertIn("submenu(s) are not closed", diagnostics[0])
+
+
 class LayoutAdapterTests(unittest.TestCase):
     def test_fixed_windows_docks_and_preferences_are_decoded(self):
         parser = REAPER2NIX.configparser.ConfigParser(
@@ -328,6 +442,64 @@ size=2
 
 
 class SourceAllowlistTests(unittest.TestCase):
+    def test_menu_source_is_imported_through_its_semantic_adapter(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            resource_dir = Path(temporary_directory)
+            schema_path = resource_dir / "schema.json"
+            schema_path.write_text(
+                json.dumps(
+                    {
+                        "version": 2,
+                        "sources": {
+                            "reaper-menu.ini": {
+                                "format": "ini",
+                                "adapter": "ini",
+                                "adapters": ["reaper-menu"],
+                                "adapterConfig": {
+                                    "sectionKinds": {"Main toolbar": "toolbar"},
+                                    "toolbarTextIcons": {
+                                        "normal": "text",
+                                        "wide": "text_wide",
+                                        "tooltip": "text_tt",
+                                    },
+                                },
+                            }
+                        },
+                        "options": [],
+                    }
+                )
+            )
+            (resource_dir / "reaper-menu.ini").write_text(
+                "[Main toolbar]\n"
+                "item_0=40044 Play\n"
+                "icon_0=text_wide\n"
+                "tbf_0=1\n"
+                "default=generated-state\n"
+            )
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    str(resource_dir),
+                    "--schema",
+                    str(schema_path),
+                    "--all-files",
+                    "--options",
+                    "programs.reaper.menus",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertIn("menus = {", result.stdout)
+        self.assertIn('"Main toolbar" = {', result.stdout)
+        self.assertIn('textIcon = "wide";', result.stdout)
+        self.assertIn("toolbarFlags = 1;", result.stdout)
+        self.assertNotIn("generated-state", result.stdout)
+        self.assertNotIn("reaper-menu.ini", result.stdout)
+
     def test_options_flag_filters_generated_output(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             resource_dir = Path(temporary_directory)

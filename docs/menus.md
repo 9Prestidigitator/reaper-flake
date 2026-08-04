@@ -20,25 +20,25 @@ The `&` in a menu label defines the menu mnemonic. On Linux and Windows, `&New p
 
 Use the helpers instead of spelling section names where practical.
 
-| Helper | REAPER section |
-| --- | --- |
-| `reaperMenus.sections.mainFile` | Main file |
-| `reaperMenus.sections.mainEdit` | Main edit |
-| `reaperMenus.sections.mainView` | Main view |
-| `reaperMenus.sections.mainInsert` | Main insert |
-| `reaperMenus.sections.mainItem` | Main item |
-| `reaperMenus.sections.mainTrack` | Main track |
-| `reaperMenus.sections.mainOptions` | Main options |
-| `reaperMenus.sections.mainActions` | Main actions |
-| `reaperMenus.sections.mainExtensions` | Main extensions |
-| `reaperMenus.sections.rulerArrangeContext` | Ruler/arrange context |
+| Helper                                          | REAPER section              |
+| ----------------------------------------------- | --------------------------- |
+| `reaperMenus.sections.mainFile`                 | Main file                   |
+| `reaperMenus.sections.mainEdit`                 | Main edit                   |
+| `reaperMenus.sections.mainView`                 | Main view                   |
+| `reaperMenus.sections.mainInsert`               | Main insert                 |
+| `reaperMenus.sections.mainItem`                 | Main item                   |
+| `reaperMenus.sections.mainTrack`                | Main track                  |
+| `reaperMenus.sections.mainOptions`              | Main options                |
+| `reaperMenus.sections.mainActions`              | Main actions                |
+| `reaperMenus.sections.mainExtensions`           | Main extensions             |
+| `reaperMenus.sections.rulerArrangeContext`      | Ruler/arrange context       |
 | `reaperMenus.sections.trackControlPanelContext` | Track control panel context |
-| `reaperMenus.sections.mediaItemContext` | Media item context |
-| `reaperMenus.sections.mixerContext` | Mixer context |
-| `reaperMenus.toolbars.main` | Main toolbar |
-| `reaperMenus.toolbars.mediaExplorer` | Media Explorer toolbar |
-| `reaperMenus.toolbars.midiPianoRoll` | MIDI piano roll toolbar |
-| `reaperMenus.toolbars.midiEventList` | MIDI event list toolbar |
+| `reaperMenus.sections.mediaItemContext`         | Media item context          |
+| `reaperMenus.sections.mixerContext`             | Mixer context               |
+| `reaperMenus.toolbars.main`                     | Main toolbar                |
+| `reaperMenus.toolbars.mediaExplorer`            | Media Explorer toolbar      |
+| `reaperMenus.toolbars.midiPianoRoll`            | MIDI piano roll toolbar     |
+| `reaperMenus.toolbars.midiEventList`            | MIDI event list toolbar     |
 
 `reaperMenus.sections` also includes the remaining supported main, MIDI, Media Explorer, and context-menu sections. The library identifies whether each known section is a menu, context menu, or toolbar. Known sections cannot be configured as a different kind.
 
@@ -114,13 +114,13 @@ Toolbar entries use the same `action` and `label` fields, but have a different R
 
 Toolbar-specific fields are:
 
-| Field | Meaning |
-| --- | --- |
-| `icon` | Filename from REAPER's `Data/toolbar_icons` directory. |
-| `textIcon = "normal"` | Renders the label as a text button. |
-| `textIcon = "wide"` | Renders the label as a double-width text button. |
-| `useTextAsTooltip = true` | Uses REAPER's `text_tt` icon mode. |
-| `toolbarFlags` | Raw `tbf_N` feedback/animation bitfield. |
+| Field                     | Meaning                                                |
+| ------------------------- | ------------------------------------------------------ |
+| `icon`                    | Filename from REAPER's `Data/toolbar_icons` directory. |
+| `textIcon = "normal"`     | Renders the label as a text button.                    |
+| `textIcon = "wide"`       | Renders the label as a double-width text button.       |
+| `useTextAsTooltip = true` | Uses REAPER's `text_tt` icon mode.                     |
+| `toolbarFlags`            | Raw `tbf_N` feedback/animation bitfield.               |
 
 `toolbarFlags` does not change an action's state. It configures REAPER's visual feedback for actions that report a toggle state. REAPER does not publish the full bit layout, so it remains an unsigned integer option.
 
@@ -192,3 +192,15 @@ programs.reaper.menus."${reaperMenus.toolbars.main}" = null;
 ```
 
 REAPER then uses its built-in default toolbar or menu. The module intentionally does not generate REAPER's `default=<hash>` metadata; existing metadata is preserved when a section remains managed.
+
+## Importing Existing Menus and Toolbars
+
+Run `reaper2nix` on a REAPER resource directory to translate customized sections from `reaper-menu.ini` into `programs.reaper.menus`:
+
+```console
+nix run .#reaper2nix -- \
+  --options programs.reaper.menus \
+  /path/to/reaper-resource-directory
+```
+
+The importer reconstructs nested submenus and preserves separators, disabled labels, titles, toolbar icons, text-icon modes, and toolbar flags. Known section names infer their kind from the same `reaperMenus` metadata used by the forward module. Unknown toolbar names receive an explicit `kind = "toolbar"`. REAPER's generated `default` fingerprint is intentionally omitted because it is application state rather than user configuration.

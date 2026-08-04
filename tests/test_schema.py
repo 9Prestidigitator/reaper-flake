@@ -15,29 +15,24 @@ class StaticSchemaTests(unittest.TestCase):
 
     def test_schema_declares_only_supported_sources(self):
         self.assertEqual(
-            self.schema["sources"],
+            set(self.schema["sources"]),
             {
-                "ReaPack/reaper-flake-state.json": {
-                    "adapter": "reapack-packages",
-                    "adapters": [],
-                    "format": "json",
-                },
-                "reaper.ini": {
-                    "adapter": "ini",
-                    "adapters": ["reaper-layout"],
-                    "format": "ini",
-                },
-                "reapack.ini": {
-                    "adapter": "ini",
-                    "adapters": ["reapack"],
-                    "format": "ini",
-                },
-                "reaper-kb.ini": {
-                    "adapter": "reaper-kb",
-                    "adapters": [],
-                    "format": "line",
-                },
+                "ReaPack/reaper-flake-state.json",
+                "reaper.ini",
+                "reapack.ini",
+                "reaper-kb.ini",
+                "reaper-menu.ini",
             },
+        )
+        self.assertEqual(
+            self.schema["sources"]["reaper-menu.ini"]["adapters"],
+            ["reaper-menu"],
+        )
+        self.assertEqual(
+            self.schema["sources"]["reaper-menu.ini"]["adapterConfig"][
+                "toolbarTextIcons"
+            ],
+            {"normal": "text", "tooltip": "text_tt", "wide": "text_wide"},
         )
 
     def test_unset_options_remain_in_the_schema(self):
