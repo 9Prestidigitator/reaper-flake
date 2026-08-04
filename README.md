@@ -111,8 +111,7 @@ nix run .#reaper2nix -- ~/.config/reaper-flake
 The input may be a complete REAPER resource directory or one supported INI file. When running the app directly from GitHub instead of a local checkout, use:
 
 ```console
-nix run github:9Prestidigitator/reaper-flake#reaper2nix -- \
-  ~/.config/reaper-flake
+nix run github:9Prestidigitator/reaper-flake#reaper2nix -- ~/.config/reaper-flake
 ```
 
 REAPER stores both durable configuration and mutable application state in its resource files. For that reason, `reaper2nix` is intentionally schema-driven: it emits only settings represented by public Nix options and semantic adapters. It does not convert every INI key, and it skips files for which the schema has no definition. Close REAPER before importing if you want its latest in-memory GUI changes to be written to disk first.
@@ -122,15 +121,13 @@ The semantic importers include actions and key bindings from `reaper-kb.ini`, me
 Generated output retains proper Nix nesting. To inspect only one option or subtree, pass its complete public path:
 
 ```console
-nix run .#reaper2nix -- \
-  --options programs.reaper.preferences \
-  ~/.config/reaper-flake
+nix run .#reaper2nix -- --options programs.reaper.preferences ~/.config/reaper-flake
 ```
 
 `--options` can be repeated to select multiple independent subtrees and can also target an exact leaf. Useful additional flags include:
 
 - `--show-unmapped` reports unmapped keys in schema-declared INI files without adding them to the generated configuration.
-- `--all-files` emits those unmapped values as low-level `programs.reaper.ini` declarations. Review this output carefully because it may include runtime state. 
+- `--all-keys` emits unmapped keys from schema-declared INI files as low-level `programs.reaper.ini` declarations. It does not scan files absent from the schema. Review this output carefully because supported files may also contain runtime state.
 - `--reapack-exact-versions` records every installed ReaPack package version. By default, exact versions are retained only for pinned packages.
 - `--schema PATH` uses an explicitly supplied schema instead of the bundled or activated schema.
 

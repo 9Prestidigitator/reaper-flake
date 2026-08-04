@@ -484,7 +484,7 @@ class SourceAllowlistTests(unittest.TestCase):
                     str(resource_dir),
                     "--schema",
                     str(schema_path),
-                    "--all-files",
+                    "--all-keys",
                     "--options",
                     "programs.reaper.menus",
                 ],
@@ -555,7 +555,7 @@ class SourceAllowlistTests(unittest.TestCase):
         self.assertNotIn("windows", result.stdout)
         self.assertNotIn("showFolders", result.stdout)
 
-    def test_all_files_only_reads_schema_declared_ini_sources(self):
+    def test_all_keys_only_reads_schema_declared_ini_sources(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             resource_dir = Path(temporary_directory)
             schema = {
@@ -590,7 +590,7 @@ class SourceAllowlistTests(unittest.TestCase):
                     str(resource_dir),
                     "--schema",
                     str(schema_path),
-                    "--all-files",
+                    "--all-keys",
                 ],
                 check=True,
                 capture_output=True,
@@ -730,7 +730,7 @@ class SourceAllowlistTests(unittest.TestCase):
                     str(resource_dir / "reaper.ini"),
                     "--schema",
                     str(schema_path),
-                    "--all-files",
+                    "--all-keys",
                 ],
                 check=True,
                 capture_output=True,

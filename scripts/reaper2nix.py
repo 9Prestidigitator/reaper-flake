@@ -215,7 +215,7 @@ def ini_files(
 
     REAPER has a few line-oriented files which are deliberately not parsed
     here.  The files that are valid INI files can still be imported as raw
-    ``programs.reaper.ini`` declarations when ``--all-files`` is requested.
+    ``programs.reaper.ini`` declarations when ``--all-keys`` is requested.
     """
 
     paths = [resource_dir / file_name for file_name in sorted(set(file_names))]
@@ -877,7 +877,7 @@ def main() -> int:
         help="Schema JSON to use instead of automatic discovery.",
     )
     parser.add_argument(
-        "--all-files",
+        "--all-keys",
         action="store_true",
         help=(
             "Also emit unmapped values from schema-declared INI sources. "
@@ -1113,7 +1113,7 @@ def main() -> int:
                 if identity in known:
                     continue
                 raw = current_ini[section][key]
-                if args.all_files:
+                if args.all_keys:
                     if file_name == "reaper.ini":
                         target = ["ini", "sections", section, key]
                     else:

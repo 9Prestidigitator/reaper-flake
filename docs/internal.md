@@ -388,7 +388,7 @@ A physical source can also declare additional semantic adapters. `reaper.ini` us
 To inspect unmapped keys inside the schema-declared INI sources, opt in to raw imports:
 
 ```console
-nix run .#reaper2nix -- --all-files /path/to/reaper-resource-directory
+nix run .#reaper2nix -- --all-keys /path/to/reaper-resource-directory
 ```
 
 This does not broaden the source allowlist. It only emits unmapped values from already-declared INI sources under `programs.reaper.ini`; files absent from the schema still are not opened. The raw form is intentionally opt-in because even a configuration-bearing file may contain runtime state alongside settings.
