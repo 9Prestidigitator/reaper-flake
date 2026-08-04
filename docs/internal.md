@@ -150,7 +150,7 @@ A supported preference has one source of truth for both directions: its INI cont
 
 ### Discover the encoding
 
-Use an isolated REAPER resource directory and change only one GUI control at a time:
+Use an isolated REAPER resource directory and change only one GUI control at a time (git is very useful for this):
 
 1. Record the original file, section, key, and value.
 2. Change the GUI control, close REAPER cleanly, and compare the files.
