@@ -204,7 +204,7 @@ in {
             if cfg.activation.allowRunning
             then "1"
             else "0"
-          } -eq 0 ] && ${pkgs.procps}/bin/pgrep -x reaper >/dev/null; then
+          } -eq 0 ] && ${pkgs.runtimeShell} ${../scripts/reaper-is-running.sh} ${pkgs.procps}/bin/pgrep; then
             echo "Refusing to activate REAPER configuration while REAPER is running." >&2
             echo "Close REAPER and retry, or set programs.reaper.activation.allowRunning = true to override this safety check." >&2
             exit 1

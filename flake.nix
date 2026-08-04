@@ -72,6 +72,17 @@
         checks = {
           reapack = reapackPackage;
 
+          activation-guard =
+            pkgs.runCommand "reaper-activation-guard-tests" {
+              nativeBuildInputs = [pkgs.python3 pkgs.procps];
+              PGREP_FOR_TESTS = pkgs.lib.getExe' pkgs.procps "pgrep";
+              REAPER_RUNNING_SCRIPT = ./scripts/reaper-is-running.sh;
+              SHELL_FOR_TESTS = pkgs.runtimeShell;
+            } ''
+              python3 ${./tests/test_activation_guard.py} -v
+              touch "$out"
+            '';
+
           reaper2nix =
             pkgs.runCommand "reaper2nix-tests" {
               nativeBuildInputs = [pkgs.python3];

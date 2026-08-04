@@ -353,9 +353,7 @@ nix run .#reaper2nix -- \
 
 The argument may be either the REAPER resource directory or its `reaper.ini` file.
 
-Use `--options` to emit only one public option or subtree while preserving its
-full nesting in the generated expression. The path must begin with
-`programs.reaper`:
+Use `--options` to emit only one public option or subtree while preserving its full nesting in the generated expression. The path must begin with `programs.reaper`:
 
 ```console
 nix run .#reaper2nix -- \
@@ -363,11 +361,7 @@ nix run .#reaper2nix -- \
   /path/to/reaper-resource-directory
 ```
 
-The flag is repeatable when several independent subtrees are wanted. It also
-accepts an exact leaf such as
-`programs.reaper.preferences.general.undo.maximumUndoMemory`. Selecting a
-parent includes all generated descendants; options absent from the current
-REAPER configuration simply produce no matching output.
+The flag is repeatable when several independent subtrees are wanted. It also accepts an exact leaf such as `programs.reaper.preferences.general.undo.maximumUndoMemory`. Selecting a parent includes all generated descendants; options absent from the current REAPER configuration simply produce no matching output.
 
 Use `--schema` as an escape hatch for another configuration directory or a hand-authored schema:
 
@@ -385,13 +379,7 @@ The schema also contains a source catalog. A resource-directory import opens onl
 
 Each non-INI structure has a named adapter. The first line-file adapter decodes `SCR`, `ACT`, and `KEY` records from `reaper-kb.ini` into `programs.reaper.actions.scripts`, `customActions`, and `keyBindings`. Unknown record types remain unmanaged instead of being copied into raw line options.
 
-ReaPack uses two semantic adapters. The `reapack` adapter decodes preferences
-and ordered repository records from `reapack.ini`. The `reapack-packages`
-adapter reads the versioned `ReaPack/reaper-flake-state.json` snapshot exported
-by the patched extension and emits `extensions.reapack.packages`. It never
-opens `registry.db`; SQLite remains an implementation detail owned by ReaPack.
-Unpinned packages use `version = null` unless the importer is invoked with
-`--reapack-exact-versions`.
+ReaPack uses two semantic adapters. The `reapack` adapter decodes preferences and ordered repository records from `reapack.ini`. The `reapack-packages` adapter reads the versioned `ReaPack/reaper-flake-state.json` snapshot exported by the patched extension and emits `extensions.reapack.packages`. It never opens `registry.db`; SQLite remains an implementation detail owned by ReaPack. Unpinned packages use `version = null` unless the importer is invoked with `--reapack-exact-versions`.
 
 A physical source can also declare additional semantic adapters. `reaper.ini` uses this to combine ordinary preference mappings with the layout adapter. The layout adapter imports the first-class main window, mixer, master mixer, transport, docker topology, selected tabs, edge sizes, and `[REAPERdockpref]` values under `programs.reaper.layout`. It deliberately leaves unrelated editor and extension window state unmanaged.
 
