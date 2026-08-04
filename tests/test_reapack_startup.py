@@ -6,11 +6,13 @@ import unittest
 from pathlib import Path
 
 
-MODULE = Path(os.environ["REAPACK_MODULE"])
+MODULE_PATH = os.environ.get("REAPACK_MODULE")
+MODULE = Path(MODULE_PATH) if MODULE_PATH else None
 LUA = os.environ.get("LUA", "lua")
 
 
 def startup_script() -> str:
+    assert MODULE is not None
     source = MODULE.read_text()
     marker = 'startupScript = pkgs.writeText "reaper-flake-reapack-startup.lua" \'\'\n'
     start = source.index(marker) + len(marker)
@@ -18,6 +20,7 @@ def startup_script() -> str:
     return textwrap.dedent(source[start:end])
 
 
+@unittest.skipUnless(MODULE, "REAPACK_MODULE is only set by the Nix check")
 class ReaPackStartupTests(unittest.TestCase):
     def run_startup(self, transaction_succeeds: bool):
         with tempfile.TemporaryDirectory() as directory:
@@ -43,6 +46,7 @@ class ReaPackStartupTests(unittest.TestCase):
                     function reaper.APIExists(_) return true end
                     function reaper.defer(callback) callback() end
                     function reaper.ReaPack_IsBusy(_) return false end
+                    function reaper.ReaPack_ExportState(_) return true end
                     function reaper.ReaPack_QueuePackage(repo, category, package, version, pin, prereleases)
                       queued[repo .. "\\t" .. category .. "\\t" .. package] = {{version, pin, prereleases}}
                       return true, ""

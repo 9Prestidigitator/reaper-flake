@@ -182,6 +182,7 @@
     local function wait_for_api()
       attempts = attempts + 1
       local required_apis = {
+        "ReaPack_ExportState",
         "ReaPack_GetInstalledPackageInfo",
         "ReaPack_IsBusy",
         "ReaPack_QueuePackage",
@@ -288,6 +289,12 @@
       if reaper.ReaPack_IsBusy(false) then
         reaper.defer(wait_for_package_transaction)
       else
+        if not reaper.ReaPack_ExportState(false) then
+          reaper.ShowMessageBox(
+            "The package transaction completed, but ReaPack could not export " ..
+              "the reaper2nix package snapshot.",
+            "reaper-flake: ReaPack state export failed", 0)
+        end
         local errors = verify_packages()
         if #errors == 0 then
           write_managed()

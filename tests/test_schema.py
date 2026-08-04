@@ -17,9 +17,19 @@ class StaticSchemaTests(unittest.TestCase):
         self.assertEqual(
             self.schema["sources"],
             {
+                "ReaPack/reaper-flake-state.json": {
+                    "adapter": "reapack-packages",
+                    "adapters": [],
+                    "format": "json",
+                },
                 "reaper.ini": {
                     "adapter": "ini",
                     "adapters": ["reaper-layout"],
+                    "format": "ini",
+                },
+                "reapack.ini": {
+                    "adapter": "ini",
+                    "adapters": ["reapack"],
                     "format": "ini",
                 },
                 "reaper-kb.ini": {

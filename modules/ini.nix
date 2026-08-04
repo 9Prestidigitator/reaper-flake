@@ -362,7 +362,7 @@ in {
     type = types.attrsOf (types.submodule {
       options = {
         format = mkOption {
-          type = types.enum ["ini" "line"];
+          type = types.enum ["ini" "json" "line"];
           description = "Physical configuration format used by this REAPER file.";
         };
         adapter = mkOption {

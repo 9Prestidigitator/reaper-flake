@@ -19,6 +19,7 @@
           config.allowUnfree = true;
         };
         swellWayland = pkgs.callPackage ./packages/swell-wayland.nix {};
+        reapackPackage = pkgs.callPackage ./packages/reapack {};
         generatePreferencesDocs = pkgs.writeShellApplication {
           name = "generate-preferences-docs";
           runtimeInputs = [pkgs.git pkgs.nix pkgs.prettier];
@@ -69,6 +70,8 @@
         };
 
         checks = {
+          reapack = reapackPackage;
+
           reaper2nix =
             pkgs.runCommand "reaper2nix-tests" {
               nativeBuildInputs = [pkgs.python3];
@@ -119,7 +122,7 @@
             };
             reapertips-theme = pkgs.callPackage ./packages/themes/reapertips.nix {};
             smooth6-theme = pkgs.callPackage ./packages/themes/smooth6.nix {};
-            reapack = pkgs.callPackage ./packages/reapack {};
+            reapack = reapackPackage;
             reaper-schema = reaperSchema;
             sws = pkgs.callPackage ./packages/sws {};
           }

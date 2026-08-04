@@ -29,6 +29,50 @@ class NixSerializationTests(unittest.TestCase):
             '{\n  "reaper.ini" = {\n    "Main file" = {\n      item_0 = "value";\n    };\n  };\n}',
         )
 
+    def test_option_subtrees_preserve_their_full_paths(self):
+        tree = {
+            "preferences": {
+                "general": {"undo": {"maximumUndoMemory": 512}},
+                "project": {"fixedItemLanes": True},
+            },
+            "windows": {"mixer": {"showFolders": True}},
+        }
+
+        selected = REAPER2NIX.select_option_subtrees(
+            tree,
+            [
+                REAPER2NIX.normalize_option_filter(
+                    "programs.reaper.preferences.general.undo.maximumUndoMemory"
+                )
+            ],
+        )
+
+        self.assertEqual(
+            selected,
+            {
+                "preferences": {
+                    "general": {"undo": {"maximumUndoMemory": 512}}
+                }
+            },
+        )
+
+    def test_parent_filter_subsumes_repeated_child_filters(self):
+        tree = {"preferences": {"general": {"undo": True}, "project": {}}}
+        selected = REAPER2NIX.select_option_subtrees(
+            tree,
+            [
+                ("preferences", "general"),
+                ("preferences",),
+                ("preferences", "general"),
+            ],
+        )
+
+        self.assertEqual(selected, tree)
+
+    def test_option_filter_requires_the_public_root(self):
+        with self.assertRaisesRegex(ValueError, "must start with programs.reaper"):
+            REAPER2NIX.normalize_option_filter("preferences.general")
+
 
 class ReaperKbAdapterTests(unittest.TestCase):
     def test_records_are_decoded_to_public_action_options(self):
@@ -104,7 +148,241 @@ explorer=0.500000 2
         self.assertIn(("REAPERdockpref", "explorer"), consumed)
 
 
+class ReaPackAdapterTests(unittest.TestCase):
+    def test_missing_snapshot_is_reported_only_for_reapack_resources(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            resource_dir = Path(temporary_directory)
+            missing = resource_dir / "ReaPack/reaper-flake-state.json"
+            decoded, diagnostics = REAPER2NIX.parse_reapack_packages(
+                resource_dir, missing
+            )
+            self.assertEqual(decoded, {})
+            self.assertEqual(diagnostics, [])
+
+            (resource_dir / "reapack.ini").write_text("[general]\nversion=4\n")
+            _, diagnostics = REAPER2NIX.parse_reapack_packages(resource_dir, missing)
+
+        self.assertIn("snapshot is missing", diagnostics[0])
+
+    def test_preferences_and_ordered_repositories_are_decoded(self):
+        parser = REAPER2NIX.configparser.ConfigParser(
+            interpolation=None, delimiters=("=",), strict=False
+        )
+        parser.optionxform = str
+        parser.read_string(
+            """
+[install]
+autoinstall=0
+prereleases=1
+promptobsolete=1
+[browser]
+synonyms=1
+[network]
+proxy=
+verifypeer=1
+stalethreshold=604800
+fallbackproxy=2
+[remotes]
+remote0=ReaPack|https://reapack.com/index.xml|1|2
+remote1=Custom|https://example.org/index.xml|0|1
+size=2
+"""
+        )
+
+        decoded, consumed, diagnostics = REAPER2NIX.parse_reapack_ini(parser)
+
+        self.assertEqual(diagnostics, [])
+        self.assertFalse(decoded["addDefaultRepositories"])
+        self.assertFalse(decoded["installNewPackagesWhenSynchronizing"])
+        self.assertTrue(decoded["enablePrereleasesGlobally"])
+        self.assertEqual(decoded["network"]["fallbackProxy"], "ask")
+        self.assertEqual(
+            decoded["repositories"][1],
+            {
+                "name": "Custom",
+                "url": "https://example.org/index.xml",
+                "enable": False,
+                "installNewPackages": "always",
+            },
+        )
+        self.assertIn(("remotes", "remote1"), consumed)
+
+    def test_snapshot_filters_reapack_and_preserves_pinned_versions(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            resource_dir = Path(temporary_directory)
+            snapshot_path = resource_dir / "ReaPack/reaper-flake-state.json"
+            snapshot_path.parent.mkdir()
+            snapshot_path.write_text(
+                json.dumps(
+                    {
+                        "formatVersion": 1,
+                        "resourcePath": str(resource_dir),
+                        "registryModifiedAt": 10,
+                        "packages": [
+                            {
+                                "repository": "ReaPack",
+                                "category": "Extensions",
+                                "name": "ReaPack.ext",
+                                "version": "1.2.6",
+                                "flags": 0,
+                            },
+                            {
+                                "repository": "Repo",
+                                "category": "Scripts",
+                                "name": "Latest.lua",
+                                "version": "2.0",
+                                "flags": 0,
+                            },
+                            {
+                                "repository": "Repo",
+                                "category": "Scripts",
+                                "name": "Pinned.lua",
+                                "version": "1.0",
+                                "flags": 3,
+                            },
+                        ],
+                    }
+                )
+            )
+
+            decoded, diagnostics = REAPER2NIX.parse_reapack_packages(
+                resource_dir, snapshot_path
+            )
+
+            exact, _ = REAPER2NIX.parse_reapack_packages(
+                resource_dir, snapshot_path, exact_versions=True
+            )
+
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(len(decoded["packages"]), 2)
+        self.assertIsNone(decoded["packages"][0]["version"])
+        self.assertEqual(decoded["packages"][1]["version"], "1.0")
+        self.assertTrue(decoded["packages"][1]["pin"])
+        self.assertTrue(decoded["packages"][1]["enablePrereleases"])
+        self.assertEqual(exact["packages"][0]["version"], "2.0")
+
+    def test_directory_import_merges_repositories_and_packages(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            resource_dir = Path(temporary_directory)
+            schema_path = resource_dir / "schema.json"
+            schema_path.write_text(
+                json.dumps(
+                    {
+                        "version": 2,
+                        "sources": {
+                            "reapack.ini": {
+                                "format": "ini",
+                                "adapter": "ini",
+                                "adapters": ["reapack"],
+                            },
+                            "ReaPack/reaper-flake-state.json": {
+                                "format": "json",
+                                "adapter": "reapack-packages",
+                            },
+                        },
+                        "options": [],
+                    }
+                )
+            )
+            (resource_dir / "reapack.ini").write_text(
+                "[remotes]\nremote0=Repo|https://example.org/index.xml|1|0\nsize=1\n"
+            )
+            state_dir = resource_dir / "ReaPack"
+            state_dir.mkdir()
+            (state_dir / "reaper-flake-state.json").write_text(
+                json.dumps(
+                    {
+                        "formatVersion": 1,
+                        "resourcePath": str(resource_dir),
+                        "registryModifiedAt": 0,
+                        "packages": [
+                            {
+                                "repository": "Repo",
+                                "category": "Scripts",
+                                "name": "Tool.lua",
+                                "version": "1.0",
+                                "flags": 0,
+                            }
+                        ],
+                    }
+                )
+            )
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    str(resource_dir),
+                    "--schema",
+                    str(schema_path),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertIn("extensions = {", result.stdout)
+        self.assertIn("reapack = {", result.stdout)
+        self.assertIn("addDefaultRepositories = false;", result.stdout)
+        self.assertIn('name = "Tool.lua";', result.stdout)
+
+
 class SourceAllowlistTests(unittest.TestCase):
+    def test_options_flag_filters_generated_output(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            resource_dir = Path(temporary_directory)
+            schema_path = resource_dir / "schema.json"
+            schema_path.write_text(
+                json.dumps(
+                    {
+                        "version": 2,
+                        "sources": {
+                            "reaper.ini": {"format": "ini", "adapter": "ini"}
+                        },
+                        "options": [
+                            {
+                                "path": "preferences.general.undo.maximumUndoMemory",
+                                "kind": "value",
+                                "file": "reaper.ini",
+                                "section": "reaper",
+                                "key": "undomaxmem",
+                                "codec": "integer",
+                            },
+                            {
+                                "path": "windows.mixer.showFolders",
+                                "kind": "value",
+                                "file": "reaper.ini",
+                                "section": "reaper",
+                                "key": "showfolders",
+                                "codec": "bool",
+                            },
+                        ],
+                    }
+                )
+            )
+            ini_path = resource_dir / "reaper.ini"
+            ini_path.write_text("[reaper]\nundomaxmem=512\nshowfolders=1\n")
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    str(ini_path),
+                    "--schema",
+                    str(schema_path),
+                    "--options",
+                    "programs.reaper.preferences",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertIn("programs.reaper = {", result.stdout)
+        self.assertIn("maximumUndoMemory = 512;", result.stdout)
+        self.assertNotIn("windows", result.stdout)
+        self.assertNotIn("showFolders", result.stdout)
+
     def test_all_files_only_reads_schema_declared_ini_sources(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             resource_dir = Path(temporary_directory)

@@ -49,6 +49,11 @@ programs.reaper.extensions.reapack.package =
 
 The default is this flake's ReaPack package, built from the latest packaged Codeberg release for Linux and macOS. It includes a small patch that exposes ReaPack's transaction engine to the generated startup script.
 
+The patch also atomically exports `ReaPack/reaper-flake-state.json` when the
+extension starts and after package transactions. This versioned, read-only
+snapshot lets `reaper2nix` inspect installed packages without depending on
+ReaPack's private SQLite schema.
+
 An unmodified upstream ReaPack binary still supports normal interactive ReaPack use and INI configuration, but it does not provide the managed-package APIs required by `packages`. The current startup runner also checks these APIs when only `synchronizeOnActivation` is enabled, so use the flake's patched build for either automated workflow.
 
 ## Repositories
@@ -145,6 +150,33 @@ Each package supports:
 The `(repository, category, name)` tuple must be unique in the list. Package fields cannot contain tabs or newlines because the activation request is tab-separated.
 
 One package may install many files or register many actions. Declare the package's index identity, not one of its `<source file="...">` entries.
+
+## Importing ReaPack state with reaper2nix
+
+Running `reaper2nix` on a resource directory imports ReaPack's preferences and
+ordered repositories from `reapack.ini`. Installed packages are imported from
+the snapshot written by this flake's patched extension:
+
+```console
+nix run .#reaper2nix -- /path/to/reaper-resource-directory
+```
+
+Unpinned packages are emitted with `version = null`, preserving normal ReaPack
+updates. Pinned packages retain their installed version. To freeze every
+installed version instead, pass:
+
+```console
+nix run .#reaper2nix -- --reapack-exact-versions \
+  /path/to/reaper-resource-directory
+```
+
+The ReaPack extension's own `ReaPack.ext` registry entry is excluded because
+the extension binary is managed by `extensions.reapack.package`, not by the
+individual `packages` transaction.
+
+If the snapshot is missing, older than `registry.db`, or belongs to another
+resource directory, `reaper2nix` prints a diagnostic. Start and close REAPER to
+refresh it, then run the import again.
 
 ### `null` versus an empty list
 
@@ -377,6 +409,7 @@ The files under `ReaPack/` have separate responsibilities:
 | ----------------------- | ---------------------------------------------------------------------------------------- |
 | `registry.db`           | ReaPack's authoritative installed-package registry. Never edited directly by the module. |
 | `cache/*.xml`           | Synchronized repository indexes owned by ReaPack.                                        |
+| `reaper-flake-state.json` | Versioned installed-package snapshot exported atomically for `reaper2nix`.              |
 | `.nix-sync-requested`   | One-shot synchronization request written by Home Manager.                                |
 | `.nix-package-request`  | Desired package transaction waiting for REAPER startup.                                  |
 | `.nix-managed-packages` | Identities successfully adopted by declarative package management.                       |
@@ -393,6 +426,8 @@ The patch in `packages/reapack/managed-packages-api.patch` adds narrow ReaScript
 
 - queue an exact package/version through ReaPack's native transaction engine;
 - queue removal of an installed package identity;
+- inspect installed package versions and flags;
+- atomically export a versioned installed-package snapshot;
 - report whether a transaction is still running;
 - permit noninteractive transactions without the completion report dialog.
 
@@ -418,7 +453,8 @@ The exact `version` is absent from the current repository index. Inspect the pac
 
 ### Missing managed-package API
 
-If the startup dialog lists `ReaPack_GetInstalledPackageInfo`, `ReaPack_IsBusy`,
+If the startup dialog lists `ReaPack_ExportState`,
+`ReaPack_GetInstalledPackageInfo`, `ReaPack_IsBusy`,
 `ReaPack_QueuePackage`, or `ReaPack_QueueUninstallPackage`, the configured
 extension is an unpatched upstream build. Remove the `package` override or
 select this flake's `packages.${pkgs.system}.reapack` output.

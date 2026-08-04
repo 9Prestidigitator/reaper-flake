@@ -78,6 +78,7 @@ in {
     ./menus.nix
 
     ./extensions/sws.nix
+    ./extensions/reapack-schema.nix
     ./extensions/reapack.nix
 
     ./layout

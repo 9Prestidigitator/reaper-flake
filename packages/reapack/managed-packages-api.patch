@@ -2,12 +2,13 @@ diff --git a/src/api.hpp b/src/api.hpp
 index 5e8dabc..fdca930 100644
 --- a/src/api.hpp
 +++ b/src/api.hpp
-@@ -48,5 +48,6 @@ namespace API {
+@@ -48,5 +48,7 @@ namespace API {
    extern APIFunc BrowsePackages;
    extern APIFunc CompareVersions;
++  extern APIFunc ExportState;
 +  extern APIFunc IsBusy;
    extern APIFunc ProcessQueue;
- 
+
    // api_package.cpp
 @@ -57,4 +58,7 @@ namespace API {
    extern APIFunc GetEntryInfo;
@@ -15,16 +16,23 @@ index 5e8dabc..fdca930 100644
    extern APIFunc GetOwner;
 +  extern APIFunc QueuePackage;
 +  extern APIFunc QueueUninstallPackage;
- 
+
    // api_repo.cpp
 diff --git a/src/api_misc.cpp b/src/api_misc.cpp
 index b5c8120..57f8ae1 100644
 --- a/src/api_misc.cpp
 +++ b/src/api_misc.cpp
-@@ -44,6 +44,13 @@ R"(Returns 0 if both versions are equal, a positive value if ver1 is higher tha
+@@ -44,6 +44,20 @@ R"(Returns 0 if both versions are equal, a positive value if ver1 is higher tha
    return a.compare(b);
  });
- 
+
++DEFINE_API(bool, ExportState, ((bool, unused)),
++R"(Export a versioned snapshot of installed packages for external configuration tools.)",
++{
++  (void)unused;
++  return g_reapack->exportState();
++});
++
 +DEFINE_API(bool, IsBusy, ((bool, unused)),
 +R"(Returns whether ReaPack is currently processing a transaction.)",
 +{
@@ -167,52 +175,212 @@ index 2a43cad..5a6da39 100644
 +    return false;
 +  }
 +});
+diff --git a/src/registry.cpp b/src/registry.cpp
+index 14eed9c..8d5d67a 100644
+--- a/src/registry.cpp
++++ b/src/registry.cpp
+@@ -50,6 +50,10 @@ Registry::Registry(const Path &path)
+     "SELECT id, remote, category, package, desc, type, version, author, flags "
+     "FROM entries WHERE remote = ?"
+   );
++  m_everyEntry = m_db.prepare(
++    "SELECT id, remote, category, package, desc, type, version, author, flags "
++    "FROM entries ORDER BY remote, category, package"
++  );
+   m_forgetEntry = m_db.prepare("DELETE FROM entries WHERE id = ?");
+
+   // file queries
+@@ -249,6 +253,21 @@ auto Registry::getEntry(const Package *pkg) const -> Entry
+   return entry;
+ }
+
++auto Registry::getEntries() const -> std::vector<Entry>
++{
++  std::vector<Registry::Entry> list;
++
++  m_everyEntry->exec([&] {
++    Entry entry{};
++    fillEntry(m_everyEntry, &entry);
++    list.push_back(entry);
++
++    return true;
++  });
++
++  return list;
++}
++
+ auto Registry::getEntries(const std::string &remoteName) const -> std::vector<Entry>
+ {
+   std::vector<Registry::Entry> list;
+diff --git a/src/registry.hpp b/src/registry.hpp
+index cd184b9..09d542f 100644
+--- a/src/registry.hpp
++++ b/src/registry.hpp
+@@ -66,6 +66,7 @@ public:
+
+   Entry getEntry(const Package *) const;
+   Entry getOwner(const Path &) const;
++  std::vector<Entry> getEntries() const;
+   std::vector<Entry> getEntries(const std::string &) const;
+   std::vector<File> getFiles(const Entry &) const;
+   std::vector<File> getMainFiles(const Entry &) const;
+@@ -88,6 +89,7 @@ private:
+   Statement *m_setFlags;
+   Statement *m_findEntry;
+   Statement *m_allEntries;
++  Statement *m_everyEntry;
+   Statement *m_forgetEntry;
+   Statement *m_getOwner;
+
 diff --git a/src/reapack.cpp b/src/reapack.cpp
 index a14e0ce..632db99 100644
 --- a/src/reapack.cpp
 +++ b/src/reapack.cpp
-@@ -137,7 +137,11 @@ void ReaPack::setupAPI()
+@@ -35,5 +35,6 @@
+
+ #include <cassert>
++#include <sstream>
+
+ #include <reaper_plugin_functions.h>
+
+@@ -93,6 +94,8 @@ ReaPack::ReaPack(REAPER_PLUGIN_HINSTANCE instance, HWND mainWindow)
+   if(m_config.isFirstRun())
+     manageRemotes();
+
++  exportState();
++
+ #ifdef _WIN32
+   CleanupTempFiles();
+ #endif
+@@ -105,6 +108,75 @@ ReaPack::~ReaPack()
+   s_instance = nullptr;
+ }
+
++static std::string jsonString(const std::string &input)
++{
++  static const char hex[] = "0123456789abcdef";
++  std::string output{'"'};
++
++  for(const unsigned char character : input) {
++    switch(character) {
++    case '"': output += "\\\""; break;
++    case '\\': output += "\\\\"; break;
++    case '\b': output += "\\b"; break;
++    case '\f': output += "\\f"; break;
++    case '\n': output += "\\n"; break;
++    case '\r': output += "\\r"; break;
++    case '\t': output += "\\t"; break;
++    default:
++      if(character < 0x20) {
++        output += "\\u00";
++        output += hex[character >> 4];
++        output += hex[character & 0xf];
++      }
++      else
++        output += character;
++    }
++  }
++
++  output += '"';
++  return output;
++}
++
++bool ReaPack::exportState()
++{
++  try {
++    const Registry registry(Path::REGISTRY.prependRoot());
++    time_t registryModifiedAt{};
++    FS::mtime(Path::REGISTRY, &registryModifiedAt);
++
++    std::ostringstream json;
++    json << "{\n  \"formatVersion\": 1,\n"
++         << "  \"generatedAt\": " << time(nullptr) << ",\n"
++         << "  \"registryModifiedAt\": " << registryModifiedAt << ",\n"
++         << "  \"resourcePath\": " << jsonString(Path::root().join()) << ",\n"
++         << "  \"packages\": [";
++
++    bool first = true;
++    for(const Registry::Entry &entry : registry.getEntries()) {
++        json << (first ? "\n" : ",\n")
++             << "    {\"repository\": " << jsonString(entry.remote)
++             << ", \"category\": " << jsonString(entry.category)
++             << ", \"name\": " << jsonString(entry.package)
++             << ", \"version\": " << jsonString(entry.version.toString())
++             << ", \"flags\": " << entry.flags << "}";
++        first = false;
++    }
++    json << (first ? "" : "\n") << "  ]\n}\n";
++
++    const TempPath snapshot(Path::DATA + "reaper-flake-state.json");
++    if(!FS::write(snapshot.temp(), json.str()))
++      return false;
++    if(!FS::rename(snapshot)) {
++      FS::remove(snapshot.temp());
++      return false;
++    }
++    return true;
++  }
++  catch(const reapack_error &) {
++    return false;
++  }
++}
++
+ void ReaPack::setupActions()
+ {
+   m_actions.add("REAPACK_SYNC", "ReaPack: Synchronize packages",
+@@ -137,7 +209,12 @@ void ReaPack::setupAPI()
    m_api.emplace_back(&API::GetEntryInfo);
 +  m_api.emplace_back(&API::GetInstalledPackageInfo);
    m_api.emplace_back(&API::GetOwner);
    m_api.emplace_back(&API::GetRepositoryInfo);
++  m_api.emplace_back(&API::ExportState);
 +  m_api.emplace_back(&API::IsBusy);
    m_api.emplace_back(&API::ProcessQueue);
 +  m_api.emplace_back(&API::QueuePackage);
 +  m_api.emplace_back(&API::QueueUninstallPackage);
  }
- 
+
  void ReaPack::synchronizeAll()
-@@ -272,7 +276,7 @@ void ReaPack::aboutSelf()
+@@ -272,7 +349,7 @@ void ReaPack::aboutSelf()
    about(remote("ReaPack"));
  }
- 
+
 -Transaction *ReaPack::setupTransaction()
 +Transaction *ReaPack::setupTransaction(bool showReport)
  {
    if(m_progress && m_progress->isVisible())
      m_progress->setFocus();
-@@ -296,7 +300,8 @@ Transaction *ReaPack::setupTransaction()
+@@ -296,7 +373,8 @@ Transaction *ReaPack::setupTransaction()
    m_tx->onFinish >> [=] {
      m_progress.reset();
- 
+
 -    if(!m_tx->isCancelled() && !m_tx->receipt()->empty()) {
 +    if((showReport || m_tx->receipt()->test(Receipt::ErrorFlag)) &&
 +        !m_tx->isCancelled() && !m_tx->receipt()->empty()) {
        LockDialog managerLock(m_manager.get());
        LockDialog browserLock(m_browser.get());
- 
+
+@@ -323,6 +401,8 @@ void ReaPack::teardownTransaction()
+   delete m_tx;
+   m_tx = nullptr;
+
++  exportState();
++
+   // Update the browser only after the transaction is deleted because
+   // it must be able to start a new one to load the indexes
+   if(needRefresh)
 diff --git a/src/reapack.hpp b/src/reapack.hpp
 index 3a78042..9cd5a82 100644
 --- a/src/reapack.hpp
 +++ b/src/reapack.hpp
-@@ -64,5 +64,6 @@ public:
+@@ -64,5 +64,7 @@ public:
 -  Transaction *setupTransaction();
 +  Transaction *setupTransaction(bool showReport = true);
    void commitConfig(bool refresh = true);
    Config *config() { return &m_config; }
++  bool exportState();
 +  bool isBusy() const { return m_tx != nullptr; }
- 
+
  private:
 diff --git a/src/transaction.hpp b/src/transaction.hpp
 index c634923..311fbd9 100644
@@ -223,13 +391,13 @@ index c634923..311fbd9 100644
    void exportArchive(const std::string &path);
    bool runTasks();
 +  IndexPtr loadIndex(const Remote &);
- 
+
    bool isCancelled() const { return m_isCancelled; }
 @@ -79,7 +80,6 @@ protected:
    friend SynchronizeTask;
    friend InstallTask;
    friend UninstallTask;
- 
+
 -  IndexPtr loadIndex(const Remote &);
    void addObsolete(const Registry::Entry &e) { m_obsolete.insert(e); }
    void registerAll(bool add, const Registry::Entry &);
