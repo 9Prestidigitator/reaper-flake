@@ -111,7 +111,16 @@ in {
         # Synchronize repositories automatically after Home Manager activation.
         synchronizeOnActivation = true;
       };
-      sws.enable = true;
+      sws = {
+        enable = true;
+        # `null` leaves the palette unmanaged; `[]` clears all 16 slots.
+        colors = [
+          "#F5E0E6"
+          "#F2CDCD"
+          "#F5C2E7"
+          "#CBA6F7"
+        ];
+      };
     };
 
     swell.colortheme = {

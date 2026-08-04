@@ -78,6 +78,8 @@
 
           preference-schema = pkgs.callPackage ./tests/preference-schema.nix {};
 
+          sws-colors = pkgs.callPackage ./tests/sws-colors.nix {};
+
           activation-guard =
             pkgs.runCommand "reaper-activation-guard-tests" {
               nativeBuildInputs = [pkgs.python3 pkgs.procps];

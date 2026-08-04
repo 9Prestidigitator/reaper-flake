@@ -66,7 +66,15 @@ Import the Home Manager module and enable REAPER in the Home Manager configurati
 
               extensions = {
                 reapack.enable = true;
-                sws.enable = true;
+                sws = {
+                  enable = true;
+                  colors = [
+                    "#F5E0E6"
+                    "#F2CDCD"
+                    "#F5C2E7"
+                    "#CBA6F7"
+                  ];
+                };
               };
 
               preferences = {
@@ -93,6 +101,7 @@ For a larger, copyable configuration covering themes, layouts, menus, actions, p
 - Menus, context menus, main and MIDI toolbars, floating toolbars, submenus, labels, and toolbar flags.
 - Windows, docks, panels, transport placement, and layout state.
 - ReaPack repositories, synchronization settings, and individual packages.
+- SWS and its 16-slot custom color palette.
 - REAPER themes and theme packages, including `.ReaperTheme`/`.ReaperThemeZip` assets, scripts, and fonts. Direct `theme.colorThemes` links currently accept `.ReaperThemeZip` files; packages can provide either format.
 - VST, VST3, CLAP, and LV2 search paths, including Nix-installed plugins.
 - Linux SWELL color themes and the experimental native-Wayland build.
