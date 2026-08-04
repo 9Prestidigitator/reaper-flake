@@ -4,8 +4,8 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) literalExpression mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield reaperPreference;
+  inherit (lib) literalExpression mkOption types;
+  inherit (reaperLib) reaperBitfield reaperCodecs reaperPreference;
 
   cfg = config.programs.reaper.preferences.general;
 
@@ -13,11 +13,6 @@
   recentProjectList = cfg.recentProjectList;
   filenameAutoIncrement = cfg.filenameAutoIncrement;
   advancedUiSystemTweaks = cfg.advancedUiSystemTweaks;
-
-  powerOfTwo = exponent:
-    if exponent == 0
-    then 1
-    else 2 * powerOfTwo (exponent - 1);
 
   reaperBitfieldContributions = reaperBitfield.contributions {
     multinst = [
@@ -362,70 +357,158 @@ in {
     };
   };
 
-  config.programs.reaper.ini.sections.reaper =
-    optionalAttrs (cfg.languagePack != null) {langpack = cfg.languagePack;}
-    // optionalAttrs (startupSettings.showSplashScreenOnStartup != null) {splash = startupSettings.showSplashScreenOnStartup;}
-    // optionalAttrs (startupSettings.skipAnimation != null) {
-      splashanim =
-        if startupSettings.skipAnimation
-        then 0
-        else 1;
-    }
-    // optionalAttrs (startupSettings.automaticallyCheckForNewVersions != null) {verchk = startupSettings.automaticallyCheckForNewVersions;}
-    // optionalAttrs (recentProjectList.maximumProjects != null) {maxrecent = recentProjectList.maximumProjects;}
-    // optionalAttrs (cfg.warnWhenMemoryUseReachesMegabytes != null) {warnmaxram64 = cfg.warnWhenMemoryUseReachesMegabytes;}
-    // optionalAttrs (cfg.preventOsScreensaverWhenAudioActiveOrRendering != null) {
-      audiocloseinactive_linux =
-        if cfg.preventOsScreensaverWhenAudioActiveOrRendering
-        then 128
-        else 0;
-    }
-    // optionalAttrs (filenameAutoIncrement.suffix != null) {autoincrsuffix = filenameAutoIncrement.suffix;}
-    // optionalAttrs (advancedUiSystemTweaks.customSplashScreenImage != null) {
-      splashimage = advancedUiSystemTweaks.customSplashScreenImage;
-    }
-    // optionalAttrs (advancedUiSystemTweaks.uiScale != null) {uiscale = advancedUiSystemTweaks.uiScale;}
-    // optionalAttrs (advancedUiSystemTweaks.fontSizeAdjustment != null) {
-      fontscaling = advancedUiSystemTweaks.fontSizeAdjustment;
-    }
-    // optionalAttrs (advancedUiSystemTweaks.allowSnapGridRoutingWindowsToStayOpen != null) {
-      autoclosetrackwnds =
-        if advancedUiSystemTweaks.allowSnapGridRoutingWindowsToStayOpen
-        then 0
-        else 1;
-    }
-    // optionalAttrs (advancedUiSystemTweaks.allowKeyboardCommandsEvenWhenMouseEditing != null) {
-      alwaysallowkb = advancedUiSystemTweaks.allowKeyboardCommandsEvenWhenMouseEditing;
-    }
-    // optionalAttrs (advancedUiSystemTweaks.modalWindowPositioning != null) {
-      windowflags = advancedUiSystemTweaks.modalWindowPositioning;
-    }
-    // optionalAttrs (advancedUiSystemTweaks.useLargeNonToolWindowFrames != null) {
-      bigwndframes = advancedUiSystemTweaks.useLargeNonToolWindowFrames;
-    }
-    // optionalAttrs (advancedUiSystemTweaks.cpuAffinity.cpuIndexes != null) {
-      cpuallowed = builtins.foldl' (mask: cpu: mask + powerOfTwo cpu) 0 (lib.unique advancedUiSystemTweaks.cpuAffinity.cpuIndexes);
-    }
-    // optionalAttrs (advancedUiSystemTweaks.processWorkingSet.enable != null) {
-      workset_use = advancedUiSystemTweaks.processWorkingSet.enable;
-    }
-    // optionalAttrs (advancedUiSystemTweaks.processWorkingSet.minimum != null) {
-      workset_min = advancedUiSystemTweaks.processWorkingSet.minimum;
-    }
-    // optionalAttrs (advancedUiSystemTweaks.processWorkingSet.maximum != null) {
-      workset_max = advancedUiSystemTweaks.processWorkingSet.maximum;
-    };
-
   config.programs.reaper.ini.contributions =
-    reaperPreference.contribution {
-      path = "preferences.general.startupSettings.openProjectOnStartup";
-      value = startupSettings.openProjectOnStartup;
-      section = "reaper";
-      key = "loadlastproj";
-      codec = "integer";
-    }
+    reaperPreference.contributions [
+      {
+        path = "preferences.general.languagePack";
+        value = cfg.languagePack;
+        section = "reaper";
+        key = "langpack";
+        codec = "identity";
+      }
+      {
+        path = "preferences.general.startupSettings.openProjectOnStartup";
+        value = startupSettings.openProjectOnStartup;
+        section = "reaper";
+        key = "loadlastproj";
+        codec = "integer";
+      }
+      {
+        path = "preferences.general.startupSettings.showSplashScreenOnStartup";
+        value = startupSettings.showSplashScreenOnStartup;
+        section = "reaper";
+        key = "splash";
+        codec = "bool";
+      }
+      {
+        path = "preferences.general.startupSettings.skipAnimation";
+        value = startupSettings.skipAnimation;
+        section = "reaper";
+        key = "splashanim";
+        codec = reaperCodecs.bool {
+          trueValue = 0;
+          falseValue = 1;
+        };
+      }
+      {
+        path = "preferences.general.startupSettings.automaticallyCheckForNewVersions";
+        value = startupSettings.automaticallyCheckForNewVersions;
+        section = "reaper";
+        key = "verchk";
+        codec = "bool";
+      }
+      {
+        path = "preferences.general.recentProjectList.maximumProjects";
+        value = recentProjectList.maximumProjects;
+        section = "reaper";
+        key = "maxrecent";
+        codec = "integer";
+      }
+      {
+        path = "preferences.general.warnWhenMemoryUseReachesMegabytes";
+        value = cfg.warnWhenMemoryUseReachesMegabytes;
+        section = "reaper";
+        key = "warnmaxram64";
+        codec = "integer";
+      }
+      {
+        path = "preferences.general.filenameAutoIncrement.suffix";
+        value = filenameAutoIncrement.suffix;
+        section = "reaper";
+        key = "autoincrsuffix";
+        codec = "identity";
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.customSplashScreenImage";
+        value = advancedUiSystemTweaks.customSplashScreenImage;
+        section = "reaper";
+        key = "splashimage";
+        codec = "identity";
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.uiScale";
+        value = advancedUiSystemTweaks.uiScale;
+        section = "reaper";
+        key = "uiscale";
+        codec = "float";
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.fontSizeAdjustment";
+        value = advancedUiSystemTweaks.fontSizeAdjustment;
+        section = "reaper";
+        key = "fontscaling";
+        codec = "float";
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.allowSnapGridRoutingWindowsToStayOpen";
+        value = advancedUiSystemTweaks.allowSnapGridRoutingWindowsToStayOpen;
+        section = "reaper";
+        key = "autoclosetrackwnds";
+        codec = reaperCodecs.bool {
+          trueValue = 0;
+          falseValue = 1;
+        };
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.allowKeyboardCommandsEvenWhenMouseEditing";
+        value = advancedUiSystemTweaks.allowKeyboardCommandsEvenWhenMouseEditing;
+        section = "reaper";
+        key = "alwaysallowkb";
+        codec = "bool";
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.modalWindowPositioning";
+        value = advancedUiSystemTweaks.modalWindowPositioning;
+        section = "reaper";
+        key = "windowflags";
+        codec = "integer";
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.useLargeNonToolWindowFrames";
+        value = advancedUiSystemTweaks.useLargeNonToolWindowFrames;
+        section = "reaper";
+        key = "bigwndframes";
+        codec = "bool";
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.cpuAffinity.cpuIndexes";
+        value = advancedUiSystemTweaks.cpuAffinity.cpuIndexes;
+        section = "reaper";
+        key = "cpuallowed";
+        codec = reaperCodecs.cpuIndexes;
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.processWorkingSet.enable";
+        value = advancedUiSystemTweaks.processWorkingSet.enable;
+        section = "reaper";
+        key = "workset_use";
+        codec = "bool";
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.processWorkingSet.minimum";
+        value = advancedUiSystemTweaks.processWorkingSet.minimum;
+        section = "reaper";
+        key = "workset_min";
+        codec = "integer";
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.processWorkingSet.maximum";
+        value = advancedUiSystemTweaks.processWorkingSet.maximum;
+        section = "reaper";
+        key = "workset_max";
+        codec = "integer";
+      }
+    ]
     ++ map (entry: entry // {section = "reaper";}) (reaperBitfieldContributions
       ++ reaperBitfield.contributions {
+        audiocloseinactive_linux = [
+          {
+            optionPath = "preferences.general.preventOsScreensaverWhenAudioActiveOrRendering";
+            gui = "Prevent OS screensaver when audio is active or rendering";
+            option = cfg.preventOsScreensaverWhenAudioActiveOrRendering;
+            bit = 128;
+          }
+        ];
         restrictcpu = [
           {
             optionPath = "preferences.general.advancedUiSystemTweaks.cpuAffinity.enable";

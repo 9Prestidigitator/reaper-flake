@@ -25,6 +25,17 @@ def decode(codec: Any, value: str) -> Any:
         return value.split(";") if value else []
     if isinstance(codec, dict) and codec.get("type") == "decibels":
         return 20 * math.log10(float(value))
+    if isinstance(codec, dict) and codec.get("type") == "bool":
+        encoded = int(value)
+        if encoded == int(codec["trueValue"]):
+            return True
+        if encoded == int(codec["falseValue"]):
+            return False
+        raise ValueError(f"unknown boolean value {value!r}")
+    if isinstance(codec, dict) and codec.get("type") == "cpu-indexes":
+        encoded = int(value)
+        width = int(codec.get("width", 32))
+        return [index for index in range(width) if encoded & (1 << index)]
     if isinstance(codec, dict) and codec.get("type") == "enum":
         for name, encoded in codec["values"].items():
             if str(encoded) == value:

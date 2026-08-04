@@ -74,6 +74,22 @@ class NixSerializationTests(unittest.TestCase):
             REAPER2NIX.normalize_option_filter("preferences.general")
 
 
+class PreferenceCodecTests(unittest.TestCase):
+    def test_boolean_codec_supports_nonstandard_encoded_values(self):
+        codec = {"type": "bool", "trueValue": 0, "falseValue": 1}
+
+        self.assertTrue(REAPER2NIX.decode(codec, "0"))
+        self.assertFalse(REAPER2NIX.decode(codec, "1"))
+        with self.assertRaisesRegex(ValueError, "unknown boolean value"):
+            REAPER2NIX.decode(codec, "2")
+
+    def test_cpu_index_codec_decodes_the_set_bits(self):
+        self.assertEqual(
+            REAPER2NIX.decode({"type": "cpu-indexes", "width": 32}, "21"),
+            [0, 2, 4],
+        )
+
+
 class ReaperKbAdapterTests(unittest.TestCase):
     def test_records_are_decoded_to_public_action_options(self):
         decoded, diagnostics = REAPER2NIX.parse_reaper_kb(

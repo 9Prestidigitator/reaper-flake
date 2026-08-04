@@ -76,6 +76,8 @@
 
           plugin-paths = pkgs.callPackage ./tests/plugin-paths.nix {};
 
+          preference-schema = pkgs.callPackage ./tests/preference-schema.nix {};
+
           activation-guard =
             pkgs.runCommand "reaper-activation-guard-tests" {
               nativeBuildInputs = [pkgs.python3 pkgs.procps];

@@ -4,8 +4,8 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield;
+  inherit (lib) mkOption types;
+  inherit (reaperLib) reaperBitfield reaperPreference;
   cfg = config.programs.reaper.preferences.general.paths;
 in {
   options.programs.reaper.preferences.general.paths = {
@@ -64,22 +64,54 @@ in {
     };
   };
 
-  config.programs.reaper.ini.sections.reaper =
-    optionalAttrs (cfg.defaultProjectSavePath != null) {defsavepath = cfg.defaultProjectSavePath;}
-    // optionalAttrs (cfg.defaultRenderPath != null) {defrenderpath = cfg.defaultRenderPath;}
-    // optionalAttrs (cfg.defaultRecordingPath != null) {defrecpath = cfg.defaultRecordingPath;}
-    // optionalAttrs (cfg.peakCache.alternatePath != null) {altpeakspath = cfg.peakCache.alternatePath;}
-    // optionalAttrs (cfg.peakCache.useAlternatePathForPaths != null) {altpeaksopathlist = cfg.peakCache.useAlternatePathForPaths;}
-    // optionalAttrs (cfg.doNotCopyOrMoveMediaFromTheFollowingPaths != null) {nocopyfrompaths = cfg.doNotCopyOrMoveMediaFromTheFollowingPaths;};
-
-  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
-    altpeaks = [
+  config.programs.reaper.ini.contributions =
+    reaperPreference.contributions [
       {
-        optionPath = "preferences.general.paths.peakCache.storeAllInAlternatePath";
-        gui = "Store all peak caches (.reapeaks) in alternate path";
-        option = cfg.peakCache.storeAllInAlternatePath;
-        bit = 1;
+        path = "preferences.general.paths.defaultProjectSavePath";
+        value = cfg.defaultProjectSavePath;
+        section = "reaper";
+        key = "defsavepath";
       }
-    ];
-  });
+      {
+        path = "preferences.general.paths.defaultRenderPath";
+        value = cfg.defaultRenderPath;
+        section = "reaper";
+        key = "defrenderpath";
+      }
+      {
+        path = "preferences.general.paths.defaultRecordingPath";
+        value = cfg.defaultRecordingPath;
+        section = "reaper";
+        key = "defrecpath";
+      }
+      {
+        path = "preferences.general.paths.peakCache.alternatePath";
+        value = cfg.peakCache.alternatePath;
+        section = "reaper";
+        key = "altpeakspath";
+      }
+      {
+        path = "preferences.general.paths.peakCache.useAlternatePathForPaths";
+        value = cfg.peakCache.useAlternatePathForPaths;
+        section = "reaper";
+        key = "altpeaksopathlist";
+      }
+      {
+        path = "preferences.general.paths.doNotCopyOrMoveMediaFromTheFollowingPaths";
+        value = cfg.doNotCopyOrMoveMediaFromTheFollowingPaths;
+        section = "reaper";
+        key = "nocopyfrompaths";
+        codec = "list";
+      }
+    ]
+    ++ map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
+      altpeaks = [
+        {
+          optionPath = "preferences.general.paths.peakCache.storeAllInAlternatePath";
+          gui = "Store all peak caches (.reapeaks) in alternate path";
+          option = cfg.peakCache.storeAllInAlternatePath;
+          bit = 1;
+        }
+      ];
+    });
 }

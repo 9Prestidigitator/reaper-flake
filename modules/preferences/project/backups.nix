@@ -4,8 +4,8 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield;
+  inherit (lib) mkOption types;
+  inherit (reaperLib) reaperBitfield reaperCodecs reaperPreference;
   cfg = config.programs.reaper.preferences.project.backups;
 
   whenSaving = cfg.whenSaving;
@@ -37,11 +37,6 @@
   additionalDirectoryAutoSave = autoSave.autoSaveToTimestampedFileInAdditionalDirectory;
   autoSaveInterval = autoSave.autoSaveInterval;
   autoSaveUnsavedProjectsToTemporaryFile = autoSave.autoSaveUnsavedProjectsToTemporaryFile;
-  autoSaveBackupLimitCount =
-    if projectDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count != null
-    then projectDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count
-    else additionalDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count;
-
   configuredSaveBackupMode =
     whenSaving.preservePreviousVersionAsRppBak
     != null
@@ -59,17 +54,34 @@
   reaperBitfieldContributions = reaperBitfield.contributions {
     saveopts = [
       {
+        optionPath = "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak";
         gui = "Preserve previous project versions when saving";
         configured = configuredSaveBackupMode;
-        mask = 1;
+        mask = 17;
         value =
-          if
-            whenSaving.preservePreviousVersionAsRppBak
-            == true
-            || whenSaving.preserveAllPreviousVersionsInOneRppBak == true
-            || timestampedSaveBackups.enable == true
+          if timestampedSaveBackups.enable == true
+          then 17
+          else if whenSaving.preservePreviousVersionAsRppBak == true || whenSaving.preserveAllPreviousVersionsInOneRppBak == true
           then 1
           else 0;
+        importAssignments = {
+          "0" = {
+            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak" = false;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.enable" = false;
+          };
+          "1" = {
+            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak" = true;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.enable" = false;
+          };
+          "16" = {
+            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak" = false;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.enable" = true;
+          };
+          "17" = {
+            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak" = false;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.enable" = true;
+          };
+        };
       }
       {
         optionPath = "preferences.project.backups.autoSave.autoSaveToProjectFile";
@@ -88,12 +100,6 @@
         gui = "Auto-save to timestamped file in additional directory";
         option = additionalDirectoryAutoSave.enable;
         bit = 8;
-      }
-      {
-        optionPath = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.enable";
-        gui = "Save timestamped backups";
-        option = timestampedSaveBackups.enable;
-        bit = 16;
       }
       {
         optionPath = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.limitAutoSavedBackupsToMostRecent.enable";
@@ -175,6 +181,15 @@
         gui = "Preserve all previous versions in one RPP-BAK";
         option = whenSaving.preserveAllPreviousVersionsInOneRppBak;
         bit = 512;
+        importAssignments = {
+          "0" = {
+            "preferences.project.backups.whenSaving.preserveAllPreviousVersionsInOneRppBak" = false;
+          };
+          "512" = {
+            "preferences.project.backups.whenSaving.preserveAllPreviousVersionsInOneRppBak" = true;
+            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak" = false;
+          };
+        };
       }
     ];
   };
@@ -368,15 +383,55 @@ in {
     }
   ];
 
-  config.programs.reaper.ini.sections.reaper =
-    optionalAttrs (timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.count != null) {
-      savebackuplimit = timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.count;
-    }
-    // optionalAttrs (autoSaveBackupLimitCount != null) {autosavebackuplimit = autoSaveBackupLimitCount;}
-    // optionalAttrs (autoSaveInterval.minutes != null) {autosaveint = autoSaveInterval.minutes;}
-    // optionalAttrs (autoSaveInterval.mode != null) {autosavemode = autoSaveIntervalModes.${autoSaveInterval.mode};}
-    // optionalAttrs (additionalDirectoryAutoSave.path != null) {autosavedir = additionalDirectoryAutoSave.path;}
-    // optionalAttrs (autoSave.autoSavePathForUnsavedProjects.path != null) {autosavedir_unsaved = autoSave.autoSavePathForUnsavedProjects.path;};
-
-  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) reaperBitfieldContributions;
+  config.programs.reaper.ini.contributions =
+    reaperPreference.contributions [
+      {
+        path = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.limitAutoSavedBackupsToMostRecent.count";
+        value = timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.count;
+        section = "reaper";
+        key = "savebackuplimit";
+        codec = "integer";
+      }
+      {
+        path = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInAdditionalDirectory.limitAutoSavedBackupsToMostRecent.count";
+        value = additionalDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count;
+        section = "reaper";
+        key = "autosavebackuplimit";
+        codec = "integer";
+      }
+      {
+        path = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInProjectDirectory.limitAutoSavedBackupsToMostRecent.count";
+        value = projectDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count;
+        section = "reaper";
+        key = "autosavebackuplimit";
+        codec = "integer";
+      }
+      {
+        path = "preferences.project.backups.autoSave.autoSaveInterval.minutes";
+        value = autoSaveInterval.minutes;
+        section = "reaper";
+        key = "autosaveint";
+        codec = "integer";
+      }
+      {
+        path = "preferences.project.backups.autoSave.autoSaveInterval.mode";
+        value = autoSaveInterval.mode;
+        section = "reaper";
+        key = "autosavemode";
+        codec = reaperCodecs.enum autoSaveIntervalModes;
+      }
+      {
+        path = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInAdditionalDirectory.path";
+        value = additionalDirectoryAutoSave.path;
+        section = "reaper";
+        key = "autosavedir";
+      }
+      {
+        path = "preferences.project.backups.autoSave.autoSavePathForUnsavedProjects.path";
+        value = autoSave.autoSavePathForUnsavedProjects.path;
+        section = "reaper";
+        key = "autosavedir_unsaved";
+      }
+    ]
+    ++ map (entry: entry // {section = "reaper";}) reaperBitfieldContributions;
 }

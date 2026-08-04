@@ -31,9 +31,9 @@
         description = "INI key receiving this contribution.";
       };
       value = mkOption {
-        type = types.nullOr reaperLib.reaperTypes.iniValue;
+        type = types.anything;
         default = null;
-        description = "Value produced by this contribution.";
+        description = "Public option value encoded by this contribution's codec.";
       };
       configured = mkOption {
         type = types.bool;

@@ -4,8 +4,8 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) literalExpression mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield reaperTypes;
+  inherit (lib) literalExpression mkOption types;
+  inherit (reaperLib) reaperBitfield reaperPreference reaperTypes;
   cfg = config.programs.reaper.preferences.appearance;
 
   inherit (reaperTypes.percentage) envelopeVerticalZoom maxVerticalZoom scrollStep;
@@ -170,13 +170,50 @@ in {
     };
   };
 
-  config.programs.reaper.ini.sections.reaper =
-    optionalAttrs (cfg.zoomScrollOffset.verticalZoomCenter != null) {vzoommode = cfg.zoomScrollOffset.verticalZoomCenter;}
-    // optionalAttrs (cfg.zoomScrollOffset.maximumVerticalZoom != null) {maxvzoom = cfg.zoomScrollOffset.maximumVerticalZoom;}
-    // optionalAttrs (cfg.zoomScrollOffset.envelopeLaneVerticalZoom != null) {envvzoomscale = cfg.zoomScrollOffset.envelopeLaneVerticalZoom;}
-    // optionalAttrs (cfg.zoomScrollOffset.horizontalZoomCenter != null) {zoommode = cfg.zoomScrollOffset.horizontalZoomCenter;}
-    // optionalAttrs (cfg.zoomScrollOffset.verticalScrollStep.trackHeight != null) {vscrollstep = cfg.zoomScrollOffset.verticalScrollStep.trackHeight;}
-    // optionalAttrs (cfg.zoomScrollOffset.verticalScrollStep.arrangeViewHeight != null) {vscrollstep2 = cfg.zoomScrollOffset.verticalScrollStep.arrangeViewHeight;};
-
-  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) reaperBitfieldContributions;
+  config.programs.reaper.ini.contributions =
+    reaperPreference.contributions [
+      {
+        path = "preferences.appearance.zoomScrollOffset.verticalZoomCenter";
+        value = scroll.verticalZoomCenter;
+        section = "reaper";
+        key = "vzoommode";
+        codec = "integer";
+      }
+      {
+        path = "preferences.appearance.zoomScrollOffset.maximumVerticalZoom";
+        value = scroll.maximumVerticalZoom;
+        section = "reaper";
+        key = "maxvzoom";
+        codec = "float";
+      }
+      {
+        path = "preferences.appearance.zoomScrollOffset.envelopeLaneVerticalZoom";
+        value = scroll.envelopeLaneVerticalZoom;
+        section = "reaper";
+        key = "envvzoomscale";
+        codec = "float";
+      }
+      {
+        path = "preferences.appearance.zoomScrollOffset.horizontalZoomCenter";
+        value = scroll.horizontalZoomCenter;
+        section = "reaper";
+        key = "zoommode";
+        codec = "integer";
+      }
+      {
+        path = "preferences.appearance.zoomScrollOffset.verticalScrollStep.trackHeight";
+        value = verticalScrollStep.trackHeight;
+        section = "reaper";
+        key = "vscrollstep";
+        codec = "float";
+      }
+      {
+        path = "preferences.appearance.zoomScrollOffset.verticalScrollStep.arrangeViewHeight";
+        value = verticalScrollStep.arrangeViewHeight;
+        section = "reaper";
+        key = "vscrollstep2";
+        codec = "float";
+      }
+    ]
+    ++ map (entry: entry // {section = "reaper";}) reaperBitfieldContributions;
 }

@@ -4,8 +4,8 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) literalExpression mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield reaperTypes;
+  inherit (lib) literalExpression mkOption types;
+  inherit (reaperLib) reaperBitfield reaperPreference reaperTypes;
 
   inherit (reaperTypes.trackControlPanel) sliderMaximum sliderMinimum sliderShape;
 
@@ -48,12 +48,32 @@
         gui = "Group sends with FX inserts";
         option = groupSendsWithFxInserts;
         bit = 32;
+        importAssignments = {
+          "0" = {
+            "preferences.appearance.trackControlPanels.groupSendsWithFxInserts" = false;
+            "windows.mixer.groupSendsWithFxInserts" = false;
+          };
+          "32" = {
+            "preferences.appearance.trackControlPanels.groupSendsWithFxInserts" = true;
+            "windows.mixer.groupSendsWithFxInserts" = true;
+          };
+        };
       }
       {
         optionPath = "windows.mixer.groupFxParametersWithInserts";
         gui = "Group FX parameters with their inserts";
         option = groupFxParametersWithInserts;
         bit = 64;
+        importAssignments = {
+          "0" = {
+            "preferences.appearance.trackControlPanels.groupFxParametersWithInserts" = false;
+            "windows.mixer.groupFxParametersWithInserts" = false;
+          };
+          "64" = {
+            "preferences.appearance.trackControlPanels.groupFxParametersWithInserts" = true;
+            "windows.mixer.groupFxParametersWithInserts" = true;
+          };
+        };
       }
       {
         optionPath = "preferences.appearance.trackControlPanels.allowReorderingEmptySlotsInTcpMcpFxLists";
@@ -232,12 +252,43 @@ in {
     };
   };
 
-  config.programs.reaper.ini.sections.reaper =
-    optionalAttrs (cfg.trackGroupingIndicators != null) {groupdispmode = cfg.trackGroupingIndicators;}
-    // optionalAttrs (cfg.volumeFaderRange.minimum != null) {sliderminv = cfg.volumeFaderRange.minimum;}
-    // optionalAttrs (cfg.volumeFaderRange.maximum != null) {slidermaxv = cfg.volumeFaderRange.maximum;}
-    // optionalAttrs (cfg.volumeFaderShape != null) {slidershex = cfg.volumeFaderShape;}
-    // optionalAttrs (cfg.panFaderUnitDisplay != null) {pandispmode = cfg.panFaderUnitDisplay;};
-
-  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) reaperBitfieldContributions;
+  config.programs.reaper.ini.contributions =
+    reaperPreference.contributions [
+      {
+        path = "preferences.appearance.trackControlPanels.trackGroupingIndicators";
+        value = cfg.trackGroupingIndicators;
+        section = "reaper";
+        key = "groupdispmode";
+        codec = "integer";
+      }
+      {
+        path = "preferences.appearance.trackControlPanels.volumeFaderRange.minimum";
+        value = cfg.volumeFaderRange.minimum;
+        section = "reaper";
+        key = "sliderminv";
+        codec = "float";
+      }
+      {
+        path = "preferences.appearance.trackControlPanels.volumeFaderRange.maximum";
+        value = cfg.volumeFaderRange.maximum;
+        section = "reaper";
+        key = "slidermaxv";
+        codec = "float";
+      }
+      {
+        path = "preferences.appearance.trackControlPanels.volumeFaderShape";
+        value = cfg.volumeFaderShape;
+        section = "reaper";
+        key = "slidershex";
+        codec = "float";
+      }
+      {
+        path = "preferences.appearance.trackControlPanels.panFaderUnitDisplay";
+        value = cfg.panFaderUnitDisplay;
+        section = "reaper";
+        key = "pandispmode";
+        codec = "integer";
+      }
+    ]
+    ++ map (entry: entry // {section = "reaper";}) reaperBitfieldContributions;
 }

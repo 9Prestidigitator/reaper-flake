@@ -4,8 +4,8 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield;
+  inherit (lib) mkOption types;
+  inherit (reaperLib) reaperBitfield reaperPreference;
   cfg = config.programs.reaper.preferences.project;
 in {
   imports = [
@@ -82,50 +82,72 @@ in {
     };
   };
 
-  config.programs.reaper.ini.sections.reaper =
-    optionalAttrs (cfg.defaultProjectTemplate != null) {
-      newprojtmpl = cfg.defaultProjectTemplate;
-    }
-    // optionalAttrs (cfg.projectLoading.lookForProjectMediaInProjectDirectoryBeforeQualifiedPath != null) {
-      rfprojfirst = cfg.projectLoading.lookForProjectMediaInProjectDirectoryBeforeQualifiedPath;
-    }
-    // optionalAttrs (cfg.projectLoading.promptWhenFilesAreNotFound != null) {
-      pmfol = cfg.projectLoading.promptWhenFilesAreNotFound;
-    }
-    // optionalAttrs (cfg.projectSaving.saveFileReferencesWithRelativePathnames != null) {
-      projrelpath = cfg.projectSaving.saveFileReferencesWithRelativePathnames;
-    }
-    // optionalAttrs (cfg.projectSaving.defaultSaveAsWildcardPattern != null) {
-      newprojwildcards = cfg.projectSaving.defaultSaveAsWildcardPattern;
-    }
-    // optionalAttrs (cfg.projectSaving.saveNewVersionSuffix != null) {
-      projversuffix = cfg.projectSaving.saveNewVersionSuffix;
-    };
+  config.programs.reaper.ini.contributions =
+    reaperPreference.contributions [
+      {
+        path = "preferences.project.defaultProjectTemplate";
+        value = cfg.defaultProjectTemplate;
+        section = "reaper";
+        key = "newprojtmpl";
+      }
+      {
+        path = "preferences.project.projectLoading.lookForProjectMediaInProjectDirectoryBeforeQualifiedPath";
+        value = cfg.projectLoading.lookForProjectMediaInProjectDirectoryBeforeQualifiedPath;
+        section = "reaper";
+        key = "rfprojfirst";
+        codec = "bool";
+      }
+      {
+        path = "preferences.project.projectLoading.promptWhenFilesAreNotFound";
+        value = cfg.projectLoading.promptWhenFilesAreNotFound;
+        section = "reaper";
+        key = "pmfol";
+        codec = "bool";
+      }
+      {
+        path = "preferences.project.projectSaving.saveFileReferencesWithRelativePathnames";
+        value = cfg.projectSaving.saveFileReferencesWithRelativePathnames;
+        section = "reaper";
+        key = "projrelpath";
+        codec = "bool";
+      }
+      {
+        path = "preferences.project.projectSaving.defaultSaveAsWildcardPattern";
+        value = cfg.projectSaving.defaultSaveAsWildcardPattern;
+        section = "reaper";
+        key = "newprojwildcards";
+      }
+      {
+        path = "preferences.project.projectSaving.saveNewVersionSuffix";
+        value = cfg.projectSaving.saveNewVersionSuffix;
+        section = "reaper";
+        key = "projversuffix";
+      }
+    ]
+    ++ map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
+      newprojdo = [
+        {
+          optionPath = "preferences.project.promptToSaveOnNewProject";
+          gui = "Prompt to save on new project";
+          option = cfg.promptToSaveOnNewProject;
+          bit = 1;
+        }
+        {
+          optionPath = "preferences.project.openPropertiesOnNewProject";
+          gui = "Open properties on new project";
+          option = cfg.openPropertiesOnNewProject;
+          bit = 2;
+        }
+      ];
 
-  config.programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
-    newprojdo = [
-      {
-        optionPath = "preferences.project.promptToSaveOnNewProject";
-        gui = "Prompt to save on new project";
-        option = cfg.promptToSaveOnNewProject;
-        bit = 1;
-      }
-      {
-        optionPath = "preferences.project.openPropertiesOnNewProject";
-        gui = "Open properties on new project";
-        option = cfg.openPropertiesOnNewProject;
-        bit = 2;
-      }
-    ];
-
-    splash_options = [
-      {
-        optionPath = "preferences.project.projectLoading.showLoadStatusAndSplash";
-        gui = "Show load status and splash while loading project";
-        option = cfg.projectLoading.showLoadStatusAndSplash;
-        bit = 1;
-        inverted = true;
-      }
-    ];
-  });
+      splash_options = [
+        {
+          optionPath = "preferences.project.projectLoading.showLoadStatusAndSplash";
+          gui = "Show load status and splash while loading project";
+          option = cfg.projectLoading.showLoadStatusAndSplash;
+          bit = 1;
+          inverted = true;
+        }
+      ];
+    });
 }

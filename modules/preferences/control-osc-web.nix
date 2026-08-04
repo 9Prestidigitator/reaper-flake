@@ -7,7 +7,7 @@
   ...
 }: let
   inherit (lib) all imap0 literalExpression mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield;
+  inherit (reaperLib) reaperBitfield reaperPreference;
   inherit (reaperControlOscWeb) mackieControlFlags oscModes surfaceModes;
 
   cfg = config.programs.reaper.preferences.controlOscWeb;
@@ -288,33 +288,45 @@ in {
   config = {
     programs.reaper.ini = {
       sections.reaper =
-        optionalAttrs (cfg.controlSurfaces != null) (renderedSurfaces // {csurf_cnt = builtins.length cfg.controlSurfaces;})
-        // optionalAttrs (cfg.controlSurfaceDisplayUpdateFrequency != null) {
-          csurfrate = cfg.controlSurfaceDisplayUpdateFrequency;
-        };
+        optionalAttrs (cfg.controlSurfaces != null) (renderedSurfaces // {csurf_cnt = builtins.length cfg.controlSurfaces;});
 
-      bitfields.reaper =
-        reaperBitfield.entry "errnowarn" [
-          {
-            bit = 4;
-            option = cfg.warnWhenErrorsOpeningSurfaceMidiDevices;
-            inverted = true;
-          }
-        ]
-        // reaperBitfield.entry (
-          if pkgs.stdenv.hostPlatform.isLinux
-          then "audiocloseinactive_linux"
-          else "audiocloseinactive"
-        ) [
-          {
-            bit = 8;
-            option = cfg.closeControlSurfaceDevicesWhenStoppedAndNotActiveApplication;
-          }
-          {
-            bit = 16;
-            option = cfg.closeControlSurfaceDevicesWhenRendering;
-          }
-        ];
+      contributions =
+        reaperPreference.contribution {
+          path = "preferences.controlOscWeb.controlSurfaceDisplayUpdateFrequency";
+          value = cfg.controlSurfaceDisplayUpdateFrequency;
+          section = "reaper";
+          key = "csurfrate";
+          codec = "integer";
+        }
+        ++ map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
+          errnowarn = [
+            {
+              optionPath = "preferences.controlOscWeb.warnWhenErrorsOpeningSurfaceMidiDevices";
+              gui = "Warn when errors occur while opening surface MIDI devices";
+              option = cfg.warnWhenErrorsOpeningSurfaceMidiDevices;
+              bit = 4;
+              inverted = true;
+            }
+          ];
+          ${
+            if pkgs.stdenv.hostPlatform.isLinux
+            then "audiocloseinactive_linux"
+            else "audiocloseinactive"
+          } = [
+            {
+              optionPath = "preferences.controlOscWeb.closeControlSurfaceDevicesWhenStoppedAndNotActiveApplication";
+              gui = "Close control surface devices when stopped and REAPER is inactive";
+              option = cfg.closeControlSurfaceDevicesWhenStoppedAndNotActiveApplication;
+              bit = 8;
+            }
+            {
+              optionPath = "preferences.controlOscWeb.closeControlSurfaceDevicesWhenRendering";
+              gui = "Close control surface devices when rendering";
+              option = cfg.closeControlSurfaceDevicesWhenRendering;
+              bit = 16;
+            }
+          ];
+        });
     };
 
     assertions = [

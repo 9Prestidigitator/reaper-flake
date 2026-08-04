@@ -75,6 +75,42 @@ class StaticSchemaTests(unittest.TestCase):
         self.assertEqual(option["key"], "loadlastproj")
         self.assertEqual(option["codec"], "integer")
 
+    def test_migrated_preferences_are_in_the_reverse_schema(self):
+        paths = {option["path"] for option in self.schema["options"]}
+        assignment_paths = {
+            path
+            for option in self.schema["options"]
+            for assignments in (option.get("importAssignments") or {}).values()
+            for path in assignments
+        }
+        managed = paths | assignment_paths
+
+        expected = {
+            "preferences.appearance.trackControlPanels.groupFxParametersWithInserts",
+            "preferences.appearance.trackControlPanels.panFaderUnitDisplay",
+            "preferences.appearance.trackControlPanels.volumeFaderRange.minimum",
+            "preferences.appearance.zoomScrollOffset.verticalZoomCenter",
+            "preferences.appearance.zoomScrollOffset.verticalScrollStep.trackHeight",
+            "preferences.controlOscWeb.closeControlSurfaceDevicesWhenRendering",
+            "preferences.controlOscWeb.controlSurfaceDisplayUpdateFrequency",
+            "preferences.general.advancedUiSystemTweaks.cpuAffinity.cpuIndexes",
+            "preferences.general.advancedUiSystemTweaks.uiScale",
+            "preferences.general.keyboardMultitouch.multitouch.swipe.gearing",
+            "preferences.general.languagePack",
+            "preferences.general.paths.defaultProjectSavePath",
+            "preferences.general.preventOsScreensaverWhenAudioActiveOrRendering",
+            "preferences.general.startupSettings.skipAnimation",
+            "preferences.project.backups.autoSave.autoSaveInterval.mode",
+            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak",
+            "preferences.project.defaultProjectTemplate",
+            "preferences.project.projectLoading.promptWhenFilesAreNotFound",
+            "preferences.project.projectSaving.saveNewVersionSuffix",
+            "preferences.project.trackSendDefaults.fixedItemLanes",
+        }
+
+        self.assertEqual(expected - managed, set())
+        self.assertNotIn("preferences.controlOscWeb.controlSurfaces", managed)
+
     def test_every_bitfield_has_reverse_decoding_metadata(self):
         incomplete = [
             option["path"]
