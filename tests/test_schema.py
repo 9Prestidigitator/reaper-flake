@@ -41,17 +41,7 @@ class StaticSchemaTests(unittest.TestCase):
         )
         self.assertEqual(
             self.schema["sources"]["reaper.ini"]["adapters"],
-            ["reaper-layout", "plugin-paths"],
-        )
-        self.assertEqual(
-            self.schema["sources"]["reaper.ini"]["adapterConfig"][
-                "pluginPathKeys"
-            ],
-            {
-                "vst": "vstpath",
-                "lv2": "lv2path_linux",
-                "clap": "clap_path_linux-x86_64",
-            },
+            ["reaper-layout"],
         )
 
     def test_unset_options_remain_in_the_schema(self):

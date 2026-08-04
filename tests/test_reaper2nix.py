@@ -272,30 +272,6 @@ unknown=preserve-me
 
 
 class PluginPathImportTests(unittest.TestCase):
-    @staticmethod
-    def parser(text):
-        parser = REAPER2NIX.configparser.ConfigParser(
-            interpolation=None, delimiters=("=",), strict=False
-        )
-        parser.optionxform = str
-        parser.read_string(text)
-        return parser
-
-    def test_path_appenders_are_disabled_without_classifying_entries(self):
-        parser = self.parser("[reaper]\nvstpath=/exact/vst;~/.vst\n")
-
-        decoded, consumed, diagnostics = REAPER2NIX.parse_plugin_path_flags(
-            parser,
-            {"pluginPathKeys": {"vst": "vstpath", "lv2": "lv2path_linux"}},
-        )
-
-        self.assertEqual(diagnostics, [])
-        self.assertEqual(
-            decoded,
-            {"vst": {"enableNixPaths": False, "enableUserPaths": False}},
-        )
-        self.assertEqual(consumed, {("reaper", "vstpath")})
-
     def test_effective_plugin_paths_are_imported_as_authoritative_lists(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             resource_dir = Path(temporary_directory)
@@ -319,18 +295,7 @@ class PluginPathImportTests(unittest.TestCase):
                     {
                         "version": 2,
                         "sources": {
-                            "reaper.ini": {
-                                "format": "ini",
-                                "adapter": "ini",
-                                "adapters": ["plugin-paths"],
-                                "adapterConfig": {
-                                    "pluginPathKeys": {
-                                        "vst": "vstpath",
-                                        "lv2": "lv2path_linux",
-                                        "clap": "clap_path_linux-x86_64",
-                                    }
-                                },
-                            }
+                            "reaper.ini": {"format": "ini", "adapter": "ini"}
                         },
                         "options": [
                             {
@@ -371,8 +336,8 @@ class PluginPathImportTests(unittest.TestCase):
         self.assertIn('vst = {\n          searchPaths = ["/exact/vst" "/exact/vst3"]', result.stdout)
         self.assertIn('lv2 = {\n          searchPaths = ["/exact/lv2"]', result.stdout)
         self.assertIn('clap = {\n          searchPaths = ["/exact/clap" "~/.clap"]', result.stdout)
-        self.assertEqual(result.stdout.count("enableNixPaths = false;"), 3)
-        self.assertEqual(result.stdout.count("enableUserPaths = false;"), 3)
+        self.assertNotIn("enableNixPaths", result.stdout)
+        self.assertNotIn("enableUserPaths", result.stdout)
 
 
 class LayoutAdapterTests(unittest.TestCase):

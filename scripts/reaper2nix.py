@@ -494,36 +494,6 @@ def parse_reaper_mouse(
     return decoded, consumed, diagnostics
 
 
-def parse_plugin_path_flags(
-    current_ini: configparser.ConfigParser,
-    adapter_config: dict[str, Any] | None = None,
-) -> tuple[dict[str, Any], set[tuple[str, str]], list[str]]:
-    """Disable path appenders when importing effective plug-in path lists."""
-
-    config = adapter_config or {}
-    path_keys = config.get("pluginPathKeys", {})
-    if not isinstance(path_keys, dict):
-        return {}, set(), ["# Invalid plugin-paths adapter configuration"]
-
-    decoded: dict[str, Any] = {}
-    consumed: set[tuple[str, str]] = set()
-    for plugin_type, key in sorted(path_keys.items()):
-        if not isinstance(plugin_type, str) or not isinstance(key, str):
-            continue
-        if not current_ini.has_section("reaper") or not current_ini.has_option(
-            "reaper", key
-        ):
-            continue
-
-        decoded[plugin_type] = {
-            "enableNixPaths": False,
-            "enableUserPaths": False,
-        }
-        consumed.add(("reaper", key))
-
-    return decoded, consumed, []
-
-
 def parse_reaper_kb(lines: list[str]) -> tuple[dict[str, list[Any]], list[str]]:
     """Decode supported reaper-kb.ini records into public action options."""
 
@@ -1130,25 +1100,7 @@ def main() -> int:
         for adapter in adapters:
             if adapter == "ini":
                 continue
-            if adapter == "plugin-paths":
-                current_ini = inis.get(file_name)
-                if current_ini is None:
-                    continue
-                decoded, consumed, diagnostics = parse_plugin_path_flags(
-                    current_ini,
-                    source.get("adapterConfig"),
-                )
-                for diagnostic in diagnostics:
-                    print(diagnostic)
-                if decoded:
-                    merge_tree(
-                        semantic_collections,
-                        {"preferences": {"plugIns": decoded}},
-                    )
-                semantically_consumed.update(
-                    (file_name, section, key) for section, key in consumed
-                )
-            elif adapter == "reaper-layout":
+            if adapter == "reaper-layout":
                 current_ini = inis.get(file_name)
                 if current_ini is None:
                     continue
