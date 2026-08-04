@@ -271,6 +271,110 @@ unknown=preserve-me
         self.assertEqual(len(diagnostics), 2)
 
 
+class PluginPathImportTests(unittest.TestCase):
+    @staticmethod
+    def parser(text):
+        parser = REAPER2NIX.configparser.ConfigParser(
+            interpolation=None, delimiters=("=",), strict=False
+        )
+        parser.optionxform = str
+        parser.read_string(text)
+        return parser
+
+    def test_path_appenders_are_disabled_without_classifying_entries(self):
+        parser = self.parser("[reaper]\nvstpath=/exact/vst;~/.vst\n")
+
+        decoded, consumed, diagnostics = REAPER2NIX.parse_plugin_path_flags(
+            parser,
+            {"pluginPathKeys": {"vst": "vstpath", "lv2": "lv2path_linux"}},
+        )
+
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(
+            decoded,
+            {"vst": {"enableNixPaths": False, "enableUserPaths": False}},
+        )
+        self.assertEqual(consumed, {("reaper", "vstpath")})
+
+    def test_effective_plugin_paths_are_imported_as_authoritative_lists(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            resource_dir = Path(temporary_directory)
+            schema_path = resource_dir / "schema.json"
+            paths = [
+                (
+                    "preferences.plugIns.vst.searchPaths",
+                    "vstpath",
+                ),
+                (
+                    "preferences.plugIns.lv2.searchPaths",
+                    "lv2path_linux",
+                ),
+                (
+                    "preferences.plugIns.clap.searchPaths",
+                    "clap_path_linux-x86_64",
+                ),
+            ]
+            schema_path.write_text(
+                json.dumps(
+                    {
+                        "version": 2,
+                        "sources": {
+                            "reaper.ini": {
+                                "format": "ini",
+                                "adapter": "ini",
+                                "adapters": ["plugin-paths"],
+                                "adapterConfig": {
+                                    "pluginPathKeys": {
+                                        "vst": "vstpath",
+                                        "lv2": "lv2path_linux",
+                                        "clap": "clap_path_linux-x86_64",
+                                    }
+                                },
+                            }
+                        },
+                        "options": [
+                            {
+                                "path": path,
+                                "kind": "value",
+                                "file": "reaper.ini",
+                                "section": "reaper",
+                                "key": key,
+                                "codec": "list",
+                            }
+                            for path, key in paths
+                        ],
+                    }
+                )
+            )
+            (resource_dir / "reaper.ini").write_text(
+                "[reaper]\n"
+                "vstpath=/exact/vst;/exact/vst3\n"
+                "lv2path_linux=/exact/lv2\n"
+                "clap_path_linux-x86_64=/exact/clap;~/.clap\n"
+            )
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    str(resource_dir),
+                    "--schema",
+                    str(schema_path),
+                    "--options",
+                    "programs.reaper.preferences.plugIns",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertIn('vst = {\n          searchPaths = ["/exact/vst" "/exact/vst3"]', result.stdout)
+        self.assertIn('lv2 = {\n          searchPaths = ["/exact/lv2"]', result.stdout)
+        self.assertIn('clap = {\n          searchPaths = ["/exact/clap" "~/.clap"]', result.stdout)
+        self.assertEqual(result.stdout.count("enableNixPaths = false;"), 3)
+        self.assertEqual(result.stdout.count("enableUserPaths = false;"), 3)
+
+
 class LayoutAdapterTests(unittest.TestCase):
     def test_fixed_windows_docks_and_preferences_are_decoded(self):
         parser = REAPER2NIX.configparser.ConfigParser(

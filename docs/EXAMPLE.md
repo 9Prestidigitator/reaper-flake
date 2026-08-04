@@ -511,23 +511,20 @@ in {
       };
 
       plugIns = {
-        nixSystemPaths = {
-          enable = true;
-          root = "/run/current-system/sw";
-        };
-
         reascript.python.enable = true;
 
+        # Nix and conventional user paths are appended by default.
         vst = {
           searchPaths = ["~/Documents/VSTs"];
-          enableUserPaths = true;
         };
         clap = {
           searchPaths = ["~/Documents/CLAP"];
-          enableUserPaths = true;
         };
+
+        # Disable both appenders when the explicit list should stand alone.
         lv2 = {
           searchPaths = ["~/.lv2-experimental"];
+          enableNixPaths = false;
           enableUserPaths = false;
         };
       };

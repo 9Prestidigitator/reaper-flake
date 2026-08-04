@@ -1,8 +1,4 @@
-{
-  lib,
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   imports = [
     ./Compatibility.nix
     ./vst.nix
@@ -11,20 +7,12 @@
     ./ReaScript.nix
   ];
 
-  options.programs.reaper.preferences.plugIns.nixSystemPaths = {
-    enable = lib.mkOption {
-      type = lib.types.bool;
-      default = pkgs.stdenv.hostPlatform.isLinux;
-      defaultText = "pkgs.stdenv.hostPlatform.isLinux";
-      description = ''
-        Whether to include plugin directories from the current Nix system
-        profile, such as `/run/current-system/sw/lib/vst3`.
-      '';
-    };
-    root = lib.mkOption {
-      type = lib.types.str;
-      default = "/run/current-system/sw";
-      description = "Root profile used for NixOS system plugin paths.";
+  config.programs.reaper.schema.sources."reaper.ini" = {
+    adapters = ["plugin-paths"];
+    adapterConfig.pluginPathKeys = {
+      vst = "vstpath";
+      lv2 = "lv2path_linux";
+      clap = "clap_path_linux-${pkgs.stdenv.hostPlatform.qemuArch}";
     };
   };
 }

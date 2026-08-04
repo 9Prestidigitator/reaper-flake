@@ -169,6 +169,29 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/appearance/track-control-panels\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/track-control-panels.nix)
 
+## programs\.reaper\.preferences\.appearance\.trackControlPanels\.allowReorderingEmptySlotsInTcpMcpFxLists
+
+Whether reordering and empty slots are allowed in TCP/MCP FX lists\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/track-control-panels\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/track-control-panels.nix)
+
 ## programs\.reaper\.preferences\.appearance\.trackControlPanels\.fixedLaneCollapseButtonChangesDisplay
 
 Fixed lane display mode toggled by the fixed lane collapse button\.
@@ -3052,9 +3075,26 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
 
+## programs\.reaper\.preferences\.plugIns\.clap\.enableNixPaths
+
+Whether to append `/run/current-system/sw/lib/clap`\.
+
+_Type:_
+boolean
+
+_Default:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap.nix)
+
 ## programs\.reaper\.preferences\.plugIns\.clap\.enableUserPaths
 
-Whether to include default ~/\.clap paths in searchPaths\.
+Whether to append the conventional CLAP paths\.
 
 _Type:_
 boolean
@@ -3071,7 +3111,7 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.clap\.searchPaths
 
-Additional CLAP search paths appended to REAPER’s Linux CLAP path\.
+CLAP search paths written to REAPER’s Linux CLAP path before any enabled Nix and conventional user paths are appended\.
 
 _Type:_
 list of string
@@ -3094,9 +3134,26 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap.nix)
 
+## programs\.reaper\.preferences\.plugIns\.lv2\.enableNixPaths
+
+Whether to append `/run/current-system/sw/lib/lv2`\.
+
+_Type:_
+boolean
+
+_Default:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap.nix)
+
 ## programs\.reaper\.preferences\.plugIns\.lv2\.enableUserPaths
 
-Whether to include default ~/\.lv2 paths in searchPaths\.
+Whether to append the conventional LV2 paths\.
 
 _Type:_
 boolean
@@ -3113,7 +3170,7 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.lv2\.searchPaths
 
-Additional LV2 search paths appended to `[reaper].lv2path_linux`\.
+LV2 search paths written to `[reaper].lv2path_linux` before any enabled Nix and conventional user paths are appended\.
 
 _Type:_
 list of string
@@ -3135,41 +3192,6 @@ _Example:_
 _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap.nix)
-
-## programs\.reaper\.preferences\.plugIns\.nixSystemPaths\.enable
-
-Whether to include plugin directories from the current Nix system
-profile, such as `/run/current-system/sw/lib/vst3`\.
-
-_Type:_
-boolean
-
-_Default:_
-
-```nix
-"pkgs.stdenv.hostPlatform.isLinux"
-```
-
-_Declared by:_
-
-- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
-
-## programs\.reaper\.preferences\.plugIns\.nixSystemPaths\.root
-
-Root profile used for NixOS system plugin paths\.
-
-_Type:_
-string
-
-_Default:_
-
-```nix
-"/run/current-system/sw"
-```
-
-_Declared by:_
-
-- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
 
 ## programs\.reaper\.preferences\.plugIns\.reascript\.python\.enable
 
@@ -3212,9 +3234,26 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/plugins/ReaScript\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/ReaScript.nix)
 
+## programs\.reaper\.preferences\.plugIns\.vst\.enableNixPaths
+
+Whether to append VST and VST3 directories from `/run/current-system/sw/lib`\.
+
+_Type:_
+boolean
+
+_Default:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins/vst\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/vst.nix)
+
 ## programs\.reaper\.preferences\.plugIns\.vst\.enableUserPaths
 
-Whether to include default ~/\.vst(3) paths in searchPaths\.
+Whether to append the default `~/.vst` and `~/.vst3` paths\.
 
 _Type:_
 boolean
@@ -3231,7 +3270,7 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.vst\.searchPaths
 
-Additional VST(3) search paths appended to `[reaper].vstpath`\.
+VST(3) search paths written to `[reaper].vstpath` before any enabled Nix and conventional user paths are appended\.
 
 _Type:_
 list of string
