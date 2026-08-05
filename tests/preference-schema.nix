@@ -46,8 +46,30 @@
           project = {
             defaultProjectTemplate = "/templates/default.RPP";
             itemFadeDefaults = {
+              defaultFadeInFadeOutLength = 0.05;
+              defaultCrossfadeLength = 0.08;
               defaultFadeInFadeOutShape = "exponential";
               defaultCrossfadeShape = "centerDip";
+              importedMediaItems.fadeInFadeOut = true;
+              recordedMediaItems = {
+                fadeInFadeOut = false;
+                overlap = "respectToolbarAutoCrossfadeButton";
+              };
+              splitMediaItems = {
+                fadeInFadeOut = true;
+                overlap = "overlapAndCrossfade";
+                overlapCrossfadePosition = "center";
+              };
+              fixedLaneCompAreas = false;
+              trimContentBehindMediaEditsEnabled = "noCrossfade";
+              trimContentBehindRazorEditsEnabled = "respectToolbarAutoCrossfadeButton";
+              limitSplitCreatedFadeCrossfadeTo = {
+                enable = true;
+                pixels = 75;
+              };
+              rightClickOnCrossfadeSetsFadeShapeForOnlyOneSideOfTheCrossfade = true;
+              applyFadeInFadeOutCrossfadePreferencesToMidiItems = true;
+              defaultStretchMarkerFadeSizeForNewItem = 3.75;
             };
             itemLoopDefaults = {
               loopSourceFor = {
@@ -85,8 +107,12 @@ in
   assert sections.vscrollstep == 0.25;
   assert sections.nocopyfrompaths == ["/samples/a" "/samples/b"];
   assert sections.newprojtmpl == "/templates/default.RPP";
+  assert sections.deffadelen == 0.05;
+  assert sections.defsplitxfadelen == 0.08;
   assert sections.deffadeshape == 2;
   assert sections.defxfadeshape == 2;
+  assert sections.splitmaxpix == 75;
+  assert sections.stretchmarkerfade == 3.75;
   assert sections.savebackuplimit == 7;
   assert sections.autosavebackuplimit == 9;
   assert sections.autosavemode == 2;
@@ -101,6 +127,11 @@ in
   == {
     mask = 62;
     value = 50;
+  };
+  assert bitfields.splitautoxfade
+  == {
+    mask = 524283;
+    value = 387475;
   };
     runCommand "reaper-preference-schema-tests" {} ''
       touch "$out"
