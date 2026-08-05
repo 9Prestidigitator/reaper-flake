@@ -2,12 +2,10 @@
   config,
   lib,
   reaperLib,
-  reaperProject,
   ...
 }: let
-  inherit (lib) mkOption types mkEnableOption;
-  inherit (reaperLib) reaperBitfield reaperTypes reaperPreference reaperCodecs;
-  inherit (reaperProject);
+  inherit (lib) mkOption types;
+  inherit (reaperLib) reaperBitfield;
 
   cfg = config.programs.reaper.preferences.project.itemLoopDefaults;
 in {
@@ -39,13 +37,49 @@ in {
       };
     };
     timeSelectionAutoPunchAudioRecordingCreatesLoopableSelection = mkOption {
-      type = types.nullOr types.float;
+      type = types.nullOr types.bool;
       default = null;
+      example = true;
       description = "When auto-punch recording into a time selection, loop the time selection's content when extending the edges of the resulting item.";
     };
   };
 
   config.programs.reaper.ini.contributions =
-    reaperPreference.contributions [
-    ];
+    map (entry: entry // {section = "reaper";})
+    (reaperBitfield.contributions {
+      loopnewitems = [
+        {
+          optionPath = "preferences.project.itemLoopDefaults.loopSourceFor.midiItems";
+          gui = "Loop source for MIDI items";
+          option = cfg.loopSourceFor.midiItems;
+          bit = 2;
+        }
+        {
+          optionPath = "preferences.project.itemLoopDefaults.loopSourceFor.importedItems";
+          gui = "Loop source for imported items";
+          option = cfg.loopSourceFor.importedItems;
+          bit = 4;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.project.itemLoopDefaults.loopSourceFor.recordedItems";
+          gui = "Loop source for recorded items";
+          option = cfg.loopSourceFor.recordedItems;
+          bit = 8;
+        }
+        {
+          optionPath = "preferences.project.itemLoopDefaults.loopSourceFor.gluedItems";
+          gui = "Loop source for glued items";
+          option = cfg.loopSourceFor.gluedItems;
+          bit = 32;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.project.itemLoopDefaults.timeSelectionAutoPunchAudioRecordingCreatesLoopableSelection";
+          gui = "Time selection auto-punch audio recording creates loopable selection";
+          option = cfg.timeSelectionAutoPunchAudioRecordingCreatesLoopableSelection;
+          bit = 16;
+        }
+      ];
+    });
 }

@@ -10,7 +10,9 @@
 in {
   imports = [
     ./backups.nix
+    ./item-fade-defaults.nix
     ./track-send-defaults.nix
+    ./item-loop-defaults.nix
   ];
 
   options.programs.reaper.preferences.project = {

@@ -103,4 +103,36 @@ in {
     on = 256;
     tapeAutoStyle = 512;
   };
+
+  fadeInOutShapes = {
+    linear = 0;
+    logarithmic = 1;
+    exponential = 2;
+    strongLog = 3;
+    strongExp = 4;
+    gentleS = 5;
+    strongS = 6;
+  };
+
+  crossfadeShapes = {
+    equalGain = 0;
+    equalPower = 1;
+    centerDip = 2;
+    centerOverlap = 3;
+    centerGap = 4;
+    smoothS = 5;
+    steepS = 6;
+  };
+
+  itemOverlapModes = {
+    noCrossfade = 0;
+    overlapAndCrossfade = 1;
+    respectToolbarAutoCrossfadeButton = 2;
+  };
+
+  crossfadePositions = {
+    left = 0;
+    center = 1;
+    right = 2;
+  };
 }

@@ -45,6 +45,19 @@
           };
           project = {
             defaultProjectTemplate = "/templates/default.RPP";
+            itemFadeDefaults = {
+              defaultFadeInFadeOutShape = "exponential";
+              defaultCrossfadeShape = "centerDip";
+            };
+            itemLoopDefaults = {
+              loopSourceFor = {
+                midiItems = true;
+                importedItems = true;
+                recordedItems = false;
+                gluedItems = false;
+              };
+              timeSelectionAutoPunchAudioRecordingCreatesLoopableSelection = true;
+            };
             backups = {
               whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak = {
                 enable = true;
@@ -72,6 +85,8 @@ in
   assert sections.vscrollstep == 0.25;
   assert sections.nocopyfrompaths == ["/samples/a" "/samples/b"];
   assert sections.newprojtmpl == "/templates/default.RPP";
+  assert sections.deffadeshape == 2;
+  assert sections.defxfadeshape == 2;
   assert sections.savebackuplimit == 7;
   assert sections.autosavebackuplimit == 9;
   assert sections.autosavemode == 2;
@@ -82,6 +97,11 @@ in
   };
   assert bitfields.saveopts.mask == 17;
   assert bitfields.saveopts.value == 17;
+  assert bitfields.loopnewitems
+  == {
+    mask = 62;
+    value = 50;
+  };
     runCommand "reaper-preference-schema-tests" {} ''
       touch "$out"
     ''
