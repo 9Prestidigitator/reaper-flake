@@ -3077,7 +3077,7 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.clap\.enableNixPaths
 
-Whether to append `/run/current-system/sw/lib/clap`\.
+Whether to append CLAP directories from the per-user, user, and system Nix profiles\.
 
 _Type:_
 boolean
@@ -3136,7 +3136,7 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.lv2\.enableNixPaths
 
-Whether to append `/run/current-system/sw/lib/lv2`\.
+Whether to append LV2 directories from the per-user, user, and system Nix profiles\.
 
 _Type:_
 boolean
@@ -3236,7 +3236,7 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.vst\.enableNixPaths
 
-Whether to append VST and VST3 directories from `/run/current-system/sw/lib`\.
+Whether to append VST and VST3 directories from the per-user, user, and system Nix profiles\.
 
 _Type:_
 boolean
@@ -3826,6 +3826,457 @@ _Example:_
 _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/project](file:///home/max/Projects/reaper-flake/modules/preferences/project)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.applyFadeInFadeOutCrossfadePreferencesToMidiItems
+
+Apply the above fade/crossfade settings, and the project auto-crossfade setting, to MIDI items\. Fades on MIDI items affect note velocities, not MIDI volume\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.defaultCrossfadeLength
+
+The default crossfade length, in seconds\.
+
+_Type:_
+null or signed integer or floating point number
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+0.08
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.defaultCrossfadeShape
+
+The default crossfade shape\.
+
+_Type:_
+null or one of “centerDip”, “centerGap”, “centerOverlap”, “equalGain”, “equalPower”, “smoothS”, “steepS”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+"centerDip"
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.defaultFadeInFadeOutLength
+
+The default fade-in/fade-out length, in seconds\.
+
+_Type:_
+null or signed integer or floating point number
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+0.05
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.defaultFadeInFadeOutShape
+
+The default fade-in/fade-out shape\.
+
+_Type:_
+null or one of “exponential”, “gentleS”, “linear”, “logarithmic”, “strongExp”, “strongLog”, “strongS”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+"exponential"
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.defaultStretchMarkerFadeSizeForNewItem
+
+Default stretch marker crossfade size for new items, in milliseconds\. Change existing items through media item properties\.
+
+_Type:_
+null or signed integer or floating point number
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.fixedLaneCompAreas
+
+Automatically fade-in/fade-out and crossfade fixed-lane comp areas\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.importedMediaItems\.fadeInFadeOut
+
+Automatically fade-in/fade-out imported media items\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.limitSplitCreatedFadeCrossfadeTo\.enable
+
+Whether splits limit created fade/crossfade lengths to a fixed number of pixels instead of a percentage of the visible arrange view\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.limitSplitCreatedFadeCrossfadeTo\.pixels
+
+Maximum fade/crossfade length created by splits, in pixels\.
+
+_Type:_
+null or (unsigned integer, meaning >=0)
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.recordedMediaItems\.fadeInFadeOut
+
+Automatically fade-in/fade-out newly recorded media items\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.recordedMediaItems\.overlap
+
+Overlap and crossfade when a new recording overlaps existing media items\.
+
+_Type:_
+null or one of “noCrossfade”, “overlapAndCrossfade”, “respectToolbarAutoCrossfadeButton”
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.rightClickOnCrossfadeSetsFadeShapeForOnlyOneSideOfTheCrossfade
+
+Right-click a fade or crossfade to change the fade shape\. For a crossfade, right-click can change the shape of both sides, or one side only\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.splitMediaItems\.fadeInFadeOut
+
+Automatically fade-in/fade-out media items created by splitting\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.splitMediaItems\.overlap
+
+Overlap and crossfade when splitting media items\.
+
+_Type:_
+null or one of “noCrossfade”, “overlapAndCrossfade”, “respectToolbarAutoCrossfadeButton”
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.splitMediaItems\.overlapCrossfadePosition
+
+Crossfade to the left, right, or center when splitting media items\.
+
+_Type:_
+null or one of “center”, “left”, “right”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+"left"
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.trimContentBehindMediaEditsEnabled
+
+Overlap and crossfade when editing with ‘trim content behind media items’ enabled\.
+
+_Type:_
+null or one of “noCrossfade”, “overlapAndCrossfade”, “respectToolbarAutoCrossfadeButton”
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemFadeDefaults\.trimContentBehindRazorEditsEnabled
+
+Overlap and crossfade when editing with ‘trim content behind razor edits’ enabled\.
+
+_Type:_
+null or one of “noCrossfade”, “overlapAndCrossfade”, “respectToolbarAutoCrossfadeButton”
+
+_Default:_
+
+```nix
+null
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-fade-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemLoopDefaults\.loopSourceFor\.gluedItems
+
+Enable the ‘loop source’ attribute for glued items\. Dragging the right edge of the item will automatically loop the media\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-loop-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-loop-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemLoopDefaults\.loopSourceFor\.importedItems
+
+Enable the ‘loop source’ attribute for imported media items\. Dragging the right edge of the item will automatically loop the media\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-loop-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-loop-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemLoopDefaults\.loopSourceFor\.midiItems
+
+Enable the ‘loop source’ attribute for new MIDI items\. Dragging the right edge of the item will automatically loop the media\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-loop-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-loop-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemLoopDefaults\.loopSourceFor\.recordedItems
+
+Enable the ‘loop source’ attribute for recorded audio items\. Dragging the right edge of the item will automatically loop the media\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-loop-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-loop-defaults.nix)
+
+## programs\.reaper\.preferences\.project\.itemLoopDefaults\.timeSelectionAutoPunchAudioRecordingCreatesLoopableSelection
+
+When auto-punch recording into a time selection, loop the time selection’s content when extending the edges of the resulting item\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/item-loop-defaults\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/item-loop-defaults.nix)
 
 ## programs\.reaper\.preferences\.project\.openPropertiesOnNewProject
 

@@ -3,6 +3,7 @@
   lib,
   pkgs,
   reaperLib,
+  reaperPlugins,
   ...
 }: let
   inherit (lib) mkOption optionals types unique;
@@ -11,13 +12,9 @@
   cfg = config.programs.reaper.preferences.plugIns;
   clapPathKey = "clap_path_linux-${pkgs.stdenv.hostPlatform.qemuArch}";
 
-  nixClapPaths = optionals cfg.clap.enableNixPaths [
-    "/run/current-system/sw/lib/clap"
-  ];
+  nixClapPaths = optionals cfg.clap.enableNixPaths (reaperPlugins.profilePaths config.home.username ["clap"]);
 
-  nixLv2Paths = optionals cfg.lv2.enableNixPaths [
-    "/run/current-system/sw/lib/lv2"
-  ];
+  nixLv2Paths = optionals cfg.lv2.enableNixPaths (reaperPlugins.profilePaths config.home.username ["lv2"]);
 
   userClapPaths = optionals cfg.clap.enableUserPaths [
     "/usr/local/lib/clap"
@@ -47,7 +44,7 @@ in {
       enableNixPaths = mkOption {
         type = types.bool;
         default = true;
-        description = "Whether to append `/run/current-system/sw/lib/lv2`.";
+        description = "Whether to append LV2 directories from the per-user, user, and system Nix profiles.";
       };
 
       enableUserPaths = mkOption {
@@ -68,7 +65,7 @@ in {
       enableNixPaths = mkOption {
         type = types.bool;
         default = true;
-        description = "Whether to append `/run/current-system/sw/lib/clap`.";
+        description = "Whether to append CLAP directories from the per-user, user, and system Nix profiles.";
       };
 
       enableUserPaths = mkOption {

@@ -373,7 +373,7 @@ nix run .#reaper2nix -- \
 
 The importer emits supported declarations and diagnostics when a schema-backed value cannot be decoded. Unmapped keys are silent because the schema is intentionally a proper subset of REAPER's state-bearing files. Pass `--show-unmapped` when developing new mappings and you need those keys reported.
 
-VST, LV2, and CLAP search paths use the schema's list codec. Each effective path value consists of the explicit `searchPaths` list followed by paths enabled through that plug-in type's `enableNixPaths` and `enableUserPaths` options. `reaper2nix` emits the effective semicolon-separated INI value as `searchPaths` without classifying its entries. The two convenience toggles are module policy rather than REAPER state and are therefore not emitted by the importer.
+VST, LV2, and CLAP search paths use the schema's list codec. Each effective path value consists of the explicit `searchPaths` list followed by paths enabled through that plug-in type's `enableNixPaths` and `enableUserPaths` options. Nix paths cover `/etc/profiles/per-user/<username>/lib`, `~/.nix-profile/lib`, and `/run/current-system/sw/lib`, with the plug-in format appended to each root. `reaper2nix` emits the effective semicolon-separated INI value as `searchPaths` without classifying its entries. The two convenience toggles are module policy rather than REAPER state and are therefore not emitted by the importer.
 
 Generated output is a complete Nix attribute set. Public option paths are expanded into nested attribute sets, ordered records remain lists, and attribute names are quoted only when Nix syntax requires it. The output is formatted so it passes Alejandra without another rewrite.
 

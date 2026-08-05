@@ -16,6 +16,7 @@ in {
 
   reaperGeneral = import ./general.nix;
   reaperProject = import ./project.nix;
+  reaperPlugins = import ./plugins.nix {inherit lib;};
   reaperAppearance = import ./appearance.nix;
   reaperControlOscWeb = import ./control-osc-web.nix;
 

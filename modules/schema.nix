@@ -33,6 +33,11 @@
           type = lib.types.listOf lib.types.str;
           default = [];
         };
+        options.home.username = lib.mkOption {
+          type = lib.types.str;
+          default = "schema-user";
+          internal = true;
+        };
         options.programs.reaper.configPath = lib.mkOption {
           type = lib.types.str;
           default = "/tmp/reaper-flake-schema";

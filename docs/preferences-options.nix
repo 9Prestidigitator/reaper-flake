@@ -1,5 +1,7 @@
-{lib, pkgs}:
-let
+{
+  lib,
+  pkgs,
+}: let
   # The Home Manager module normally supplies `hm`. The preferences option
   # declarations do not depend on its DAG implementation, but the complete
   # module must still be evaluable to expose its options.
@@ -10,7 +12,12 @@ let
   reaperLib = import ../modules/lib {inherit lib;};
 
   evaluated = lib.evalModules {
-    specialArgs = reaperLib // {inherit hm pkgs; reaperLib = reaperLib;};
+    specialArgs =
+      reaperLib
+      // {
+        inherit hm pkgs;
+        reaperLib = reaperLib;
+      };
     modules = [
       ../modules/ini.nix
       ../modules/preferences/general
@@ -32,11 +39,14 @@ let
           type = lib.types.listOf lib.types.str;
           default = [];
         };
-
+        options.home.username = lib.mkOption {
+          type = lib.types.str;
+          default = "docs-user";
+          internal = true;
+        };
       }
     ];
   };
-
 in
   pkgs.nixosOptionsDoc {
     # Keep the generated reference scoped to REAPER preferences while wrapping

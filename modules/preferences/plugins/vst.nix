@@ -2,6 +2,7 @@
   config,
   lib,
   reaperLib,
+  reaperPlugins,
   ...
 }: let
   inherit (lib) mkOption optionals types unique;
@@ -9,10 +10,7 @@
 
   cfg = config.programs.reaper.preferences.plugIns;
 
-  nixPaths = optionals cfg.vst.enableNixPaths [
-    "/run/current-system/sw/lib/vst"
-    "/run/current-system/sw/lib/vst3"
-  ];
+  nixPaths = optionals cfg.vst.enableNixPaths (reaperPlugins.profilePaths config.home.username ["vst" "vst3"]);
 
   userPaths = optionals cfg.vst.enableUserPaths [
     "~/.vst"
@@ -32,7 +30,7 @@ in {
     enableNixPaths = mkOption {
       type = types.bool;
       default = true;
-      description = "Whether to append VST and VST3 directories from `/run/current-system/sw/lib`.";
+      description = "Whether to append VST and VST3 directories from the per-user, user, and system Nix profiles.";
     };
 
     enableUserPaths = mkOption {

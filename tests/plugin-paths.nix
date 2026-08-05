@@ -20,6 +20,10 @@
             type = lib.types.listOf lib.types.str;
             default = [];
           };
+          options.home.username = lib.mkOption {
+            type = lib.types.str;
+            default = "test-user";
+          };
           options.programs.reaper.configPath = lib.mkOption {
             type = lib.types.str;
             default = "/tmp/reaper-plugin-path-tests";
@@ -83,6 +87,10 @@
 in
   assert defaults.vstpath
   == [
+    "/etc/profiles/per-user/test-user/lib/vst"
+    "/etc/profiles/per-user/test-user/lib/vst3"
+    "~/.nix-profile/lib/vst"
+    "~/.nix-profile/lib/vst3"
     "/run/current-system/sw/lib/vst"
     "/run/current-system/sw/lib/vst3"
     "~/.vst"
@@ -90,6 +98,8 @@ in
   ];
   assert defaults.lv2path_linux
   == [
+    "/etc/profiles/per-user/test-user/lib/lv2"
+    "~/.nix-profile/lib/lv2"
     "/run/current-system/sw/lib/lv2"
     "/usr/lib/lv2"
     "/usr/local/lib/lv2"
@@ -97,6 +107,8 @@ in
   ];
   assert defaults.${clapKey}
   == [
+    "/etc/profiles/per-user/test-user/lib/clap"
+    "~/.nix-profile/lib/clap"
     "/run/current-system/sw/lib/clap"
     "/usr/local/lib/clap"
     "/usr/lib/clap"
@@ -107,6 +119,10 @@ in
   == [
     "/exact/vst"
     "/exact/vst3"
+    "/etc/profiles/per-user/test-user/lib/vst"
+    "/etc/profiles/per-user/test-user/lib/vst3"
+    "~/.nix-profile/lib/vst"
+    "~/.nix-profile/lib/vst3"
     "/run/current-system/sw/lib/vst"
     "/run/current-system/sw/lib/vst3"
     "~/.vst"
@@ -115,6 +131,8 @@ in
   assert explicit.lv2path_linux
   == [
     "/exact/lv2"
+    "/etc/profiles/per-user/test-user/lib/lv2"
+    "~/.nix-profile/lib/lv2"
     "/run/current-system/sw/lib/lv2"
     "/usr/lib/lv2"
     "/usr/local/lib/lv2"
@@ -123,6 +141,8 @@ in
   assert explicit.${clapKey}
   == [
     "/exact/clap"
+    "/etc/profiles/per-user/test-user/lib/clap"
+    "~/.nix-profile/lib/clap"
     "/run/current-system/sw/lib/clap"
     "/usr/local/lib/clap"
     "/usr/lib/clap"
