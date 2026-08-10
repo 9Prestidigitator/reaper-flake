@@ -1,10 +1,10 @@
 {
   arrangeSnap = {
     doNotSnapIndicatorLine = 0;
-    respectToolbarSnapButton = 1;
-    ignoreSnapIfShiftKeyHeld = 2;
-    ignoreSnapIfControlKeyHeld = 3;
-    ignoreSnapIfShiftOrControlKeyHeld = 4;
+    respectToolbarSnapButton = 32;
+    ignoreSnapIfShiftKeyHeld = 96;
+    ignoreSnapIfControlKeyHeld = 160;
+    ignoreSnapIfShiftOrControlKeyHeld = 224;
   };
 
   trackControlPanels = {

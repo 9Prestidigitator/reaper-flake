@@ -166,6 +166,81 @@ class StaticSchemaTests(unittest.TestCase):
                 self.assertEqual(option["valueType"], "enum")
                 self.assertEqual(option["importValues"], import_values)
 
+    def test_audio_and_appearance_page_options_are_in_reverse_schema(self):
+        options = {option["path"]: option for option in self.schema["options"]}
+        expected_paths = {
+            "preferences.appearance.tooltips.uiElements",
+            "preferences.appearance.tooltips.itemsEnvelopes",
+            "preferences.appearance.tooltips.envsOnHover",
+            "preferences.appearance.tooltips.peakAndLoudnessValueWhenMouseIsOverMediaItems",
+            "preferences.appearance.tooltips.delay",
+            "preferences.appearance.fasterTextRendering",
+            "preferences.appearance.drawVerticalTextBottomUp",
+            "preferences.appearance.framelessFloatingToolbarWindows",
+            "preferences.appearance.dontScaleToolbarButtonsBelow1to1",
+            "preferences.appearance.dontScaleToolbarButtonsAbove1to1",
+            "preferences.appearance.dontAnimateArmedActionToolbarButtons",
+            "preferences.appearance.dontAnimateAnyToolbarButtons",
+            "preferences.appearance.verticalSpaceAtBottomOfTrackNumber",
+            "preferences.appearance.visualTrackSpacerSize",
+            "preferences.appearance.limitTcpSpacerHeightToLaneSize",
+            "preferences.appearance.antialiasedFadesAndEnvelopes",
+            "preferences.appearance.horizontalGridLinesInAutomationLanes",
+            "preferences.appearance.filledAutomationEnvelopes",
+            "preferences.appearance.filledEnvelopesWhenDrawnOverMedia",
+            "preferences.appearance.envelopePointSizeScaling",
+            "preferences.appearance.scaleNonSelectedPoint",
+            "preferences.appearance.hightlightEditCursorOverLastSelectedTrack",
+            "preferences.appearance.showGuideLinesWhenEditing",
+            "preferences.appearance.solidEdgeOnTimeSelectionHighlight",
+            "preferences.appearance.solidEdgeOnLoopSelection",
+            "preferences.appearance.displayVerticalLineAtMousePosition.enable",
+            "preferences.appearance.displayVerticalLineAtMousePosition.snap",
+            "preferences.appearance.playCursorWidth",
+            "preferences.appearance.hideDockerTabsWhenSingleWindowAndSmallerThanPixels",
+            "preferences.audio.closeAudioDeviceWhenStoppedAndApplicationIsInactive",
+            "preferences.audio.closeAudioDeviceWhenInactiveAndTracksAreRecordArmed",
+            "preferences.audio.closeAudioDeviceWhenInactiveAndReWireDevicesAreOpened",
+            "preferences.audio.closeAudioDeviceWhenStoppedAndActive",
+            "preferences.audio.warnWhenUnableToOpenAudioDevices",
+            "preferences.audio.warnWhenUnableToOpenMidiDevices",
+            "preferences.audio.warnWhenEnabledMidiDevicesAreNotPresent",
+            "preferences.audio.autoBypassFxOnRecordArmAffectedTracksWhosePdcExceeds.enable",
+            "preferences.audio.autoBypassFxOnRecordArmAffectedTracksWhosePdcExceeds.ms",
+            "preferences.audio.onlyBypassWhileActuallyRecording",
+            "preferences.audio.temporarilyBypassOversamplingOnRecordArmAffectedTrack",
+            "preferences.audio.autoBypassFxEvenWhenFxConfigurationOpen",
+            "preferences.audio.stopProcessingAudioWhileWarningOfFailedDiskWrites",
+            "preferences.audio.virtualLoopbackAudioHardwareChannel",
+            "preferences.audio.channelNamingMapping.inputChannelNameAliasingRemapping.enable",
+            "preferences.audio.channelNamingMapping.outputChannelNameAliasingRemapping.enable",
+            "preferences.audio.channelNamingMapping.showNonStandardStereoChannelPairs",
+            "preferences.audio.channelNamingMapping.defaultMetronomeOutput",
+        }
+        self.assertEqual(expected_paths - set(options), set())
+
+        snap = options[
+            "preferences.appearance.displayVerticalLineAtMousePosition.snap"
+        ]
+        self.assertEqual(snap["key"], "guidelines2")
+        self.assertEqual(snap["mask"], 224)
+        self.assertEqual(
+            snap["importValues"],
+            {
+                "doNotSnapIndicatorLine": 0,
+                "respectToolbarSnapButton": 32,
+                "ignoreSnapIfShiftKeyHeld": 96,
+                "ignoreSnapIfControlKeyHeld": 160,
+                "ignoreSnapIfShiftOrControlKeyHeld": 224,
+            },
+        )
+
+        pdc = options[
+            "preferences.audio.autoBypassFxOnRecordArmAffectedTracksWhosePdcExceeds.ms"
+        ]
+        self.assertEqual(pdc["key"], "pdcautobypassms")
+        self.assertEqual(pdc["codec"], "float")
+
     def test_migrated_preferences_are_in_the_reverse_schema(self):
         paths = {option["path"] for option in self.schema["options"]}
         assignment_paths = {

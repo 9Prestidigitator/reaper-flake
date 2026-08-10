@@ -18,6 +18,7 @@
 
       ./preferences/general
       ./preferences/project
+      ./preferences/audio
       ./preferences/appearance
       ./preferences/editing-behavior
       ./preferences/media

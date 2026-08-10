@@ -1,3 +1,417 @@
+## programs\.reaper\.preferences\.appearance\.antialiasedFadesAndEnvelopes
+
+Draw smooth item fadein/fadeout curves and automation envelopes\. No meaningful performance penalty\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.displayVerticalLineAtMousePosition\.enable
+
+Draw a vertical line to indicate the mouse position in the arrange view\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.displayVerticalLineAtMousePosition\.snap
+
+Draw a vertical line to indicate the mouse position in the arrange view\.
+
+_Type:_
+null or one of “doNotSnapIndicatorLine”, “ignoreSnapIfControlKeyHeld”, “ignoreSnapIfShiftKeyHeld”, “ignoreSnapIfShiftOrControlKeyHeld”, “respectToolbarSnapButton”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+"respectToolbarSnapButton"
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.dontAnimateAnyToolbarButtons
+
+Disable all toolbar animations\. Animations can be configured per-button in the toolbar context menu, under ‘Customize toolbar’\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.dontAnimateArmedActionToolbarButtons
+
+Disable animations for armed toolbar buttons\. Animations can be configured per-button in the toolbar context menu, under ‘Customize toolbar’\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.dontScaleToolbarButtonsAbove1to1
+
+When changing the size of the toolbar or floating toolbar, don’t allow buttons to be drawn larger than the size of their underlying theme images\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.dontScaleToolbarButtonsBelow1to1
+
+When changing the size of the toolbar or floating toolbar, don’t allow buttons to be drawn smaller than the size of their underlying theme images\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.drawVerticalTextBottomUp
+
+When drawing vertical text in the theme (for example, track names or meter scale numbers), draw from bottom to top rather than top to bottom\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.envelopePointSizeScaling
+
+Adjust size of all envelope points - 1\.0 is the default, 1\.5 might be easier to see\.
+
+_Type:_
+null or signed integer or floating point number
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+1.5
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.fasterTextRendering
+
+Cache rendered font glyphs, which can improve drawing performance significantly vs FreeType\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.filledAutomationEnvelopes
+
+Fill automation envelopes with color, for easier reading but a slight performance penalty\. (Media item fade area curve fills use a theme setting\.)
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.filledEnvelopesWhenDrawnOverMedia
+
+Fill automation envelopes with color when drawing envelopes over media, for easier reading but a slight performance penalty\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.framelessFloatingToolbarWindows
+
+Floating toolbars, and the Toolbar Docker, can be displayed without a window frame, for a smaller appearance\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.hideDockerTabsWhenSingleWindowAndSmallerThanPixels
+
+Set the minimum size in pixels where a single tab will be displayed in a docker\. Below this size, a minimal handle will be displayed\.
+
+_Type:_
+null or (unsigned integer, meaning >=0)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+300
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.hightlightEditCursorOverLastSelectedTrack
+
+By default, the edit cursor will display a highlight over the last selected track, to indicate where pasted content will go\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.horizontalGridLinesInAutomationLanes
+
+Show horizontal grid lines in envelope lanes, height permitting\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.limitTcpSpacerHeightToLaneSize
+
+Spacers in the TCP will shrink so that they are not larger thant he following panel’s lane size\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.playCursorWidth
+
+Width of play cursor in pixels\.
+
+_Type:_
+null or (unsigned integer, meaning >=0)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+2
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
 ## programs\.reaper\.preferences\.appearance\.rulerGrid\.divideArrangeViewVerticallyWhenRulerDisplaysBeats\.enable
 
 Whether to enable Use color theme odd/even track colors to divide the arrange view vertically…
@@ -145,6 +559,213 @@ null
 _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/appearance/ruler-grid\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/ruler-grid.nix)
+
+## programs\.reaper\.preferences\.appearance\.scaleNonSelectedPoint
+
+Adjust size of unselected envelope points (relative to selected points)
+
+_Type:_
+null or signed integer or floating point number
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+1.5
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.showGuideLinesWhenEditing
+
+By default, the edit cursor will display a highlight over the last selected track, to indicate where pasted content will go\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.solidEdgeOnLoopSelection
+
+Draw solid lines through the arrange view at the edges of the loop selection, for a slight performance penalty\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.solidEdgeOnTimeSelectionHighlight
+
+Draw solid lines at the edges of the time selection\. In the theme, set the time selection fill mode alpha to zero for a minor performance improvement\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.tooltips\.delay
+
+The mouse hover delay before tooltips appear, in milliseconds\.
+
+_Type:_
+null or (unsigned integer, meaning >=0)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+200
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.tooltips\.envsOnHover
+
+If tooltips are enabled for envelopes, show the tooltip when hovering the mouse over an envelope\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.tooltips\.itemsEnvelopes
+
+Enable tooltips when editing items or envelopes\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.tooltips\.peakAndLoudnessValueWhenMouseIsOverMediaItems
+
+Enable peak value and loudness (if peaks settings are configured to calculate loudness) tooltip when hovering the mouse over a media item\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.tooltips\.uiElements
+
+Enable tooltips on the UI elements\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
 
 ## programs\.reaper\.preferences\.appearance\.trackControlPanels\.alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed
 
@@ -492,6 +1113,52 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/appearance/track-control-panels\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/track-control-panels.nix)
 
+## programs\.reaper\.preferences\.appearance\.verticalSpaceAtBottomOfTrackNumber
+
+Vertical pixel spacing below media items, above the following track\.
+
+_Type:_
+null or (unsigned integer, meaning >=0)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+4
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
+## programs\.reaper\.preferences\.appearance\.visualTrackSpacerSize
+
+Pixel size of track spacer, applied to track control panels, mixer, and arrange view\.
+
+_Type:_
+null or (unsigned integer, meaning >=0)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+16
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
+
 ## programs\.reaper\.preferences\.appearance\.zoomScrollOffset\.disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView
 
 Whether mousewheel vertical zoom is disabled for tracks pinned in arrange view\.
@@ -769,6 +1436,420 @@ reaperAppearance.zoomScrollOffset.zoomCenter.vertical.lastSelectedTrack
 _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/appearance/zoom-scroll-offset\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/zoom-scroll-offset.nix)
+
+## programs\.reaper\.preferences\.audio\.autoBypassFxEvenWhenFxConfigurationOpen
+
+When auto-bypass is enabled in project settings or per-plug-in, this allows plug-ins to be auto-bypassed while the plug-in UI is open\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.autoBypassFxOnRecordArmAffectedTracksWhosePdcExceeds\.enable
+
+Automatically bypass FX above the configured PDC threshold on record-arm-affected tracks\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.autoBypassFxOnRecordArmAffectedTracksWhosePdcExceeds\.ms
+
+PDC threshold in milliseconds above which plug-ins are auto-bypassed when record-armed, reducing monitoring latency and improving performance\.
+
+_Type:_
+null or signed integer or floating point number
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+5.5
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.channelNamingMapping\.defaultMetronomeOutput
+
+Sets default output for metronome when project does not override – default is project master outputs\.
+
+_Type:_
+null or (unsigned integer, meaning >=0)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+3
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.channelNamingMapping\.inputChannelNameAliasingRemapping\.enable
+
+Enables audio input name aliasing, letting you rename your inputs for easier selection\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.channelNamingMapping\.outputChannelNameAliasingRemapping\.enable
+
+Enables audio output name aliasing, letting you rename your outputs for easier selection\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.channelNamingMapping\.showNonStandardStereoChannelPairs
+
+When checked, allows you to treat odd pairs of inputs/outputs as stereo pairs, i\.e\. not just Channels 1/2, but 2/3 as well\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.closeAudioDeviceWhenInactiveAndReWireDevicesAreOpened
+
+When unchecked and ReWire devices are open, REAPER will not share audio devices\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.closeAudioDeviceWhenInactiveAndTracksAreRecordArmed
+
+When unchecked and any tracks are record armed, REAPER will not share audio devices\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.closeAudioDeviceWhenStoppedAndActive
+
+When checked, REAPER will close the audio devices whenever not playing back audio (less responsive)\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.closeAudioDeviceWhenStoppedAndApplicationIsInactive
+
+When enabled, REAPER will share audio devices with other applications by closing the audio hardware not active\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.onlyBypassWhileActuallyRecording
+
+PDC auto-bypass only while recording, PDC FX will be active in stop/playback\. This can result in glitches when punch-in recording\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.stopProcessingAudioWhileWarningOfFailedDiskWrites
+
+If checked, audio processing and output will be bypassed if a disk write error warning occurs (in order to draw attention to the issue)\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.temporarilyBypassOversamplingOnRecordArmAffectedTrack
+
+Automatically disable oversampling on tracks that are record armed or receive from armed tracks\. Oversampling changes only on playback start/stop\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.virtualLoopbackAudioHardwareChannel
+
+REAPER can support up to 128 virtual hardware loopback audio channels which can be used to route audio between projects\.
+
+_Type:_
+null or integer between 0 and 128 (both inclusive)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+4
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.warnWhenEnabledMidiDevicesAreNotPresent
+
+Warn about MIDI devices that are enabled but could not be found\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.warnWhenUnableToOpenAudioDevices
+
+Warn about audio devices that could not be opened\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
+
+## programs\.reaper\.preferences\.audio\.warnWhenUnableToOpenMidiDevices
+
+Warn about MIDI devices that could not be opened\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/audio](file:///home/max/Projects/reaper-flake/modules/preferences/audio)
 
 ## programs\.reaper\.preferences\.controlOscWeb\.closeControlSurfaceDevicesWhenRendering
 
@@ -1304,6 +2385,98 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/control-osc-web\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/control-osc-web.nix)
 
+## programs\.reaper\.preferences\.editingBehavior\.clearLoopPointsOnClickInRuler
+
+Loop points are cleared using the escape key, or optionally by single-clicking in the ruler/timeline area\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.clearTimeSelectionWhenEditCursorMovesOnClickInArrangeView
+
+The time selection is cleared using the escape key, or optionally whenever a mouse click in the arrange view moves the edit cursor\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.linkLoopPointsToTimeSelection
+
+Time selection and loop points can be linked, or unlinked so that they can be set or cleared independently\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.minimumTimeSelectionLoopRazorEditLength
+
+Contrain the mouse-edited time selection, loop, and razor edit length to a minimum pixel size\.
+
+_Type:_
+null or signed integer
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+15
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
 ## programs\.reaper\.preferences\.editingBehavior\.mouseModifiers\.contexts
 
 Raw REAPER mouse modifier bindings by `reaper-mouse.ini` context and modifier key\.
@@ -1360,6 +2533,121 @@ _Example:_
 _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/mouse-modifiers\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/mouse-modifiers.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.moveEditCursorOn\.clickingFixedLaneCompArea
+
+The edit cursor (where playback will begin) moves to start of the fixed lane comp area when you click the area\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.moveEditCursorOn\.pastingInsertingMedia
+
+The edit cursor (where playback will begin) moves to the mouse when pasting or inserting media items\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.moveEditCursorOn\.razorEditChange
+
+The edit cursor (where playback will begin) moves to the start of the razor edit when you create the razor editor move it without contents\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.moveEditCursorOn\.timeSelectionChange
+
+The edit cursor (where playback will begin) moves to the start of the time selection when you change the time selection\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.moveEditCursorToEndOfRecordedItemsOnRecordStop
+
+The edit cursor (where playback will begin) moves to the end of newly recorded items when recording stops\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
 
 ## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.allowKeyboardCommandsEvenWhenMouseEditing
 
@@ -3074,6 +4362,144 @@ _Example:_
 _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
+## programs\.reaper\.preferences\.media\.allowVideosToGoOffline
+
+Allows video items (and certain items decoded by VLC/FFmpeg, and still images) to be set offline, which can be slow to bring back online\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/media](file:///home/max/Projects/reaper-flake/modules/preferences/media)
+
+## programs\.reaper\.preferences\.media\.duplicateTakeFxWhenSplittingItems
+
+When using take FX, duplicate take FX when splitting (so that new split items get copies of the FX)\. Caution, this can use a lot of RAM if you aren’t careful\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/media](file:///home/max/Projects/reaper-flake/modules/preferences/media)
+
+## programs\.reaper\.preferences\.media\.promptToConfirmFilenameOnOpenCopyInEditor
+
+Allow choosing the filename used when using ‘open copy’ action\. If unchecked, the default filename will be used\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/media](file:///home/max/Projects/reaper-flake/modules/preferences/media)
+
+## programs\.reaper\.preferences\.media\.setMediaItemsOfflineWhenApplicationIsNotActive
+
+Sets project media inactive when REAPER is inactive, so that other programs can access/modify the media\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/media](file:///home/max/Projects/reaper-flake/modules/preferences/media)
+
+## programs\.reaper\.preferences\.media\.tailLengthWhenUsingApplyFxToItemMs
+
+When using apply FX action, allow this much extra time at the end for reverb tails, delay lines, etc\.
+
+_Type:_
+null or signed integer or floating point number
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+1250
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/media](file:///home/max/Projects/reaper-flake/modules/preferences/media)
+
+## programs\.reaper\.preferences\.media\.takeFxTailLengthMs
+
+When using the batch converter or various render/apply FX actions with per-item/take FX, add this much time past the item end for tails\.
+
+_Type:_
+null or signed integer or floating point number
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+2500
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/media](file:///home/max/Projects/reaper-flake/modules/preferences/media)
 
 ## programs\.reaper\.preferences\.plugIns\.clap\.enableNixPaths
 

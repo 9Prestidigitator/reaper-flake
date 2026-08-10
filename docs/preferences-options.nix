@@ -22,6 +22,7 @@
       ../modules/ini.nix
       ../modules/preferences/general
       ../modules/preferences/project
+      ../modules/preferences/audio
       ../modules/preferences/appearance
       ../modules/preferences/editing-behavior
       ../modules/preferences/media
