@@ -9,24 +9,24 @@
   libX11,
   libXtst,
   libXcomposite,
-  xorg-server,
+  xwayland,
 }:
 stdenv.mkDerivation {
   pname = "swell-wayland";
-  version = "0.3";
+  version = "0.6";
 
   src = fetchFromGitHub {
     owner = "GoranKovac";
     repo = "WDL";
-    rev = "a3ebc5d75a50cee6908f7c0b24afe726b23412fa";
-    hash = "sha256-z+rMPIXXmAnihvIn0haqN13XkgogU+LDdzuYhw8YZoo=";
+    rev = "2512c9e84ed402fa6e4be2f22576b3f3492f30d7";
+    hash = "sha256-989Ov1omA4gnkIAxSVy8RdtfBzIiM2MNFBkFiDZsOE8=";
   };
 
   sourceRoot = "source/WDL/swell";
 
   postPatch = ''
     substituteInPlace xwayland-bridge-wm.cpp \
-      --replace-fail "/usr/bin/Xvfb" "${xorg-server}/bin/Xvfb"
+      --replace-fail "/usr/bin/Xwayland" "${xwayland}/bin/Xwayland"
   '';
 
   nativeBuildInputs = [pkg-config];
