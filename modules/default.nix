@@ -86,6 +86,7 @@ in {
 
     ./preferences/general
     ./preferences/project
+    ./preferences/audio
     ./preferences/appearance
     ./preferences/editing-behavior
     ./preferences/media
@@ -180,10 +181,13 @@ in {
       _module.args.reaperMenus = reaperLib.reaperMenus;
       _module.args.reaperWindows = reaperLib.reaperWindows;
       _module.args.reaperMouse = reaperLib.reaperMouse;
-      _module.args.reaperAppearance = reaperLib.reaperAppearance;
       _module.args.reaperActions = reaperLib.reaperActions;
       _module.args.reaperGeneral = reaperLib.reaperGeneral;
       _module.args.reaperProject = reaperLib.reaperProject;
+      _module.args.reaperAudio = reaperLib.reaperAudio;
+      _module.args.reaperAppearance = reaperLib.reaperAppearance;
+      _module.args.reaperEditingBehavior = reaperLib.reaperEditingBehavior;
+      _module.args.reaperMedia = reaperLib.reaperMedia;
       _module.args.reaperPlugins = reaperLib.reaperPlugins;
       _module.args.reaperControlOscWeb = reaperLib.reaperControlOscWeb;
     }

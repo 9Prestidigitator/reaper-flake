@@ -11,13 +11,16 @@ in {
   reaperMenus = import ./menus.nix;
   reaperWindows = import ./windows.nix;
 
-  reaperMouse = import ./mouse.nix {inherit lib;};
   reaperActions = import ./actions.nix {inherit lib;};
 
   reaperGeneral = import ./general.nix;
   reaperProject = import ./project.nix;
-  reaperPlugins = import ./plugins.nix {inherit lib;};
+  reaperAudio = import ./audio.nix;
   reaperAppearance = import ./appearance.nix;
+  reaperEditingBehavior = import ./editing-behavior.nix;
+  reaperMouse = import ./mouse.nix {inherit lib;};
+  reaperMedia = import ./media.nix;
+  reaperPlugins = import ./plugins.nix {inherit lib;};
   reaperControlOscWeb = import ./control-osc-web.nix;
 
   reapack = import ./reapack.nix;

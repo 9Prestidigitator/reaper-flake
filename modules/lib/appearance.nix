@@ -1,4 +1,12 @@
 {
+  arrangeSnap = {
+    doNotSnapIndicatorLine = 0;
+    respectToolbarSnapButton = 1;
+    ignoreSnapIfShiftKeyHeld = 2;
+    ignoreSnapIfControlKeyHeld = 3;
+    ignoreSnapIfShiftOrControlKeyHeld = 4;
+  };
+
   trackControlPanels = {
     trackGroupingIndicators = {
       ribbons = 0;
