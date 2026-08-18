@@ -25,7 +25,10 @@ stdenv.mkDerivation {
   sourceRoot = "source/WDL/swell";
 
   # temporary fix since 7.79 requires `MoveFile` which is not in 0.6.1
-  patches = [./swell-wayland-move-file.patch];
+  patches = [
+    ./swell-wayland-move-file.patch
+    ./swell-wayland-rootless-input.patch
+  ];
 
   postPatch = ''
     substituteInPlace xwayland-bridge-wm.cpp \

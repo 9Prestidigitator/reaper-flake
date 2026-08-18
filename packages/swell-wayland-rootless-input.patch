@@ -1,0 +1,170 @@
+diff --git a/xwayland-bridge.cpp b/xwayland-bridge.cpp
+index 856e7f6..6d3a611 100644
+--- a/xwayland-bridge.cpp
++++ b/xwayland-bridge.cpp
+@@ -78,6 +78,156 @@ static Capture* find_capture(Window w)
+ // for the general case.
+ Capture *g_active_capture = nullptr;
+ 
++// XTEST pointer injection is accepted but ignored by recent rootless Xwayland
++// servers that are launched directly rather than by a compositor. Keep the
++// private X pointer in sync with XWarpPointer and deliver button events directly
++// to the deepest X child under it. During a drag, remember the pressed child and
++// attach the synthetic button state to motion events because XSendEvent does not
++// mutate the server's physical button state.
++struct SyntheticPointerState {
++    unsigned int buttons = 0;
++    Window pressed[8] = {};
++};
++static std::map<Display*, SyntheticPointerState> g_synthetic_pointer_states;
++
++static unsigned int x_button_mask(unsigned int button)
++{
++    switch (button) {
++        case Button1: return Button1Mask;
++        case Button2: return Button2Mask;
++        case Button3: return Button3Mask;
++        case Button4: return Button4Mask;
++        case Button5: return Button5Mask;
++        default: return 0;
++    }
++}
++
++struct XPointerTarget {
++    Window root = None;
++    Window target = None;
++    int root_x = 0, root_y = 0;
++    int x = 0, y = 0;
++};
++
++static bool query_pointer_target(Display *dpy, Window preferred, XPointerTarget &out)
++{
++    if (!dpy) return false;
++
++    out.root = DefaultRootWindow(dpy);
++    Window root_ret = None, child = None;
++    unsigned int ignored_mask = 0;
++    if (!XQueryPointer(dpy, out.root, &root_ret, &child,
++                       &out.root_x, &out.root_y, &out.x, &out.y,
++                       &ignored_mask))
++        return false;
++
++    if (preferred != None) {
++        Window ignored_child = None;
++        if (!XTranslateCoordinates(dpy, out.root, preferred,
++                                   out.root_x, out.root_y,
++                                   &out.x, &out.y, &ignored_child))
++            return false;
++        out.target = preferred;
++        return true;
++    }
++
++    out.target = child != None ? child : out.root;
++    for (int depth = 0; depth < 32; ++depth) {
++        Window next = None;
++        int nested_root_x = 0, nested_root_y = 0;
++        if (!XQueryPointer(dpy, out.target, &root_ret, &next,
++                           &nested_root_x, &nested_root_y, &out.x, &out.y,
++                           &ignored_mask))
++            break;
++        if (next == None || next == out.target) break;
++        out.target = next;
++    }
++    return out.target != None;
++}
++
++static Bool bridge_fake_motion(Display *dpy, int screen, int x, int y,
++                               unsigned long delay)
++{
++    (void)screen;
++    (void)delay;
++    if (!dpy) return False;
++
++    Window root = DefaultRootWindow(dpy);
++    XWarpPointer(dpy, None, root, 0, 0, 0, 0, x, y);
++
++    SyntheticPointerState &state = g_synthetic_pointer_states[dpy];
++    if (!state.buttons) return True; // XWarpPointer generated normal hover motion.
++
++    Window preferred = None;
++    for (unsigned int button = 1; button < 8; ++button)
++        if (state.pressed[button] != None) { preferred = state.pressed[button]; break; }
++
++    XPointerTarget point;
++    if (!query_pointer_target(dpy, preferred, point)) return False;
++
++    XEvent event{};
++    event.xmotion.type = MotionNotify;
++    event.xmotion.display = dpy;
++    event.xmotion.window = point.target;
++    event.xmotion.root = point.root;
++    event.xmotion.time = CurrentTime;
++    event.xmotion.x = point.x;
++    event.xmotion.y = point.y;
++    event.xmotion.x_root = point.root_x;
++    event.xmotion.y_root = point.root_y;
++    event.xmotion.state = state.buttons;
++    event.xmotion.same_screen = True;
++
++    long mask = PointerMotionMask | ButtonMotionMask;
++    if (state.buttons & Button1Mask) mask |= Button1MotionMask;
++    if (state.buttons & Button2Mask) mask |= Button2MotionMask;
++    if (state.buttons & Button3Mask) mask |= Button3MotionMask;
++    if (state.buttons & Button4Mask) mask |= Button4MotionMask;
++    if (state.buttons & Button5Mask) mask |= Button5MotionMask;
++    return XSendEvent(dpy, point.target, True, mask, &event) != 0;
++}
++
++static Bool bridge_fake_button(Display *dpy, unsigned int button, Bool press,
++                               unsigned long delay)
++{
++    (void)delay;
++    if (!dpy) return False;
++
++    SyntheticPointerState &state = g_synthetic_pointer_states[dpy];
++    Window preferred = !press && button < 8 ? state.pressed[button] : None;
++    XPointerTarget point;
++    if (!query_pointer_target(dpy, preferred, point)) return False;
++
++    XEvent event{};
++    event.xbutton.type = press ? ButtonPress : ButtonRelease;
++    event.xbutton.display = dpy;
++    event.xbutton.window = point.target;
++    event.xbutton.root = point.root;
++    event.xbutton.time = CurrentTime;
++    event.xbutton.x = point.x;
++    event.xbutton.y = point.y;
++    event.xbutton.x_root = point.root_x;
++    event.xbutton.y_root = point.root_y;
++    event.xbutton.state = state.buttons;
++    event.xbutton.button = button;
++    event.xbutton.same_screen = True;
++
++    const long mask = press ? ButtonPressMask : ButtonReleaseMask;
++    const Bool sent = XSendEvent(dpy, point.target, True, mask, &event) != 0;
++    const unsigned int button_mask = x_button_mask(button);
++    if (press) {
++        state.buttons |= button_mask;
++        if (button < 8) state.pressed[button] = point.target;
++    } else {
++        state.buttons &= ~button_mask;
++        if (button < 8) state.pressed[button] = None;
++    }
++    return sent;
++}
++
++#define XTestFakeMotionEvent bridge_fake_motion
++#define XTestFakeButtonEvent bridge_fake_button
++
+ 
+ struct bridgeState {
+     Display *disp   = nullptr;   // this plugin's connection to :10
+@@ -444,6 +594,7 @@ static void cleanup_capture(Capture *c)
+     unregister_capture(c);
+     destroy_pixmap(c);
+     Display *d = c->dpy;
++    if (d) g_synthetic_pointer_states.erase(d);
+     c->dpy = nullptr;
+     if (d) XCloseDisplay(d);
+     delete c;
+

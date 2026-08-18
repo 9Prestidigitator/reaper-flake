@@ -22,12 +22,23 @@ diff --git a/swell.cpp b/swell.cpp
 index 8119a46..f209808 100644
 --- a/swell.cpp
 +++ b/swell.cpp
-@@ -69,6 +69,11 @@ void Sleep(int ms)
+@@ -69,6 +69,22 @@ void Sleep(int ms)
    usleep(ms?ms*1000:100);
  }
  
 +BOOL MoveFile(const char *existing_filename, const char *new_filename)
 +{
++  // Match Windows semantics: do not overwrite an existing destination,
++  // except when both paths identify the same file (for example, a
++  // case-only rename on a case-insensitive filesystem).
++  struct stat destination_stat, source_stat;
++  if (!stat(new_filename, &destination_stat))
++  {
++    if (stat(existing_filename, &source_stat)) return false;
++    if (source_stat.st_dev != destination_stat.st_dev ||
++        source_stat.st_ino != destination_stat.st_ino) return false;
++  }
++
 +  return rename(existing_filename, new_filename) == 0;
 +}
 +
