@@ -13,13 +13,13 @@
 }:
 stdenv.mkDerivation {
   pname = "swell-wayland";
-  version = "0.6";
+  version = "0.6.1";
 
   src = fetchFromGitHub {
     owner = "GoranKovac";
     repo = "WDL";
-    rev = "2512c9e84ed402fa6e4be2f22576b3f3492f30d7";
-    hash = "sha256-989Ov1omA4gnkIAxSVy8RdtfBzIiM2MNFBkFiDZsOE8=";
+    rev = "95b4de72e1462e5bc10d32f69d3a9e99653651bd";
+    hash = "sha256-TGtxrIf3dRQ8gNFHiln6wUw7pcWWRm6kwjetAGClkEg=";
   };
 
   sourceRoot = "source/WDL/swell";
