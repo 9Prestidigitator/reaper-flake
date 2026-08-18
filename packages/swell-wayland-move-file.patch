@@ -1,0 +1,36 @@
+diff --git a/swell-functions.h b/swell-functions.h
+index 1ea273f..341885a 100644
+--- a/swell-functions.h
++++ b/swell-functions.h
+@@ -61,6 +61,15 @@ SWELL_API_DEFINE(int, MulDiv, (int, int, int))
+ */
+ SWELL_API_DEFINE(void, Sleep,(int ms))
+ 
++/*
++** MoveFile() moves or renames a file. Newer REAPER releases resolve this
++** function through SWELLAPI_GetFunc(), so it cannot remain only a macro.
++*/
++#ifdef MoveFile
++#undef MoveFile
++#endif
++SWELL_API_DEFINE(BOOL, MoveFile, (const char *existing_filename, const char *new_filename))
++
+ /*
+ ** GetTickCount() and timeGetTime() give you ms level timings via gettimeofday() or mach_getabsolutetime() or clock_gettime()
+ ** 
+diff --git a/swell.cpp b/swell.cpp
+index 8119a46..f209808 100644
+--- a/swell.cpp
++++ b/swell.cpp
+@@ -69,6 +69,11 @@ void Sleep(int ms)
+   usleep(ms?ms*1000:100);
+ }
+ 
++BOOL MoveFile(const char *existing_filename, const char *new_filename)
++{
++  return rename(existing_filename, new_filename) == 0;
++}
++
+ DWORD GetTickCount()
+ {
+ #ifdef __APPLE__
