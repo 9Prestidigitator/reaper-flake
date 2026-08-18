@@ -2,7 +2,7 @@
 
 Declarative REAPER packages and Home Manager configuration with Nix.
 
-[![REAPER 7.79](https://img.shields.io/badge/REAPER-7.78-informational)](https://www.reaper.fm/)
+[![REAPER 7.79](https://img.shields.io/badge/REAPER-7.79-informational)](https://www.reaper.fm/)
 [![ReaPack 1.2.6](https://img.shields.io/badge/ReaPack-1.2.6-informational)](https://reapack.com/)
 [![SWS 2.14.0.7](https://img.shields.io/badge/SWS-2.14.0.7-informational)](https://www.sws-extension.org/)
 
