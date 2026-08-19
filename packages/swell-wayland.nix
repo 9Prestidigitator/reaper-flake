@@ -13,22 +13,16 @@
 }:
 stdenv.mkDerivation {
   pname = "swell-wayland";
-  version = "0.6.1";
+  version = "0.6.2-beta";
 
   src = fetchFromGitHub {
     owner = "GoranKovac";
     repo = "WDL";
-    rev = "95b4de72e1462e5bc10d32f69d3a9e99653651bd";
-    hash = "sha256-TGtxrIf3dRQ8gNFHiln6wUw7pcWWRm6kwjetAGClkEg=";
+    rev = "667723a2c1d527644e050104837a541fc2334550";
+    hash = "sha256-rpjjuJwKEMO0h3FLUUWRoxseMLLsFLyMZZM3MrByD4Q=";
   };
 
   sourceRoot = "source/WDL/swell";
-
-  # temporary fix since 7.79 requires `MoveFile` which is not in 0.6.1
-  patches = [
-    ./swell-wayland-move-file.patch
-    ./swell-wayland-rootless-input.patch
-  ];
 
   postPatch = ''
     substituteInPlace xwayland-bridge-wm.cpp \
