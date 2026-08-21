@@ -13,7 +13,7 @@
 }:
 stdenv.mkDerivation {
   pname = "swell-wayland";
-  version = "0.6.2-beta";
+  version = "0.6.2";
 
   src = fetchFromGitHub {
     owner = "GoranKovac";
