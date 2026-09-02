@@ -7,19 +7,20 @@
   libGL,
   gtk3,
   libX11,
-  libXtst,
   libXcomposite,
+  libXfixes,
+  libXtst,
   xwayland,
 }:
-stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   pname = "swell-wayland";
-  version = "0.6.2";
+  version = "0.6.4";
 
   src = fetchFromGitHub {
     owner = "GoranKovac";
     repo = "WDL";
-    rev = "1ddda3f7ceb4cb815a74d15a7baa393a9598761f";
-    hash = "sha256-OvmM6xwwgDiwM0s+53eF4EarvSPngQ87EjTJs+l0gPM=";
+    rev = version;
+    hash = "sha256-u2Q3G+WuGV1comPtPlwg/5lbv9MdeFvgjJAjccr1jRI=";
   };
 
   sourceRoot = "source/WDL/swell";
@@ -35,8 +36,9 @@ stdenv.mkDerivation {
     fontconfig
     libGL
     libX11
-    libXtst
     libXcomposite
+    libXfixes
+    libXtst
   ];
 
   makeFlags = [
@@ -51,5 +53,10 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  meta.platforms = lib.platforms.linux;
+  meta = {
+    description = "Experimental native-Wayland SWELL library for REAPER";
+    homepage = "https://github.com/GoranKovac/WDL";
+    changelog = "https://github.com/GoranKovac/WDL/releases/tag/${version}";
+    platforms = lib.platforms.linux;
+  };
 }
