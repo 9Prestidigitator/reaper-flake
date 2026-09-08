@@ -2454,6 +2454,517 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
 
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.avoid\.settingItemsOnNonPlayingLanesVisible
+
+By default MIDI items on non-playing track fixed lanes can be visible, or only those on lanes that are playing back\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.avoid\.settingItemsOnOtherTracksEditable
+
+By default all displaying MIDI items can be editable, or only those on the same track\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.behaviorForOpenItemsInBuiltInMidiEditor
+
+Set the default behavior when double-clicking a MIDI media item\.
+
+_Type:_
+null or one of “openAllMidiInTheProject”, “openAllMidiOnTheSameTrack”, “openAllSelectedMidiItems”, “openTheClickedMidiItemOnly”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+reaperEditingBehavior.openItemsInBuiltInMidiEditor.openAllMidiOnTheSameTrack
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.defaultNoteColorMap
+
+Colormap image to use for drawing notes in the MIDI editor\. If no colormap is specified here, the colormap in the current color theme will be used\.
+
+_Type:_
+null or string
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+"/home/user/Documents/colormap"
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.defaultShapeForCcSegment\.reduceCcEventsWhenDrawing
+
+Automatically reduce events when drawing, if the segment shape is square or linear\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.defaultShapeForCcSegment\.shape
+
+When adding a new segment to a CC lane, use this segment shape\.
+
+_Type:_
+null or one of “bezier”, “fastEnd”, “fastStart”, “linear”, “slowStartEnd”, “square”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+reaperEditingBehavior.segmentShape.square
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.displayEmptySpaceAtTopBottomOfCcLanes
+
+Add some empty space at the top and bottom of CC lanes, to make it easier to edit values close to the minimum/maximum value\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.doubleClickOutsideTheBoundsOfAnyMediaItemToExtendTheNearestMedia
+
+When displaying multiple media items at once, choose how to switch the active media item with the MIDI editor\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.editableSecondaryItems
+
+MIDI notes/CC in secondary editable media items can be drawn more or less faintly (0\.0625-1, default is 0\.75)\.
+
+_Type:_
+null or MIDI item opacity between 0\.0625 and 1
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+0.75
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.eventsPerQuarterNoteWhenDrawingCcLanes\.value
+
+Set the midi event density when drawing in CC lanes with the mouse\.
+
+_Type:_
+null or (positive integer, meaning >0)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+32
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.eventsPerQuarterNoteWhenDrawingCcLanes\.zoomDependent
+
+CC event drawing density will be greater when the view is zoomed in, and lower when zoomed out\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.flashMidiEditorKeysOnTrackInput
+
+Show a brief color flash on the MIDI editor keyboard when the track receives MIDI note-on input\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.horizontalGridLinesInCcLanes
+
+Show horizontal grid lines in CC lanes in MIDI editor, height permitting\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.makeAllMidiItemsEditableByDefaultIfTheyAreVisibleInTheEditor
+
+This option has no description\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.oneMidiEditorPer
+
+By default, double-clicking a MIDI media item in the arrange view will open the MIDI editor, or change the active MIDI item in the editor\.
+If you prefer to use a separate MIDI editor for each MIDI media item, or for each track, change the settings on this page\.
+Once the MIDI editor is open, you can use the MIDI editor track list (MIDI editor Contents menu/Track list) to choose which tracks or items to display or edit\.
+Within a single MIDI editor, only one media item can be active, meaning that it can receive drawn or copy/pasted notes and CC data\.
+MIDI from other media items may be faintly visible, and optionally editable\. Use the MIDI editor track list or media item lane to control which items are visible and editable\.
+You can switch the active MIDI media item by double-clicking within the bounds of a secondary media item, or by using the MIDI editor contents menu, the MIDI editor track list, or the MIDI editor media item lane\.
+
+_Type:_
+null or one of “midiItem”, “project”, “track”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+reaperEditingBehavior.midiEditorPer.track
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.opacityOfInactiveSecondaryItem
+
+MIDI notes/CC in inactive media items can be drawn more or less faintly (0\.0625-1, default is 0\.25)\.
+
+_Type:_
+null or MIDI item opacity between 0\.0625 and 1
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+0.25
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.preventMouseEditsOfSingleCcEventsFromMovingPastOtherEvents
+
+When editing a single CC event with the mouse, the edit can be constrained to the space between adjacent CC events\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.whenUsingOneMidiEditorPerProject\.activeMidiItemFollowsSelectionChangesInArrangeView\.enable
+
+The active MIDI item in the MIDI editor can follow the media item or track selection in the arrange view, or neither\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.whenUsingOneMidiEditorPerProject\.activeMidiItemFollowsSelectionChangesInArrangeView\.type
+
+The active MIDI item in the MIDI editor can follow the media item or track selection in the arrange view, or neither\.
+
+_Type:_
+null or one of “mediaItem”, “track”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+reaperEditingBehavior.arrangeSelection.track
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.whenUsingOneMidiEditorPerProject\.closeEditorWhenTheActiveItemIsDeletedInTheArrangeView
+
+When displaying multiple MIDI media items in a single editor, the editor can be set to remain open if the active media item is deleted\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.whenUsingOneMidiEditorPerProject\.selectionIsLinkedToEditability
+
+Media item selection in the arrange view can determine whether a MIDI item is editable in the MIDI editor\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
+## programs\.reaper\.preferences\.editingBehavior\.midiEditor\.whenUsingOneMidiEditorPerProject\.selectionIsLinkedToVisibility
+
+Media item selection in the arrange view can determine whether a MIDI item is visible in the MIDI editor\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior/midi-editor.nix)
+
 ## programs\.reaper\.preferences\.editingBehavior\.minimumTimeSelectionLoopRazorEditLength
 
 Contrain the mouse-edited time selection, loop, and razor edit length to a minimum pixel size\.
@@ -5309,7 +5820,7 @@ null
 _Example:_
 
 ```nix
-"centerDip"
+crossfadeShapes.centerDip
 ```
 
 _Declared by:_
@@ -5355,7 +5866,7 @@ null
 _Example:_
 
 ```nix
-"exponential"
+fadeInOutShapes.exponential
 ```
 
 _Declared by:_
@@ -5548,7 +6059,7 @@ null
 _Example:_
 
 ```nix
-"left"
+crossfadePositions.left
 ```
 
 _Declared by:_
