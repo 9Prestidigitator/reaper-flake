@@ -8,8 +8,9 @@ The enabled example is an opinionated, community-informed music-production setup
   item defaults, low-latency monitoring, visual feedback, MIDI editing, mouse
   behavior, and media handling.
 - [`extensions.nix`](extensions.nix) installs SWS, ReaPack, and the Reapertips
-  theme, plus one focused MIDI-editing script and a useful SWS color palette.
+  theme, plus a curated set of editing, MIDI, composition, navigation, and
+  rendering tools, examples of additional community repositories, and a useful
+  SWS color palette.
 - [`actions.nix`](actions.nix), [`menus.nix`](menus.nix), and
   [`layout.nix`](layout.nix) demonstrate declarative scripts, shortcuts,
-  toolbars, menus, windows, docks, and panels.
-
+  custom actions, toolbars, menus, windows, docks, and panels.

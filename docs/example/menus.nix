@@ -36,8 +36,8 @@
       title = "Arrange context";
       entries = [
         {
-          action = 40023;
-          label = "New project";
+          action = "RS_create_region_from_time_selection";
+          label = "Create named region from time selection";
         }
       ];
     };
@@ -59,6 +59,14 @@
       {
         action = 40364;
         label = "Enable metronome";
+      }
+      {
+        action = "RS_toggle_selected_track_fx";
+        label = "Toggle selected track FX";
+      }
+      {
+        action = "CA_stop_and_save_project";
+        label = "Stop and save project";
       }
       {
         action = 42616;
