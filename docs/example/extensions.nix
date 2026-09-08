@@ -124,16 +124,29 @@
     };
 
     theme = {
+      # Other installed choices include part_dark.ReaperThemeZip,
+      # part_dimmed.ReaperThemeZip, part_light.ReaperThemeZip,
+      # reARK_6.73.ReaperThemeZip (plus left/right TCP FX variants), and
+      # WT_Imperial.ReaperThemeZip. X-Raym Analog and ReaClassical provide
+      # additional workflow-specific standard, dark, and light choices.
       active = "Reapertips Theme.ReaperThemeZip";
       colorThemes = [];
       packages = [
         reaperFlake.packages.${pkgs.system}.reapertips-theme
+        reaperFlake.packages.${pkgs.system}.part-theme
+        reaperFlake.packages.${pkgs.system}.reark-theme
+        reaperFlake.packages.${pkgs.system}.imperial-theme
+        reaperFlake.packages.${pkgs.system}.xraym-analog-theme
+        reaperFlake.packages.${pkgs.system}.reaclassical-theme
       ];
     };
 
     # Linux only; harmless in a shared configuration used on macOS.
     swell.colortheme = {
       enable = true;
+      # Standalone alternatives are realinux-dark-swell-theme and
+      # realinux-light-swell-theme. Reapertips is selected here because its
+      # palette is authored to match the active Reapertips theme.
       preset = reaperFlake.packages.${pkgs.system}.reapertips-theme;
     };
   };

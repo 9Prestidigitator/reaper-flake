@@ -218,6 +218,11 @@ Theme packages can install more than a color theme: they may also provide script
       packages = [
         inputs.reaper-flake.packages.${pkgs.system}.reapertips-theme
         inputs.reaper-flake.packages.${pkgs.system}.smooth6-theme
+        inputs.reaper-flake.packages.${pkgs.system}.part-theme
+        inputs.reaper-flake.packages.${pkgs.system}.reark-theme
+        inputs.reaper-flake.packages.${pkgs.system}.imperial-theme
+        inputs.reaper-flake.packages.${pkgs.system}.xraym-analog-theme
+        inputs.reaper-flake.packages.${pkgs.system}.reaclassical-theme
       ];
       colorThemes = [./themes/MyTheme.ReaperThemeZip];
     };
@@ -235,6 +240,16 @@ Theme packages can install more than a color theme: they may also provide script
 
 Set `swell.colortheme.preset` to a theme package to select that package's declared SWELL colortheme. Theme packages without a SWELL colortheme cannot be used as a SWELL preset. This selection is deterministic even when multiple theme packages are installed. The built-in `"stylix"` preset remains available, and `settings` can override generated or packaged colorthemes.
 
+In addition to the SWELL palette bundled with Reapertips, the flake packages the
+community-made ReaLinux dark and light palettes. For example:
+
+```nix
+programs.reaper.swell.colortheme = {
+  enable = true;
+  preset = inputs.reaper-flake.packages.${pkgs.system}.realinux-dark-swell-theme;
+};
+```
+
 ## Packages
 
 | Package             | Version  | Description                                         |
@@ -248,10 +263,17 @@ The flake’s package outputs target `x86_64-linux`, `aarch64-linux`, `x86_64-da
 
 The SWELL Wayland package is experimental. It includes the X11 bridge needed for X11-based plugin windows, but plugin GUI compatibility depends on the plugin, Wine/bridge stack, graphics driver, and compositor. Version 0.6.4 improves XWayland swapchain handling, window reparenting, floating/unfloating FX placement, and Kontakt library-window handling; see the [upstream release notes](https://github.com/GoranKovac/WDL/releases/tag/0.6.4).
 
-| Themes             | Version |
-| ------------------ | ------- |
-| `reapertips-theme` | 1.90    |
-| `smooth6-theme`    | 2.1     |
+| Themes                         | Version    | Included themes and resources                        |
+| ------------------------------ | ---------- | ---------------------------------------------------- |
+| `reapertips-theme`             | 1.90       | Reapertips variants, fonts, and Linux SWELL colors   |
+| `smooth6-theme`                | 2.1        | Smooth 6 variants, theme adjuster, and fonts         |
+| `part-theme`                   | 1.3.2      | paRt dark/dimmed/light variants and theme adjuster   |
+| `reark-theme`                  | 6.73b      | reARK standard plus left/right TCP FX variants       |
+| `imperial-theme`               | 2012-12-01 | White Tie Imperial for large, mixer-focused displays |
+| `xraym-analog-theme`           | 2.5.7      | X-Raym Analog standard theme and dark color variant  |
+| `reaclassical-theme`           | 26.8.1     | Four GPL themes for classical and acoustic workflows |
+| `realinux-dark-swell-theme`    | 2022-02-22 | Dark Linux menus, dialogs, and native controls       |
+| `realinux-light-swell-theme`   | 2022-02-22 | Light Linux menus, dialogs, and native controls      |
 
 ## Configuration model
 
@@ -264,7 +286,6 @@ Activation fails if REAPER is running. `programs.reaper.activation.allowRunning 
 ## Further Documentation
 
 - [Modular example flake](docs/example/README.md)
-- [Community-informed setup research](docs/community-recommendations.md)
 - [Preferences and INI internals](docs/internal.md)
 - [Actions and shortcuts](docs/actions.md)
 - [Menus and toolbars](docs/menus.md)
