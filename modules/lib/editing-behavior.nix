@@ -22,4 +22,16 @@
     mediaItem = 0;
     track = 1;
   };
+  takeMarkerRankingLevels = {
+    fiveUpOneDown = 21;
+    fourUpOneDown = 20;
+    threeUpOneDown = 19;
+    twoUpOneDown = 18;
+    oneUpOneDown = 17;
+    fiveUpZeroDown = 5;
+    fourUpZeroDown = 4;
+    threeUpZeroDown = 3;
+    twoUpZeroDown = 2;
+    oneUpZeroDown = 1;
+  };
 }

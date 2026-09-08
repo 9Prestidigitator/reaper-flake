@@ -104,39 +104,77 @@
             };
             paths.doNotCopyOrMoveMediaFromTheFollowingPaths = ["/samples/a" "/samples/b"];
           };
-          editingBehavior.midiEditor = {
-            flashMidiEditorKeysOnTrackInput = true;
-            horizontalGridLinesInCcLanes = false;
-            eventsPerQuarterNoteWhenDrawingCcLanes = {
-              value = 64;
-              zoomDependent = true;
+          editingBehavior = {
+            moveEditCursorOn = {
+              timeSelectionChange = true;
+              razorEditChange = false;
+              pastingInsertingMedia = true;
+              clickingFixedLaneCompArea = true;
             };
-            defaultShapeForCcSegment = {
-              shape = "bezier";
-              reduceCcEventsWhenDrawing = false;
-            };
-            displayEmptySpaceAtTopBottomOfCcLanes = false;
-            preventMouseEditsOfSingleCcEventsFromMovingPastOtherEvents = true;
-            oneMidiEditorPer = "track";
-            behaviorForOpenItemsInBuiltInMidiEditor = "openAllMidiInTheProject";
-            whenUsingOneMidiEditorPerProject = {
-              activeMidiItemFollowsSelectionChangesInArrangeView = {
-                enable = true;
-                type = "track";
+            moveEditCursorToEndOfRecordedItemsOnRecordStop = false;
+            linkLoopPointsToTimeSelection = false;
+            clearLoopPointsOnClickInRuler = true;
+            clearTimeSelectionWhenEditCursorMovesOnClickInArrangeView = false;
+            minimumTimeSelectionLoopRazorEditLength = 15;
+            transientDetection = {
+              settings = {
+                sensitivity = 0.425;
+                threshold = -18.5;
+                useZeroCrossing = false;
+                displayThresholdInMediaItemsWhileThisWindowIsOpen = true;
+                mediaItemSelectionFollowsTabToTransition = false;
+                moveByAtLeast1PixelWhenNavigatingByTransient = true;
               };
-              selectionIsLinkedToVisibility = true;
-              selectionIsLinkedToEditability = false;
-              closeEditorWhenTheActiveItemIsDeletedInTheArrangeView = false;
+              tabThroughMidiNotes = true;
+              treatMediaItemEdgesAsTransient = true;
             };
-            makeAllMidiItemsEditableByDefaultIfTheyAreVisibleInTheEditor = true;
-            avoid = {
-              settingItemsOnOtherTracksEditable = false;
-              settingItemsOnNonPlayingLanesVisible = true;
+            clearExistingMediaItemEnvelopeSelectionWhenCreatingRazorEditArea = true;
+            allowDualTrimOnlyIfBothItemsAreSelected = true;
+            crossfadesStayTogetherDuringFadeEditsWhenTrimContentBehindMediaItemsIsEnabled = false;
+            automaticallyDeleteEmptyTracksCreatedByDraggingItemsBelowTheLastTrackAndBack = true;
+            draggingTheSourceStartOffsetOfTheActiveTakeAdjustsTheOffsetForAllTakes = false;
+            ifNoItemsAreSelectedSomeSplitTrimDeleteActionsAffectAllItemsAtTheEditCursor = true;
+            stretchingRazorEditAreaAddsStretchMarkersToAudioItems = false;
+            normalizeActionsAffectAllTakesWithinAMediaItem = false;
+            automaticallyZoomToTimeSelectionWhenRunningSampleEditActions = true;
+            automaticallySelectRegionsMarkersWhenNavigatingViaActionOrJumpToTimeDialog = true;
+            takeMarkerRankingLevels = "threeUpOneDown";
+            upDownCycleActionsSkipNoRanking = true;
+
+            midiEditor = {
+              flashMidiEditorKeysOnTrackInput = true;
+              horizontalGridLinesInCcLanes = false;
+              eventsPerQuarterNoteWhenDrawingCcLanes = {
+                value = 64;
+                zoomDependent = true;
+              };
+              defaultShapeForCcSegment = {
+                shape = "bezier";
+                reduceCcEventsWhenDrawing = false;
+              };
+              displayEmptySpaceAtTopBottomOfCcLanes = false;
+              preventMouseEditsOfSingleCcEventsFromMovingPastOtherEvents = true;
+              oneMidiEditorPer = "track";
+              behaviorForOpenItemsInBuiltInMidiEditor = "openAllMidiInTheProject";
+              whenUsingOneMidiEditorPerProject = {
+                activeMidiItemFollowsSelectionChangesInArrangeView = {
+                  enable = true;
+                  type = "track";
+                };
+                selectionIsLinkedToVisibility = true;
+                selectionIsLinkedToEditability = false;
+                closeEditorWhenTheActiveItemIsDeletedInTheArrangeView = false;
+              };
+              makeAllMidiItemsEditableByDefaultIfTheyAreVisibleInTheEditor = true;
+              avoid = {
+                settingItemsOnOtherTracksEditable = false;
+                settingItemsOnNonPlayingLanesVisible = true;
+              };
+              doubleClickOutsideTheBoundsOfAnyMediaItemToExtendTheNearestMedia = true;
+              opacityOfInactiveSecondaryItem = 0.5;
+              editableSecondaryItems = 0.25;
+              defaultNoteColorMap = "/colors/midi.png";
             };
-            doubleClickOutsideTheBoundsOfAnyMediaItemToExtendTheNearestMedia = true;
-            opacityOfInactiveSecondaryItem = 0.5;
-            editableSecondaryItems = 0.25;
-            defaultNoteColorMap = "/colors/midi.png";
           };
           project = {
             defaultProjectTemplate = "/templates/default.RPP";
@@ -225,6 +263,10 @@ in
   assert sections.metronome_defout == 3;
   assert sections.midiccdensity == -64;
   assert sections.mididefcolormap == "/colors/midi.png";
+  assert sections.locklooptotime == 0;
+  assert sections.minlooppx == 15;
+  assert sections.transientsensitivity == 0.425;
+  assert sections.transientthreshold == -18.5;
   assert bitfields.audiocloseinactive_linux
   == {
     mask = 159;
@@ -307,9 +349,39 @@ in
     mask = 30647;
     value = 29478;
   };
+  assert bitfields.itemclickmovecurs
+  == {
+    mask = 1785;
+    value = 1185;
+  };
+  assert bitfields.tabtotransflag
+  == {
+    mask = 63;
+    value = 53;
+  };
+  assert bitfields.areasel
+  == {
+    mask = 5;
+    value = 4;
+  };
+  assert bitfields.relativeedges
+  == {
+    mask = 278944;
+    value = 262432;
+  };
+  assert bitfields.rulerlayout
+  == {
+    mask = 2;
+    value = 2;
+  };
+  assert bitfields.itemranks
+  == {
+    mask = 287;
+    value = 19;
+  };
   assert bitfields.splitautoxfade
   == {
-    mask = 524283;
+    mask = 524287;
     value = 387475;
   };
     runCommand "reaper-preference-schema-tests" {} ''

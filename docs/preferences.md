@@ -2385,6 +2385,121 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/control-osc-web\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/control-osc-web.nix)
 
+## programs\.reaper\.preferences\.editingBehavior\.allowDualTrimOnlyIfBothItemsAreSelected
+
+Media item edges between adjacent items can trim both items at once\. This behavior can be restricted so both items are edited only if both are selected\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.automaticallyDeleteEmptyTracksCreatedByDraggingItemsBelowTheLastTrackAndBack
+
+Tracks that are automatically created when dragging media into empty space below the last track can be automatically deleted if not used\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.automaticallySelectRegionsMarkersWhenNavigatingViaActionOrJumpToTimeDialog
+
+Actions like ‘go to next marker’ or jumping via Jump To Time dialog can automatically select the region/markers that is navigated to\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.automaticallyZoomToTimeSelectionWhenRunningSampleEditActions
+
+Actions like ‘Sample edits: Set sample values to zero’ can automatically zoom in, to enable sample editing with the mouse if needed\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.clearExistingMediaItemEnvelopeSelectionWhenCreatingRazorEditArea
+
+When creating a razor edit area, existing media item and envelope selection can be cleared, or preserved\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
 ## programs\.reaper\.preferences\.editingBehavior\.clearLoopPointsOnClickInRuler
 
 Loop points are cleared using the escape key, or optionally by single-clicking in the ruler/timeline area\.
@@ -2411,6 +2526,75 @@ _Declared by:_
 ## programs\.reaper\.preferences\.editingBehavior\.clearTimeSelectionWhenEditCursorMovesOnClickInArrangeView
 
 The time selection is cleared using the escape key, or optionally whenever a mouse click in the arrange view moves the edit cursor\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.crossfadesStayTogetherDuringFadeEditsWhenTrimContentBehindMediaItemsIsEnabled
+
+When auto-crossfades (toolbar button) are disabled, normally editing a crossfade will cause the fade-in and fade-out to separate\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.draggingTheSourceStartOffsetOfTheActiveTakeAdjustsTheOffsetForAllTakes
+
+When using mouse modifiers like ‘move item contents’, the edit can be applied to only the take being edited, or to all takes in the same media item\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.ifNoItemsAreSelectedSomeSplitTrimDeleteActionsAffectAllItemsAtTheEditCursor
+
+Actions to split, trim, or delete media items can affect all media items that intersect the edit cursor, if no media items are selected\.
 
 _Type:_
 null or boolean
@@ -3140,6 +3324,282 @@ _Declared by:_
 ## programs\.reaper\.preferences\.editingBehavior\.moveEditCursorToEndOfRecordedItemsOnRecordStop
 
 The edit cursor (where playback will begin) moves to the end of newly recorded items when recording stops\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.normalizeActionsAffectAllTakesWithinAMediaItem
+
+Actions to normalize media items affect only the active take by default, but can affect all takes within the media item\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.stretchingRazorEditAreaAddsStretchMarkersToAudioItems
+
+When stretching a razor edit area edge that falls within an audio media item, either stretch markers can be added, or the item can be split\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.takeMarkerRankingLevels
+
+Take markers can be up-ranked or down-ranked\. The maximum number of ranking levels is set here\.
+
+_Type:_
+null or one of “fiveUpOneDown”, “fiveUpZeroDown”, “fourUpOneDown”, “fourUpZeroDown”, “oneUpOneDown”, “oneUpZeroDown”, “threeUpOneDown”, “threeUpZeroDown”, “twoUpOneDown”, “twoUpZeroDown”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+reaperEditingBehavior.takeMarkerRankingLevels.threeUpOneDown
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.transientDetection\.settings\.displayThresholdInMediaItemsWhileThisWindowIsOpen
+
+Display the transient-detection threshold in media items while the transient settings window is open\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.transientDetection\.settings\.mediaItemSelectionFollowsTabToTransition
+
+Make media item selection follow tab-to-transient navigation\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.transientDetection\.settings\.moveByAtLeast1PixelWhenNavigatingByTransient
+
+Move by at least one pixel when navigating between transients\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.transientDetection\.settings\.sensitivity
+
+Sensitivity used by tab-to-transient and dynamic split, from 0 to 1\.
+
+_Type:_
+null or percentage between 0 and 1
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+0.5
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.transientDetection\.settings\.threshold
+
+Threshold used by tab-to-transient and dynamic split, in dB\.
+
+_Type:_
+null or signed integer or floating point number
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+-24.0
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.transientDetection\.settings\.useZeroCrossing
+
+Move detected transients to the nearest zero crossing\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.transientDetection\.tabThroughMidiNotes
+
+Tab-to-transient can ignore MIDI items, or consider MIDI notes as transients\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.transientDetection\.treatMediaItemEdgesAsTransient
+
+Tab-to-transient can tab past media items edges, or consider media item edges as transients\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/editing-behavior](file:///home/max/Projects/reaper-flake/modules/preferences/editing-behavior)
+
+## programs\.reaper\.preferences\.editingBehavior\.upDownCycleActionsSkipNoRanking
+
+Actions to up-rank, down-rank, or cycle through rankings can either include or skip setting the take to have no ranking\.
 
 _Type:_
 null or boolean

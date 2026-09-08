@@ -57,6 +57,7 @@ in {
     maxVerticalZoom = boundedNumber "zoom percentage between 0.125 and 8" 0.125 8;
     envelopeVerticalZoom = boundedNumber "zoom percentage between 0 and 1000" 0 1000;
     scrollStep = boundedNumber "scroll step percentage between 0.01 and 1" 0.01 1;
+    sensitivity = boundedNumber "percentage between 0 and 1" 0 1;
   };
 
   trackControlPanel = {

@@ -299,6 +299,137 @@ class StaticSchemaTests(unittest.TestCase):
             0.25,
         )
 
+    def test_editing_behavior_options_have_forward_and_reverse_metadata(self):
+        options = {option["path"]: option for option in self.schema["options"]}
+        prefix = "preferences.editingBehavior"
+
+        scalar_keys = {
+            f"{prefix}.linkLoopPointsToTimeSelection": ("locklooptotime", "bool"),
+            f"{prefix}.minimumTimeSelectionLoopRazorEditLength": (
+                "minlooppx",
+                "integer",
+            ),
+            f"{prefix}.transientDetection.settings.sensitivity": (
+                "transientsensitivity",
+                "float",
+            ),
+            f"{prefix}.transientDetection.settings.threshold": (
+                "transientthreshold",
+                "float",
+            ),
+        }
+        for path, (key, codec) in scalar_keys.items():
+            with self.subTest(path=path):
+                self.assertEqual(options[path]["kind"], "value")
+                self.assertEqual(options[path]["key"], key)
+                self.assertEqual(options[path]["codec"], codec)
+
+        bitfields = {
+            f"{prefix}.moveEditCursorOn.timeSelectionChange": ("itemclickmovecurs", 1),
+            f"{prefix}.moveEditCursorOn.razorEditChange": ("itemclickmovecurs", 512),
+            f"{prefix}.moveEditCursorOn.pastingInsertingMedia": (
+                "itemclickmovecurs",
+                8,
+            ),
+            f"{prefix}.moveEditCursorOn.clickingFixedLaneCompArea": (
+                "itemclickmovecurs",
+                1024,
+            ),
+            f"{prefix}.moveEditCursorToEndOfRecordedItemsOnRecordStop": (
+                "itemclickmovecurs",
+                16,
+            ),
+            f"{prefix}.clearLoopPointsOnClickInRuler": ("itemclickmovecurs", 32),
+            f"{prefix}.clearTimeSelectionWhenEditCursorMovesOnClickInArrangeView": (
+                "itemclickmovecurs",
+                64,
+            ),
+            f"{prefix}.automaticallyDeleteEmptyTracksCreatedByDraggingItemsBelowTheLastTrackAndBack": (
+                "itemclickmovecurs",
+                128,
+            ),
+            f"{prefix}.transientDetection.settings.useZeroCrossing": (
+                "tabtotransflag",
+                2,
+            ),
+            f"{prefix}.transientDetection.settings.displayThresholdInMediaItemsWhileThisWindowIsOpen": (
+                "tabtotransflag",
+                4,
+            ),
+            f"{prefix}.transientDetection.settings.mediaItemSelectionFollowsTabToTransition": (
+                "tabtotransflag",
+                8,
+            ),
+            f"{prefix}.transientDetection.settings.moveByAtLeast1PixelWhenNavigatingByTransient": (
+                "tabtotransflag",
+                32,
+            ),
+            f"{prefix}.transientDetection.tabThroughMidiNotes": ("tabtotransflag", 1),
+            f"{prefix}.transientDetection.treatMediaItemEdgesAsTransient": (
+                "tabtotransflag",
+                16,
+            ),
+            f"{prefix}.clearExistingMediaItemEnvelopeSelectionWhenCreatingRazorEditArea": (
+                "areasel",
+                4,
+            ),
+            f"{prefix}.stretchingRazorEditAreaAddsStretchMarkersToAudioItems": (
+                "areasel",
+                1,
+            ),
+            f"{prefix}.allowDualTrimOnlyIfBothItemsAreSelected": ("relativeedges", 32),
+            f"{prefix}.draggingTheSourceStartOffsetOfTheActiveTakeAdjustsTheOffsetForAllTakes": (
+                "relativeedges",
+                128,
+            ),
+            f"{prefix}.ifNoItemsAreSelectedSomeSplitTrimDeleteActionsAffectAllItemsAtTheEditCursor": (
+                "relativeedges",
+                256,
+            ),
+            f"{prefix}.normalizeActionsAffectAllTakesWithinAMediaItem": (
+                "relativeedges",
+                16384,
+            ),
+            f"{prefix}.automaticallyZoomToTimeSelectionWhenRunningSampleEditActions": (
+                "relativeedges",
+                262144,
+            ),
+            f"{prefix}.crossfadesStayTogetherDuringFadeEditsWhenTrimContentBehindMediaItemsIsEnabled": (
+                "splitautoxfade",
+                4,
+            ),
+            f"{prefix}.automaticallySelectRegionsMarkersWhenNavigatingViaActionOrJumpToTimeDialog": (
+                "rulerlayout",
+                2,
+            ),
+            f"{prefix}.upDownCycleActionsSkipNoRanking": ("itemranks", 256),
+        }
+        for path, (key, mask) in bitfields.items():
+            with self.subTest(path=path):
+                self.assertEqual(options[path]["kind"], "bitfield")
+                self.assertEqual(options[path]["key"], key)
+                self.assertEqual(options[path]["mask"], mask)
+
+        self.assertEqual(
+            options[f"{prefix}.takeMarkerRankingLevels"]["importValues"],
+            {
+                "fiveUpOneDown": 21,
+                "fourUpOneDown": 20,
+                "threeUpOneDown": 19,
+                "twoUpOneDown": 18,
+                "oneUpOneDown": 17,
+                "fiveUpZeroDown": 5,
+                "fourUpZeroDown": 4,
+                "threeUpZeroDown": 3,
+                "twoUpZeroDown": 2,
+                "oneUpZeroDown": 1,
+            },
+        )
+        self.assertEqual(options[f"{prefix}.takeMarkerRankingLevels"]["mask"], 31)
+        skip_ranking = options[f"{prefix}.upDownCycleActionsSkipNoRanking"]
+        self.assertEqual(skip_ranking["trueValue"], 0)
+        self.assertEqual(skip_ranking["falseValue"], 256)
+
     def test_migrated_preferences_are_in_the_reverse_schema(self):
         paths = {option["path"] for option in self.schema["options"]}
         assignment_paths = {
