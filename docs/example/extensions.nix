@@ -68,17 +68,5 @@
       enable = true;
       preset = reaperFlake.packages.${pkgs.system}.reapertips-theme;
     };
-
-    # Nix and conventional user plug-in paths are appended by default.
-    preferences.plugIns = {
-      reascript.python.enable = true;
-      vst.searchPaths = ["~/Documents/VSTs"];
-      clap.searchPaths = ["~/Documents/CLAP"];
-      lv2 = {
-        searchPaths = ["~/.lv2-experimental"];
-        enableNixPaths = false;
-        enableUserPaths = false;
-      };
-    };
   };
 }

@@ -292,5 +292,17 @@
           (set contexts.midiPianoRoll.leftClick modifiers.none (mouse 4))
         ];
     };
+
+    # Nix and conventional user plug-in paths are appended by default.
+    plugIns = {
+      reascript.python.enable = true;
+      vst.searchPaths = ["~/Documents/VSTs"];
+      clap.searchPaths = ["~/Documents/CLAP"];
+      lv2 = {
+        searchPaths = ["~/.lv2-experimental"];
+        enableNixPaths = false;
+        enableUserPaths = false;
+      };
+    };
   };
 }
