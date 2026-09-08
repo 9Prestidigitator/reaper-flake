@@ -5,7 +5,7 @@
   reaperProject,
   ...
 }: let
-  inherit (lib) mkOption types;
+  inherit (lib) mkOption types literalExpression;
   inherit (reaperLib) reaperBitfield reaperCodecs reaperPreference reaperTypes;
   inherit (reaperProject) crossfadePositions crossfadeShapes fadeInOutShapes itemOverlapModes;
 
@@ -52,13 +52,13 @@ in {
     defaultFadeInFadeOutShape = mkOption {
       type = types.nullOr (types.enum (builtins.attrNames fadeInOutShapes));
       default = null;
-      example = "exponential";
+      example = literalExpression "fadeInOutShapes.exponential";
       description = "The default fade-in/fade-out shape.";
     };
     defaultCrossfadeShape = mkOption {
       type = types.nullOr (types.enum (builtins.attrNames crossfadeShapes));
       default = null;
-      example = "centerDip";
+      example = literalExpression "crossfadeShapes.centerDip";
       description = "The default crossfade shape.";
     };
 
@@ -95,7 +95,7 @@ in {
       overlapCrossfadePosition = mkOption {
         type = types.nullOr (types.enum (builtins.attrNames crossfadePositions));
         default = null;
-        example = "left";
+        example = literalExpression "crossfadePositions.left";
         description = "Crossfade to the left, right, or center when splitting media items.";
       };
     };

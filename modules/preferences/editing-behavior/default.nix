@@ -10,6 +10,7 @@
 in {
   imports = [
     ./mouse-modifiers.nix
+    ./midi-editor.nix
   ];
 
   options.programs.reaper.preferences.editingBehavior = {
