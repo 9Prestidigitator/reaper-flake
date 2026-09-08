@@ -266,6 +266,7 @@ Activation fails if REAPER is running. `programs.reaper.activation.allowRunning 
 ## Further Documentation
 
 - [Modular example flake](docs/example/README.md)
+- [Community-informed setup research](docs/community-recommendations.md)
 - [Preferences and INI internals](docs/internal.md)
 - [Actions and shortcuts](docs/actions.md)
 - [Menus and toolbars](docs/menus.md)

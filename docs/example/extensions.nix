@@ -7,19 +7,11 @@
     extensions = {
       reapack = {
         enable = true;
+        addDefaultRepositories = true;
 
-        repositories = [
-          {
-            name = "ReaTeam Scripts";
-            url = "https://github.com/ReaTeam/ReaScripts/raw/master/index.xml";
-            installNewPackages = "always";
-          }
-          {
-            name = "ReaTeam Extensions";
-            url = "https://github.com/ReaTeam/Extensions/raw/master/index.xml";
-          }
-        ];
-
+        # A focused example of declarative ReaPack package management. The
+        # mouse-editing ramp tool is broadly useful for MIDI CC and velocity
+        # work without pulling in an entire workflow bundle.
         packages = [
           {
             repository = "ReaTeam Scripts";
@@ -28,6 +20,8 @@
           }
         ];
 
+        # Synchronize the community indexes, but let users choose packages for
+        # their own workflow instead of installing every new script implicitly.
         installNewPackagesWhenSynchronizing = false;
         enablePrereleasesGlobally = false;
         promptToUninstallObsoletePackages = true;
@@ -41,24 +35,28 @@
 
         synchronizeOnActivation = true;
       };
-
       sws = {
         enable = true;
-        # `null` leaves the palette unmanaged; `[]` clears all 16 slots.
+
+        # A compact, colorblind-friendly starting palette for manual track and
+        # item coloring. Declarative auto-color rules are not supported yet.
         colors = [
-          "#F5E0E6"
-          "#F2CDCD"
-          "#F5C2E7"
-          "#CBA6F7"
+          "#56B4E9"
+          "#E69F00"
+          "#009E73"
+          "#CC79A7"
+          "#0072B2"
+          "#D55E00"
+          "#F0E442"
+          "#999999"
         ];
       };
     };
 
     theme = {
-      active = "Smooth_6.ReaperThemeZip";
+      active = "Reapertips Theme.ReaperThemeZip";
       colorThemes = [];
       packages = [
-        reaperFlake.packages.${pkgs.system}.smooth6-theme
         reaperFlake.packages.${pkgs.system}.reapertips-theme
       ];
     };
