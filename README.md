@@ -92,7 +92,9 @@ Import the Home Manager module and enable REAPER in the Home Manager configurati
 
 Replace `your-user`, the home directory, and `system` with your values, then apply it with `home-manager switch --flake .#user`. On NixOS, import the module in your existing Home Manager configuration instead of creating a standalone `homeConfigurations` output. REAPER must be closed while Home Manager activates changes; this protects the generated values from being overwritten by REAPER’s in-memory state.
 
-For a larger, copyable configuration covering themes, layouts, menus, actions, preferences, and ReaPack, see [docs/EXAMPLE.md](docs/EXAMPLE.md).
+For a larger configuration covering themes, layouts, menus, actions,
+preferences, and ReaPack, see the copyable
+[modular example flake](docs/example/README.md).
 
 ## What it supports
 
@@ -263,7 +265,7 @@ Activation fails if REAPER is running. `programs.reaper.activation.allowRunning 
 
 ## Further Documentation
 
-- [Large configuration example](docs/EXAMPLE.md)
+- [Modular example flake](docs/example/README.md)
 - [Preferences and INI internals](docs/internal.md)
 - [Actions and shortcuts](docs/actions.md)
 - [Menus and toolbars](docs/menus.md)
