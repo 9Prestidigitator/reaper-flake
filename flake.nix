@@ -60,17 +60,40 @@
           '';
         };
       in {
-        apps.generate-preferences-docs = {
-          type = "app";
-          program = pkgs.lib.getExe generatePreferencesDocs;
-          meta.description = "Generate Markdown documentation for REAPER preference options";
+        apps = {
+          generate-preferences-docs = {
+            type = "app";
+            program = pkgs.lib.getExe generatePreferencesDocs;
+            meta.description = "Generate Markdown documentation for REAPER preference options";
+          };
+
+          reaper2nix = {
+            type = "app";
+            program = pkgs.lib.getExe reaper2nix;
+            meta.description = "Convert supported REAPER INI values to reaper-flake declarations";
+          };
         };
 
-        apps.reaper2nix = {
-          type = "app";
-          program = pkgs.lib.getExe reaper2nix;
-          meta.description = "Convert supported REAPER INI values to reaper-flake declarations";
-        };
+        packages =
+          rec {
+            default = reaper;
+            reaper = pkgs.callPackage ./packages/reaper.nix {
+              swell-wayland =
+                if pkgs.stdenv.hostPlatform.isLinux
+                then swellWayland
+                else null;
+            };
+            reapertips-theme = pkgs.callPackage ./packages/themes/reapertips.nix {};
+            smooth6-theme = pkgs.callPackage ./packages/themes/smooth6.nix {};
+            reapack = reapackPackage;
+            reaper-schema = reaperSchema;
+            sws = pkgs.callPackage ./packages/sws {};
+          }
+          // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+            swell-wayland = swellWayland;
+          };
+
+        devShells.default = pkgs.callPackage ./devshell.nix {};
 
         checks = {
           reapack = reapackPackage;
@@ -131,26 +154,6 @@
               touch "$out"
             '';
         };
-
-        devShells.default = pkgs.callPackage ./devshell.nix {};
-        packages =
-          rec {
-            default = reaper;
-            reaper = pkgs.callPackage ./packages/reaper.nix {
-              swell-wayland =
-                if pkgs.stdenv.hostPlatform.isLinux
-                then swellWayland
-                else null;
-            };
-            reapertips-theme = pkgs.callPackage ./packages/themes/reapertips.nix {};
-            smooth6-theme = pkgs.callPackage ./packages/themes/smooth6.nix {};
-            reapack = reapackPackage;
-            reaper-schema = reaperSchema;
-            sws = pkgs.callPackage ./packages/sws {};
-          }
-          // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-            swell-wayland = swellWayland;
-          };
       };
 
       flake.homeModules.reaper = ./modules;
