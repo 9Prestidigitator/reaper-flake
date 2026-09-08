@@ -89,6 +89,24 @@ class PreferenceCodecTests(unittest.TestCase):
             [0, 2, 4],
         )
 
+    def test_signed_integer_codec_decodes_value_and_sign(self):
+        self.assertEqual(
+            REAPER2NIX.decode(
+                {"type": "signed-integer", "decode": "absolute"}, "-64"
+            ),
+            64,
+        )
+        self.assertTrue(
+            REAPER2NIX.decode(
+                {"type": "signed-integer", "decode": "negative"}, "-64"
+            )
+        )
+        self.assertFalse(
+            REAPER2NIX.decode(
+                {"type": "signed-integer", "decode": "negative"}, "64"
+            )
+        )
+
 
 class ReaperKbAdapterTests(unittest.TestCase):
     def test_records_are_decoded_to_public_action_options(self):

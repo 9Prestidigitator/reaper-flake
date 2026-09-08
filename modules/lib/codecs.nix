@@ -41,6 +41,11 @@
       else codec.falseValue
     else if builtins.isAttrs codec && codec.type == "cpu-indexes"
     then builtins.foldl' (mask: cpu: mask + powerOfTwo cpu) 0 (lib.unique value)
+    else if builtins.isAttrs codec && codec.type == "signed-integer"
+    then
+      if codec.negative
+      then -value
+      else value
     else if builtins.isAttrs codec && codec.type == "enum"
     then codec.values.${value}
     else throw "Unsupported REAPER preference codec.";
@@ -70,6 +75,16 @@
       builtins.filter
       (index: builtins.bitAnd value (powerOfTwo index) != 0)
       (lib.range 0 (codec.width - 1))
+    else if builtins.isAttrs codec && codec.type == "signed-integer"
+    then
+      if codec.decode == "absolute"
+      then
+        if value < 0
+        then -value
+        else value
+      else if codec.decode == "negative"
+      then value < 0
+      else throw "Unsupported signed integer decode mode."
     else if builtins.isAttrs codec && codec.type == "enum"
     then
       lib.findFirst

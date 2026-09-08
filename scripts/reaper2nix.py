@@ -36,6 +36,13 @@ def decode(codec: Any, value: str) -> Any:
         encoded = int(value)
         width = int(codec.get("width", 32))
         return [index for index in range(width) if encoded & (1 << index)]
+    if isinstance(codec, dict) and codec.get("type") == "signed-integer":
+        encoded = int(value)
+        if codec.get("decode") == "absolute":
+            return abs(encoded)
+        if codec.get("decode") == "negative":
+            return encoded < 0
+        raise ValueError(f"unsupported signed integer decode mode {codec.get('decode')!r}")
     if isinstance(codec, dict) and codec.get("type") == "enum":
         for name, encoded in codec["values"].items():
             if str(encoded) == value:

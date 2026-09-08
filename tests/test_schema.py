@@ -241,6 +241,64 @@ class StaticSchemaTests(unittest.TestCase):
         self.assertEqual(pdc["key"], "pdcautobypassms")
         self.assertEqual(pdc["codec"], "float")
 
+    def test_midi_editor_options_have_forward_and_reverse_metadata(self):
+        options = {option["path"]: option for option in self.schema["options"]}
+        prefix = "preferences.editingBehavior.midiEditor"
+
+        density = options[f"{prefix}.eventsPerQuarterNoteWhenDrawingCcLanes.value"]
+        density_zoom = options[
+            f"{prefix}.eventsPerQuarterNoteWhenDrawingCcLanes.zoomDependent"
+        ]
+        self.assertEqual(density["key"], "midiccdensity")
+        self.assertEqual(density["codec"]["decode"], "absolute")
+        self.assertEqual(density_zoom["key"], "midiccdensity")
+        self.assertEqual(density_zoom["codec"]["decode"], "negative")
+
+        self.assertEqual(
+            options[f"{prefix}.defaultShapeForCcSegment.shape"]["importValues"],
+            {
+                "square": 0,
+                "linear": 1,
+                "slowStartEnd": 2,
+                "fastStart": 3,
+                "fastEnd": 4,
+                "bezier": 5,
+            },
+        )
+        self.assertEqual(
+            options[f"{prefix}.oneMidiEditorPer"]["importValues"],
+            {"midiItem": 0, "project": 1, "track": 2},
+        )
+        self.assertEqual(
+            options[f"{prefix}.behaviorForOpenItemsInBuiltInMidiEditor"][
+                "importValues"
+            ],
+            {
+                "openTheClickedMidiItemOnly": 20,
+                "openAllSelectedMidiItems": 0,
+                "openAllMidiOnTheSameTrack": 16,
+                "openAllMidiInTheProject": 4,
+            },
+        )
+
+        inactive = options[f"{prefix}.opacityOfInactiveSecondaryItem"]
+        editable = options[f"{prefix}.editableSecondaryItems"]
+        self.assertEqual(inactive["mask"], 251658240)
+        self.assertEqual(inactive["valueType"], "assignments")
+        self.assertEqual(
+            inactive["importAssignments"]["67108864"][
+                f"{prefix}.opacityOfInactiveSecondaryItem"
+            ],
+            0.5,
+        )
+        self.assertEqual(editable["mask"], 15728640)
+        self.assertEqual(
+            editable["importAssignments"]["8388608"][
+                f"{prefix}.editableSecondaryItems"
+            ],
+            0.25,
+        )
+
     def test_migrated_preferences_are_in_the_reverse_schema(self):
         paths = {option["path"] for option in self.schema["options"]}
         assignment_paths = {

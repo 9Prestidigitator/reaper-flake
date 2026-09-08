@@ -9,14 +9,14 @@
   };
   midiEditorPer = {
     midiItem = 0;
-    track = 1;
-    project = 2;
+    project = 1;
+    track = 2;
   };
   openItemsInBuiltInMidiEditor = {
-    openTheClickedMidiItemOnly = 0;
-    openAllSelectedMidiItems = 1;
-    openAllMidiOnTheSameTrack = 2;
-    openAllMidiInTheProject = 3;
+    openTheClickedMidiItemOnly = 20;
+    openAllSelectedMidiItems = 0;
+    openAllMidiOnTheSameTrack = 16;
+    openAllMidiInTheProject = 4;
   };
   arrangeSelection = {
     mediaItem = 0;

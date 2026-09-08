@@ -14,6 +14,7 @@
       ../modules/preferences/project
       ../modules/preferences/audio
       ../modules/preferences/appearance
+      ../modules/preferences/editing-behavior
       ../modules/preferences/control-osc-web.nix
       {
         options.assertions = lib.mkOption {
@@ -103,6 +104,40 @@
             };
             paths.doNotCopyOrMoveMediaFromTheFollowingPaths = ["/samples/a" "/samples/b"];
           };
+          editingBehavior.midiEditor = {
+            flashMidiEditorKeysOnTrackInput = true;
+            horizontalGridLinesInCcLanes = false;
+            eventsPerQuarterNoteWhenDrawingCcLanes = {
+              value = 64;
+              zoomDependent = true;
+            };
+            defaultShapeForCcSegment = {
+              shape = "bezier";
+              reduceCcEventsWhenDrawing = false;
+            };
+            displayEmptySpaceAtTopBottomOfCcLanes = false;
+            preventMouseEditsOfSingleCcEventsFromMovingPastOtherEvents = true;
+            oneMidiEditorPer = "track";
+            behaviorForOpenItemsInBuiltInMidiEditor = "openAllMidiInTheProject";
+            whenUsingOneMidiEditorPerProject = {
+              activeMidiItemFollowsSelectionChangesInArrangeView = {
+                enable = true;
+                type = "track";
+              };
+              selectionIsLinkedToVisibility = true;
+              selectionIsLinkedToEditability = false;
+              closeEditorWhenTheActiveItemIsDeletedInTheArrangeView = false;
+            };
+            makeAllMidiItemsEditableByDefaultIfTheyAreVisibleInTheEditor = true;
+            avoid = {
+              settingItemsOnOtherTracksEditable = false;
+              settingItemsOnNonPlayingLanesVisible = true;
+            };
+            doubleClickOutsideTheBoundsOfAnyMediaItemToExtendTheNearestMedia = true;
+            opacityOfInactiveSecondaryItem = 0.5;
+            editableSecondaryItems = 0.25;
+            defaultNoteColorMap = "/colors/midi.png";
+          };
           project = {
             defaultProjectTemplate = "/templates/default.RPP";
             itemFadeDefaults = {
@@ -188,6 +223,8 @@ in
   assert sections.loopback_size == 4;
   assert sections.allstereopairs == 0;
   assert sections.metronome_defout == 3;
+  assert sections.midiccdensity == -64;
+  assert sections.mididefcolormap == "/colors/midi.png";
   assert bitfields.audiocloseinactive_linux
   == {
     mask = 159;
@@ -254,6 +291,21 @@ in
   == {
     mask = 62;
     value = 50;
+  };
+  assert bitfields.midivu
+  == {
+    mask = 267387276;
+    value = 75497868;
+  };
+  assert bitfields.midiccenv
+  == {
+    mask = 55;
+    value = 37;
+  };
+  assert bitfields.midieditor
+  == {
+    mask = 30647;
+    value = 29478;
   };
   assert bitfields.splitautoxfade
   == {

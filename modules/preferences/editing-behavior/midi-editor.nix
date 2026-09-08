@@ -8,6 +8,30 @@
   inherit (reaperLib) reaperBitfield reaperPreference reaperTypes reaperEditingBehavior;
 
   cfg = config.programs.reaper.preferences.editingBehavior.midiEditor;
+  ccDensity = cfg.eventsPerQuarterNoteWhenDrawingCcLanes;
+  ccDensityValue =
+    if ccDensity.value != null
+    then ccDensity.value
+    else 32;
+  ccDensityConfigured = ccDensity.value != null || ccDensity.zoomDependent != null;
+
+  wrapNibble = value:
+    if value < 0
+    then value + 16
+    else value;
+  opacityStep = value: builtins.floor (value * 16.0 + 0.5);
+  opacityAssignments = optionPath: offset: unit:
+    builtins.listToAttrs (map (encoded: let
+        unwrapped = encoded + offset;
+        step =
+          if unwrapped > 16
+          then unwrapped - 16
+          else unwrapped;
+      in {
+        name = toString (encoded * unit);
+        value = {${optionPath} = step / 16.0;};
+      })
+      (lib.range 0 15));
 in {
   options.programs.reaper.preferences.editingBehavior.midiEditor = {
     flashMidiEditorKeysOnTrackInput = mkOption {
@@ -24,7 +48,7 @@ in {
     };
     eventsPerQuarterNoteWhenDrawingCcLanes = {
       value = mkOption {
-        type = types.nullOr types.int;
+        type = types.nullOr types.ints.positive;
         default = null;
         example = 32;
         description = "Set the midi event density when drawing in CC lanes with the mouse.";
@@ -146,16 +170,16 @@ in {
     };
 
     opacityOfInactiveSecondaryItem = mkOption {
-      type = types.nullOr types.number;
+      type = types.nullOr (reaperTypes.boundedNumber "MIDI item opacity between 0.0625 and 1" 0.0625 1);
       default = null;
       example = 0.25;
-      description = "MIDI notes/CC in inactive media items can be drawn more or less faintly (0-1, default is 0.25).";
+      description = "MIDI notes/CC in inactive media items can be drawn more or less faintly (0.0625-1, default is 0.25).";
     };
     editableSecondaryItems = mkOption {
-      type = types.nullOr types.number;
+      type = types.nullOr (reaperTypes.boundedNumber "MIDI item opacity between 0.0625 and 1" 0.0625 1);
       default = null;
       example = 0.75;
-      description = "MIDI notes/CC in secondary editable media items can be drawm more or less faintly (0-1, default is 0.75).";
+      description = "MIDI notes/CC in secondary editable media items can be drawn more or less faintly (0.0625-1, default is 0.75).";
     };
 
     defaultNoteColorMap = mkOption {
@@ -165,4 +189,180 @@ in {
       description = "Colormap image to use for drawing notes in the MIDI editor. If no colormap is specified here, the colormap in the current color theme will be used.";
     };
   };
+
+  config.programs.reaper.ini.contributions =
+    reaperPreference.contributions [
+      {
+        path = "preferences.editingBehavior.midiEditor.eventsPerQuarterNoteWhenDrawingCcLanes.value";
+        value = ccDensityValue;
+        configured = ccDensityConfigured;
+        section = "reaper";
+        key = "midiccdensity";
+        codec = {
+          type = "signed-integer";
+          negative = ccDensity.zoomDependent == true;
+          decode = "absolute";
+        };
+      }
+      {
+        path = "preferences.editingBehavior.midiEditor.eventsPerQuarterNoteWhenDrawingCcLanes.zoomDependent";
+        value = ccDensityValue;
+        configured = ccDensityConfigured;
+        section = "reaper";
+        key = "midiccdensity";
+        codec = {
+          type = "signed-integer";
+          negative = ccDensity.zoomDependent == true;
+          decode = "negative";
+        };
+      }
+      {
+        path = "preferences.editingBehavior.midiEditor.defaultNoteColorMap";
+        value = cfg.defaultNoteColorMap;
+        section = "reaper";
+        key = "mididefcolormap";
+      }
+    ]
+    ++ map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
+      midivu = [
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.flashMidiEditorKeysOnTrackInput";
+          gui = "Flash MIDI editor keys on track input";
+          option = cfg.flashMidiEditorKeysOnTrackInput;
+          bit = 4;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.horizontalGridLinesInCcLanes";
+          gui = "Horizontal grid lines in CC lanes";
+          option = cfg.horizontalGridLinesInCcLanes;
+          bit = 8;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.displayEmptySpaceAtTopBottomOfCcLanes";
+          gui = "Display empty space at top/bottom of CC lanes";
+          option = cfg.displayEmptySpaceAtTopBottomOfCcLanes;
+          bit = 128;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.doubleClickOutsideTheBoundsOfAnyMediaItemToExtendTheNearestMedia";
+          gui = "Double-click outside the bounds of any media item to extend the nearest media item";
+          option = cfg.doubleClickOutsideTheBoundsOfAnyMediaItemToExtendTheNearestMedia;
+          bit = 256;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.opacityOfInactiveSecondaryItem";
+          gui = "Opacity of inactive secondary items";
+          option = cfg.opacityOfInactiveSecondaryItem;
+          mask = 251658240;
+          valueFor = value: 16777216 * wrapNibble (opacityStep value - 4);
+          importAssignments = opacityAssignments "preferences.editingBehavior.midiEditor.opacityOfInactiveSecondaryItem" 4 16777216;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.editableSecondaryItems";
+          gui = "Editable secondary items opacity";
+          option = cfg.editableSecondaryItems;
+          mask = 15728640;
+          valueFor = value: 1048576 * wrapNibble (opacityStep value - 12);
+          importAssignments = opacityAssignments "preferences.editingBehavior.midiEditor.editableSecondaryItems" 12 1048576;
+        }
+      ];
+      midiccenv = [
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.defaultShapeForCcSegment.shape";
+          gui = "Default shape for CC segments";
+          option = cfg.defaultShapeForCcSegment.shape;
+          mask = 7;
+          valueFor = value: reaperEditingBehavior.segmentShape.${value};
+          importValues = reaperEditingBehavior.segmentShape;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.defaultShapeForCcSegment.reduceCcEventsWhenDrawing";
+          gui = "Reduce CC events when drawing";
+          option = cfg.defaultShapeForCcSegment.reduceCcEventsWhenDrawing;
+          bit = 16;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.preventMouseEditsOfSingleCcEventsFromMovingPastOtherEvents";
+          gui = "Prevent mouse edits of single CC events from moving past other events";
+          option = cfg.preventMouseEditsOfSingleCcEventsFromMovingPastOtherEvents;
+          bit = 32;
+        }
+      ];
+      midieditor = [
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.oneMidiEditorPer";
+          gui = "One MIDI editor per";
+          option = cfg.oneMidiEditorPer;
+          mask = 3;
+          valueFor = value: reaperEditingBehavior.midiEditorPer.${value};
+          importValues = reaperEditingBehavior.midiEditorPer;
+          ignoredValues = [3];
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.behaviorForOpenItemsInBuiltInMidiEditor";
+          gui = "Behavior for open items in built-in MIDI editor";
+          option = cfg.behaviorForOpenItemsInBuiltInMidiEditor;
+          mask = 20;
+          valueFor = value: reaperEditingBehavior.openItemsInBuiltInMidiEditor.${value};
+          importValues = reaperEditingBehavior.openItemsInBuiltInMidiEditor;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.whenUsingOneMidiEditorPerProject.activeMidiItemFollowsSelectionChangesInArrangeView.enable";
+          gui = "Active MIDI item follows selection changes in arrange view";
+          option = cfg.whenUsingOneMidiEditorPerProject.activeMidiItemFollowsSelectionChangesInArrangeView.enable;
+          bit = 128;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.whenUsingOneMidiEditorPerProject.activeMidiItemFollowsSelectionChangesInArrangeView.type";
+          gui = "Active MIDI item follows media item or track selection";
+          option = cfg.whenUsingOneMidiEditorPerProject.activeMidiItemFollowsSelectionChangesInArrangeView.type;
+          mask = 8192;
+          valueFor = value: reaperEditingBehavior.arrangeSelection.${value} * 8192;
+          importValues = builtins.mapAttrs (_: value: value * 8192) reaperEditingBehavior.arrangeSelection;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.whenUsingOneMidiEditorPerProject.selectionIsLinkedToVisibility";
+          gui = "Selection is linked to visibility";
+          option = cfg.whenUsingOneMidiEditorPerProject.selectionIsLinkedToVisibility;
+          bit = 1024;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.whenUsingOneMidiEditorPerProject.selectionIsLinkedToEditability";
+          gui = "Selection is linked to editability";
+          option = cfg.whenUsingOneMidiEditorPerProject.selectionIsLinkedToEditability;
+          bit = 512;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.whenUsingOneMidiEditorPerProject.closeEditorWhenTheActiveItemIsDeletedInTheArrangeView";
+          gui = "Close editor when the active item is deleted in the arrange view";
+          option = cfg.whenUsingOneMidiEditorPerProject.closeEditorWhenTheActiveItemIsDeletedInTheArrangeView;
+          bit = 32;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.makeAllMidiItemsEditableByDefaultIfTheyAreVisibleInTheEditor";
+          gui = "Make all MIDI items editable by default if they are visible in the editor";
+          option = cfg.makeAllMidiItemsEditableByDefaultIfTheyAreVisibleInTheEditor;
+          bit = 4096;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.avoid.settingItemsOnOtherTracksEditable";
+          gui = "Avoid setting items on other tracks editable";
+          option = cfg.avoid.settingItemsOnOtherTracksEditable;
+          bit = 256;
+          inverted = true;
+        }
+        {
+          optionPath = "preferences.editingBehavior.midiEditor.avoid.settingItemsOnNonPlayingLanesVisible";
+          gui = "Avoid setting items on non-playing lanes visible";
+          option = cfg.avoid.settingItemsOnNonPlayingLanesVisible;
+          bit = 16384;
+        }
+      ];
+    });
 }
