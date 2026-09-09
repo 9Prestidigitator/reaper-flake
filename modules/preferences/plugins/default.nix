@@ -9,7 +9,14 @@
   inherit (reaperLib) reaperBitfield reaperPreference;
   cfg = config.programs.reaper.preferences.plugIns;
 in {
-  imports = [./Compatibility.nix ./vst.nix ./lv2Clap.nix ./ara.nix ./ReaScript.nix];
+  imports = [
+    ./Compatibility.nix
+    ./vst.nix
+    ./lv2Clap.nix
+    ./ara.nix
+    ./ReaScript.nix
+  ];
+
   options.programs.reaper.preferences.plugIns = {
     automaticallyResizeFxWindow.up = mkOption {
       type = types.nullOr types.bool;
