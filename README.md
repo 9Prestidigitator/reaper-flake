@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/banner.png" alt="reaper-flake — REAPER and Nix, with a collage of themes, instruments, and effects" width="960">
+</p>
+
 # reaper-flake
 
 Declarative REAPER packages and Home Manager configuration with Nix.
@@ -7,7 +11,10 @@ Declarative REAPER packages and Home Manager configuration with Nix.
 [![SWS 2.14.0.7](https://img.shields.io/badge/SWS-2.14.0.7-informational)](https://www.sws-extension.org/)
 
 <p align="center">
-  <img src="docs/assets/logo.png" alt="reaper-flake logo" width="240">
+  <a href="#quick-start">Quick start</a> ·
+  <a href="docs/example/README.md">Example configuration</a> ·
+  <a href="#themes-and-assets">Themes &amp; screenshots</a> ·
+  <a href="#option-coverage">Option coverage</a>
 </p>
 
 reaper-flake provides a Home Manager module for configuring REAPER on NixOS, other Linux systems, and macOS. It also packages REAPER, ReaPack, SWS, themes, and the experimental [Wayland SWELL library](https://forum.cockos.com/showthread.php?p=2953586).
@@ -144,6 +151,13 @@ The importer reads ReaPack repositories and preferences from `reapack.ini`. The 
 
 ## Runtime libraries for extensions
 
+<details>
+<summary>See REAPER with ReaEQ and LSP Gate Mono</summary>
+
+[![ReaEQ and LSP Gate Mono open above a docked MIDI editor](docs/assets/sc4.png)](docs/assets/sc4.png)
+
+</details>
+
 Some community extensions and plug-ins expect libraries such as GTK or libpng to be available through the process environment. Add the required Nix packages to `programs.reaper.packages`; the REAPER wrapper adds their `lib` directories to the dynamic-library search path while preserving existing search-path variables:
 
 ```nix
@@ -163,6 +177,10 @@ programs.reaper.packages = with pkgs; [
 This option makes the libraries available to REAPER and its child processes; it does not add their executables to `PATH`. Prefer packages with compatible versions for the extension, since forcing a library search path can expose ABI incompatibilities.
 
 ## ReaPack example
+
+[![REAPER's ReaPack package browser alongside Nix repository and package declarations](docs/assets/sc6.png)](docs/assets/sc6.png)
+
+*Community scripts and extensions, with their repositories declared in Nix.*
 
 Repositories and packages are declared independently. A package is identified by the repository name, category, and package name from the repository index:
 
@@ -206,6 +224,20 @@ programs.reaper.extensions.reapack = {
 The package declaration is applied through ReaPack’s native transaction engine when REAPER starts. `version` is optional; `pin = true` prevents synchronization from moving a package away from the declared version. See [docs/reapack.md](docs/reapack.md) for package identity, repository settings, pins, and troubleshooting.
 
 ## Themes and assets
+
+<table>
+  <tr>
+    <td width="50%"><a href="docs/assets/sc1.png"><img src="docs/assets/sc1.png" alt="REAPER arrangement with colorful guitar tracks, drums, and inline effects"></a><br><sub>Track colors and inline effects</sub></td>
+    <td width="50%"><a href="docs/assets/sc2.png"><img src="docs/assets/sc2.png" alt="REAPER with ReaComp, Dragonfly Early Reflections, Neural Amp Modeler, and the virtual MIDI keyboard"></a><br><sub>Effects and instruments in the session</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><a href="docs/assets/sc3.png"><img src="docs/assets/sc3.png" alt="paRt theme with mint accents and a docked piano roll"></a><br><sub>paRt with a docked MIDI editor</sub></td>
+    <td width="50%"><a href="docs/assets/sc5.png"><img src="docs/assets/sc5.png" alt="Imperial theme with a console-style mixer and Pianoteq 9 open"></a><br><sub>Imperial with Pianoteq</sub></td>
+  </tr>
+</table>
+
+*Click a screenshot to view it full size. Screenshots show customized setups;
+third-party plug-ins shown are installed separately.*
 
 Theme packages can install more than a color theme: they may also provide scripts, fonts, and other resource files. The lower-level `colorThemes` option accepts individual theme files from any Nix path-producing expression, while `packages` accepts standardized theme derivations.
 
@@ -294,9 +326,12 @@ Activation fails if REAPER is running. `programs.reaper.activation.allowRunning 
 - [Generated preference options](docs/preferences.md)
 - [ReaPack](docs/reapack.md)
 
-<p align="center">
-  <img src="./docs/assets/status.png" alt="REAPER preference coverage status">
-</p>
+## Option coverage
+
+[![REAPER option coverage overview showing supported and partially supported preferences and context-menu settings](docs/assets/status.png)](docs/assets/status.png)
+
+Browse the [generated preference reference](docs/preferences.md) for option
+names and defaults, or open the [full options diagram](docs/assets/options.svg).
 
 ## Known issues
 
