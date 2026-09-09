@@ -10,6 +10,18 @@
 in {
   inherit boundedNumber number;
 
+  # Accept exported numeric helpers while retaining canonical names for codecs.
+  namedEnum = values:
+    types.coercedTo (types.enum (builtins.attrValues values))
+    (value: lib.findFirst (name: values.${name} == value) null (builtins.attrNames values))
+    (types.enum (builtins.attrNames values));
+
+  # Reverse bitfield imports emit names; legacy options store numeric values.
+  numericEnum = values:
+    types.coercedTo (types.enum (builtins.attrNames values))
+    (name: values.${name})
+    (types.enum (builtins.attrValues values));
+
   iniValue = with types;
     oneOf [
       bool

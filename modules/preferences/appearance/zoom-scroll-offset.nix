@@ -120,7 +120,7 @@ in {
     };
     verticalScrollStep = {
       unit = mkOption {
-        type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.zoomScrollOffset.verticalScrollStep.units));
+        type = types.nullOr (reaperTypes.numericEnum reaperLib.reaperAppearance.zoomScrollOffset.verticalScrollStep.units);
         default = null;
         example = literalExpression "reaperAppearance.zoomScrollOffset.verticalScrollStep.units.trackHeight";
         description = ''

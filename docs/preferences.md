@@ -818,7 +818,7 @@ _Declared by:_
 Fixed lane display mode toggled by the fixed lane collapse button\.
 
 _Type:_
-null or one of 0, 1024
+null or ((one of 0, 1024) or (one of “bigSmallLanes”, “oneManyLanes”) convertible to it)
 
 _Default:_
 
@@ -841,7 +841,7 @@ _Declared by:_
 Track height cycle used by the folder collapse button\.
 
 _Type:_
-null or one of 512, 768, 0, 256
+null or ((one of 512, 768, 0, 256) or (one of “normalCollapsed”, “normalHidden”, “normalSmallCollapsed”, “normalSmallHidden”) convertible to it)
 
 _Default:_
 
@@ -1396,7 +1396,7 @@ _Declared by:_
 Unit used for vertical scroll step\. Null default is `% of track height`\.
 
 _Type:_
-null or one of 1, 0
+null or ((one of 1, 0) or (one of “arrangeViewHeight”, “trackHeight”) convertible to it)
 
 _Default:_
 
@@ -2689,7 +2689,7 @@ _Declared by:_
 Set the default behavior when double-clicking a MIDI media item\.
 
 _Type:_
-null or one of “openAllMidiInTheProject”, “openAllMidiOnTheSameTrack”, “openAllSelectedMidiItems”, “openTheClickedMidiItemOnly”
+null or ((one of “openAllMidiInTheProject”, “openAllMidiOnTheSameTrack”, “openAllSelectedMidiItems”, “openTheClickedMidiItemOnly”) or (one of 4, 16, 0, 20) convertible to it)
 
 _Default:_
 
@@ -2758,7 +2758,7 @@ _Declared by:_
 When adding a new segment to a CC lane, use this segment shape\.
 
 _Type:_
-null or one of “bezier”, “fastEnd”, “fastStart”, “linear”, “slowStartEnd”, “square”
+null or ((one of “bezier”, “fastEnd”, “fastStart”, “linear”, “slowStartEnd”, “square”) or (one of 5, 4, 3, 1, 2, 0) convertible to it)
 
 _Default:_
 
@@ -2970,7 +2970,7 @@ MIDI from other media items may be faintly visible, and optionally editable\. Us
 You can switch the active MIDI media item by double-clicking within the bounds of a secondary media item, or by using the MIDI editor contents menu, the MIDI editor track list, or the MIDI editor media item lane\.
 
 _Type:_
-null or one of “midiItem”, “project”, “track”
+null or ((one of “midiItem”, “project”, “track”) or (one of 0, 1, 2) convertible to it)
 
 _Default:_
 
@@ -3062,7 +3062,7 @@ _Declared by:_
 The active MIDI item in the MIDI editor can follow the media item or track selection in the arrange view, or neither\.
 
 _Type:_
-null or one of “mediaItem”, “track”
+null or ((one of “mediaItem”, “track”) or (one of 0, 1) convertible to it)
 
 _Default:_
 
@@ -3395,7 +3395,7 @@ _Declared by:_
 Take markers can be up-ranked or down-ranked\. The maximum number of ranking levels is set here\.
 
 _Type:_
-null or one of “fiveUpOneDown”, “fiveUpZeroDown”, “fourUpOneDown”, “fourUpZeroDown”, “oneUpOneDown”, “oneUpZeroDown”, “threeUpOneDown”, “threeUpZeroDown”, “twoUpOneDown”, “twoUpZeroDown”
+null or ((one of “fiveUpOneDown”, “fiveUpZeroDown”, “fourUpOneDown”, “fourUpZeroDown”, “oneUpOneDown”, “oneUpZeroDown”, “threeUpOneDown”, “threeUpZeroDown”, “twoUpOneDown”, “twoUpZeroDown”) or (one of 21, 5, 20, 4, 17, 1, 19, 3, 18, 2) convertible to it)
 
 _Default:_
 
@@ -4764,7 +4764,7 @@ File/path display mode for the recent project list\. Named values are
 available from `reaperGeneral.recentProjectListDisplay`\.
 
 _Type:_
-null or one of 11, 3, 1
+null or ((one of 11, 3, 1) or (one of “fileName”, “fileNameAndFullPath”, “fullPath”) convertible to it)
 
 _Default:_
 
@@ -5472,6 +5472,213 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/media](file:///home/max/Projects/reaper-flake/modules/preferences/media)
 
+## programs\.reaper\.preferences\.plugIns\.autoDockNewFxChainWindows
+
+Auto-dock new FX chain windows\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.autoFloatUiForFxCreatedViaFxBrowser
+
+Auto-float UI for FX created via FX browser\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.autoFloatUiForFxCreatedViaRightClickMenu
+
+Auto-float UI for FX created via right-click menu\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.autoOpenFxBrowserWhenOpeningEmptyFxChain\.enable
+
+Auto-open FX browser when opening empty FX chain\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.autoOpenFxBrowserWhenOpeningEmptyFxChain\.hideChainUntilAdded
+
+Hide chain until added\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.autoOpenUiAfterDragDropEntireFxChain
+
+Auto-open UI after drag/drop entire FX chain\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.automaticallyForegroundFloatingWindowIfOpenWhenSelectingFx
+
+Automatically foreground floating window, if open, when selecting FX in the FX chain\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.automaticallyResizeFxWindow\.down
+
+Automatically resize FX window down\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.automaticallyResizeFxWindow\.up
+
+Automatically resize FX window up\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
 ## programs\.reaper\.preferences\.plugIns\.clap\.enableNixPaths
 
 Whether to append CLAP directories from the per-user, user, and system Nix profiles\.
@@ -5530,6 +5737,75 @@ _Example:_
 _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap.nix)
+
+## programs\.reaper\.preferences\.plugIns\.doNotCreateUndoPointsWhenClosingFxWindows
+
+Do not create undo points when closing FX windows\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.floatingFxPositioning
+
+Positioning mode for floating FX windows\.
+
+_Type:_
+null or one of “cascade”, “automatic”, “modalDefault”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+"cascade"
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.fxChainPositioning
+
+Positioning mode for FX chain windows\.
+
+_Type:_
+null or one of “cascade”, “automatic”, “modalDefault”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+"cascade"
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
 
 ## programs\.reaper\.preferences\.plugIns\.lv2\.enableNixPaths
 
@@ -5590,6 +5866,236 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap.nix)
 
+## programs\.reaper\.preferences\.plugIns\.onlyAllowOneFxChainWindowAtATime\.enable
+
+Only allow one FX chain window at a time\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.onlyAllowOneFxChainWindowAtATime\.onlyIfAnyFxWindowIsOpen
+
+Only if any FX window is open\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.onlyAllowOneFxChainWindowAtATime\.openTrackFxWindowOnTrackSelectionChange
+
+Open track FX window on track selection change\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.onlyAllowOneFxFloatingAtATime\.enable
+
+Only allow one FX floating at a time\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.onlyAllowOneFxFloatingAtATime\.excludeMasterTrackFx
+
+Exclude master track FX\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.onlyAllowOneFxFloatingAtATime\.excludeMonitoringFx
+
+Exclude monitoring FX\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.onlyAllowOneFxFloatingAtATime\.onePerTrack
+
+One per track\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.onlyShowFxMatchingFilterString
+
+Filter expression limiting the FX shown in the browser\. An empty string clears the filter\.
+
+_Type:_
+null or string
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+"NOT VST2"
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.preservePinMappingsWhenLoadingPresets
+
+Preserve pin mappings when loading presets\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.promptToCreateRoutingWhenInsertingNewMultichannelInstruments
+
+Prompt to create routing when inserting new multichannel instruments\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
 ## programs\.reaper\.preferences\.plugIns\.reascript\.python\.enable
 
 Whether to enable Python support in REAPER\.
@@ -5630,6 +6136,144 @@ pkgs.python3
 _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/plugins/ReaScript\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/ReaScript.nix)
+
+## programs\.reaper\.preferences\.plugIns\.recentlyUsedListMax
+
+Maximum number of FX in the recently used list\.
+
+_Type:_
+null or (unsigned integer, meaning >=0)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+30
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.showCommentFieldAboveFxUi
+
+Show comment field above FX UI\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.showCurrentTrackFxInFxButtonRightClickMenu
+
+Show current track FX in FX button right-click menu\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.showFxChainButtonsAboveFxList
+
+Show FX chain buttons above FX list\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.showFxListOnRightSideOfFxChainWindow
+
+Show FX list on right side of FX chain window\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
+
+## programs\.reaper\.preferences\.plugIns\.showFxStateAsAccessibleTextInName
+
+Show FX state as accessible text in name\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins](file:///home/max/Projects/reaper-flake/modules/preferences/plugins)
 
 ## programs\.reaper\.preferences\.plugIns\.vst\.enableNixPaths
 

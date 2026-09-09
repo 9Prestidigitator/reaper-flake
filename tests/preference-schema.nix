@@ -5,235 +5,273 @@
 }: let
   reaperLib = import ../modules/lib {inherit lib;};
 
-  evaluated = lib.evalModules {
-    specialArgs = reaperLib // {inherit pkgs reaperLib;};
-    modules = [
-      ../modules/ini.nix
-      ../modules/windows.nix
-      ../modules/preferences/general
-      ../modules/preferences/project
-      ../modules/preferences/audio
-      ../modules/preferences/appearance
-      ../modules/preferences/editing-behavior
-      ../modules/preferences/control-osc-web.nix
-      {
-        options.assertions = lib.mkOption {
-          type = lib.types.listOf lib.types.unspecified;
-          default = [];
-        };
-        options.warnings = lib.mkOption {
-          type = lib.types.listOf lib.types.str;
-          default = [];
-        };
-        options.programs.reaper.configPath = lib.mkOption {
-          type = lib.types.str;
-          default = "/tmp/reaper-preference-schema-tests";
-        };
+  evaluate = useAliases:
+    lib.evalModules {
+      specialArgs = reaperLib // {inherit pkgs reaperLib;};
+      modules = [
+        ../modules/ini.nix
+        ../modules/windows.nix
+        ../modules/preferences/general
+        ../modules/preferences/project
+        ../modules/preferences/audio
+        ../modules/preferences/appearance
+        ../modules/preferences/editing-behavior
+        ../modules/preferences/control-osc-web.nix
+        {
+          options.assertions = lib.mkOption {
+            type = lib.types.listOf lib.types.unspecified;
+            default = [];
+          };
+          options.warnings = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [];
+          };
+          options.programs.reaper.configPath = lib.mkOption {
+            type = lib.types.str;
+            default = "/tmp/reaper-preference-schema-tests";
+          };
 
-        config.programs.reaper.preferences = {
-          appearance = {
-            tooltips = {
-              uiElements = true;
-              itemsEnvelopes = false;
-              envsOnHover = false;
-              peakAndLoudnessValueWhenMouseIsOverMediaItems = true;
-              delay = 250;
-            };
-            fasterTextRendering = true;
-            drawVerticalTextBottomUp = true;
-            framelessFloatingToolbarWindows = true;
-            dontScaleToolbarButtonsBelow1to1 = false;
-            dontScaleToolbarButtonsAbove1to1 = false;
-            dontAnimateArmedActionToolbarButtons = true;
-            dontAnimateAnyToolbarButtons = false;
-            verticalSpaceAtBottomOfTrackNumber = 7;
-            visualTrackSpacerSize = 24;
-            limitTcpSpacerHeightToLaneSize = true;
-            antialiasedFadesAndEnvelopes = false;
-            horizontalGridLinesInAutomationLanes = true;
-            filledAutomationEnvelopes = true;
-            filledEnvelopesWhenDrawnOverMedia = false;
-            envelopePointSizeScaling = 1.5;
-            scaleNonSelectedPoint = 0.5;
-            hightlightEditCursorOverLastSelectedTrack = false;
-            showGuideLinesWhenEditing = true;
-            solidEdgeOnTimeSelectionHighlight = true;
-            solidEdgeOnLoopSelection = false;
-            displayVerticalLineAtMousePosition = {
-              enable = true;
-              snap = "ignoreSnapIfControlKeyHeld";
-            };
-            playCursorWidth = 4;
-            hideDockerTabsWhenSingleWindowAndSmallerThanPixels = 300;
-            zoomScrollOffset.verticalScrollStep.trackHeight = 0.25;
-          };
-          audio = {
-            closeAudioDeviceWhenStoppedAndApplicationIsInactive = true;
-            closeAudioDeviceWhenInactiveAndTracksAreRecordArmed = false;
-            closeAudioDeviceWhenInactiveAndReWireDevicesAreOpened = true;
-            closeAudioDeviceWhenStoppedAndActive = true;
-            warnWhenUnableToOpenAudioDevices = false;
-            warnWhenUnableToOpenMidiDevices = true;
-            warnWhenEnabledMidiDevicesAreNotPresent = false;
-            autoBypassFxOnRecordArmAffectedTracksWhosePdcExceeds = {
-              enable = true;
-              ms = 5.5;
-            };
-            onlyBypassWhileActuallyRecording = false;
-            temporarilyBypassOversamplingOnRecordArmAffectedTrack = true;
-            autoBypassFxEvenWhenFxConfigurationOpen = true;
-            stopProcessingAudioWhileWarningOfFailedDiskWrites = true;
-            virtualLoopbackAudioHardwareChannel = 4;
-            channelNamingMapping = {
-              inputChannelNameAliasingRemapping.enable = true;
-              outputChannelNameAliasingRemapping.enable = false;
-              showNonStandardStereoChannelPairs = false;
-              defaultMetronomeOutput = 3;
-            };
-          };
-          controlOscWeb = {
-            closeControlSurfaceDevicesWhenStoppedAndNotActiveApplication = false;
-            closeControlSurfaceDevicesWhenRendering = true;
-          };
-          general = {
-            startupSettings.skipAnimation = true;
-            preventOsScreensaverWhenAudioActiveOrRendering = true;
-            advancedUiSystemTweaks = {
-              allowSnapGridRoutingWindowsToStayOpen = true;
-              cpuAffinity.cpuIndexes = [0 2 4];
-            };
-            paths.doNotCopyOrMoveMediaFromTheFollowingPaths = ["/samples/a" "/samples/b"];
-          };
-          editingBehavior = {
-            moveEditCursorOn = {
-              timeSelectionChange = true;
-              razorEditChange = false;
-              pastingInsertingMedia = true;
-              clickingFixedLaneCompArea = true;
-            };
-            moveEditCursorToEndOfRecordedItemsOnRecordStop = false;
-            linkLoopPointsToTimeSelection = false;
-            clearLoopPointsOnClickInRuler = true;
-            clearTimeSelectionWhenEditCursorMovesOnClickInArrangeView = false;
-            minimumTimeSelectionLoopRazorEditLength = 15;
-            transientDetection = {
-              settings = {
-                sensitivity = 0.425;
-                threshold = -18.5;
-                useZeroCrossing = false;
-                displayThresholdInMediaItemsWhileThisWindowIsOpen = true;
-                mediaItemSelectionFollowsTabToTransition = false;
-                moveByAtLeast1PixelWhenNavigatingByTransient = true;
+          config.programs.reaper.preferences = {
+            appearance = {
+              tooltips = {
+                uiElements = true;
+                itemsEnvelopes = false;
+                envsOnHover = false;
+                peakAndLoudnessValueWhenMouseIsOverMediaItems = true;
+                delay = 250;
               };
-              tabThroughMidiNotes = true;
-              treatMediaItemEdgesAsTransient = true;
+              trackControlPanels = {
+                folderCollapseButtonCyclesTrackHeights =
+                  if useAliases
+                  then "normalHidden"
+                  else 768;
+                fixedLaneCollapseButtonChangesDisplay =
+                  if useAliases
+                  then "oneManyLanes"
+                  else 1024;
+              };
+              zoomScrollOffset.verticalScrollStep.unit =
+                if useAliases
+                then "arrangeViewHeight"
+                else 1;
+              fasterTextRendering = true;
+              drawVerticalTextBottomUp = true;
+              framelessFloatingToolbarWindows = true;
+              dontScaleToolbarButtonsBelow1to1 = false;
+              dontScaleToolbarButtonsAbove1to1 = false;
+              dontAnimateArmedActionToolbarButtons = true;
+              dontAnimateAnyToolbarButtons = false;
+              verticalSpaceAtBottomOfTrackNumber = 7;
+              visualTrackSpacerSize = 24;
+              limitTcpSpacerHeightToLaneSize = true;
+              antialiasedFadesAndEnvelopes = false;
+              horizontalGridLinesInAutomationLanes = true;
+              filledAutomationEnvelopes = true;
+              filledEnvelopesWhenDrawnOverMedia = false;
+              envelopePointSizeScaling = 1.5;
+              scaleNonSelectedPoint = 0.5;
+              hightlightEditCursorOverLastSelectedTrack = false;
+              showGuideLinesWhenEditing = true;
+              solidEdgeOnTimeSelectionHighlight = true;
+              solidEdgeOnLoopSelection = false;
+              displayVerticalLineAtMousePosition = {
+                enable = true;
+                snap = "ignoreSnapIfControlKeyHeld";
+              };
+              playCursorWidth = 4;
+              hideDockerTabsWhenSingleWindowAndSmallerThanPixels = 300;
+              zoomScrollOffset.verticalScrollStep.trackHeight = 0.25;
             };
-            clearExistingMediaItemEnvelopeSelectionWhenCreatingRazorEditArea = true;
-            allowDualTrimOnlyIfBothItemsAreSelected = true;
-            crossfadesStayTogetherDuringFadeEditsWhenTrimContentBehindMediaItemsIsEnabled = false;
-            automaticallyDeleteEmptyTracksCreatedByDraggingItemsBelowTheLastTrackAndBack = true;
-            draggingTheSourceStartOffsetOfTheActiveTakeAdjustsTheOffsetForAllTakes = false;
-            ifNoItemsAreSelectedSomeSplitTrimDeleteActionsAffectAllItemsAtTheEditCursor = true;
-            stretchingRazorEditAreaAddsStretchMarkersToAudioItems = false;
-            normalizeActionsAffectAllTakesWithinAMediaItem = false;
-            automaticallyZoomToTimeSelectionWhenRunningSampleEditActions = true;
-            automaticallySelectRegionsMarkersWhenNavigatingViaActionOrJumpToTimeDialog = true;
-            takeMarkerRankingLevels = "threeUpOneDown";
-            upDownCycleActionsSkipNoRanking = true;
-
-            midiEditor = {
-              flashMidiEditorKeysOnTrackInput = true;
-              horizontalGridLinesInCcLanes = false;
-              eventsPerQuarterNoteWhenDrawingCcLanes = {
-                value = 64;
-                zoomDependent = true;
+            audio = {
+              closeAudioDeviceWhenStoppedAndApplicationIsInactive = true;
+              closeAudioDeviceWhenInactiveAndTracksAreRecordArmed = false;
+              closeAudioDeviceWhenInactiveAndReWireDevicesAreOpened = true;
+              closeAudioDeviceWhenStoppedAndActive = true;
+              warnWhenUnableToOpenAudioDevices = false;
+              warnWhenUnableToOpenMidiDevices = true;
+              warnWhenEnabledMidiDevicesAreNotPresent = false;
+              autoBypassFxOnRecordArmAffectedTracksWhosePdcExceeds = {
+                enable = true;
+                ms = 5.5;
               };
-              defaultShapeForCcSegment = {
-                shape = "bezier";
-                reduceCcEventsWhenDrawing = false;
+              onlyBypassWhileActuallyRecording = false;
+              temporarilyBypassOversamplingOnRecordArmAffectedTrack = true;
+              autoBypassFxEvenWhenFxConfigurationOpen = true;
+              stopProcessingAudioWhileWarningOfFailedDiskWrites = true;
+              virtualLoopbackAudioHardwareChannel = 4;
+              channelNamingMapping = {
+                inputChannelNameAliasingRemapping.enable = true;
+                outputChannelNameAliasingRemapping.enable = false;
+                showNonStandardStereoChannelPairs = false;
+                defaultMetronomeOutput = 3;
               };
-              displayEmptySpaceAtTopBottomOfCcLanes = false;
-              preventMouseEditsOfSingleCcEventsFromMovingPastOtherEvents = true;
-              oneMidiEditorPer = "track";
-              behaviorForOpenItemsInBuiltInMidiEditor = "openAllMidiInTheProject";
-              whenUsingOneMidiEditorPerProject = {
-                activeMidiItemFollowsSelectionChangesInArrangeView = {
-                  enable = true;
-                  type = "track";
+            };
+            controlOscWeb = {
+              closeControlSurfaceDevicesWhenStoppedAndNotActiveApplication = false;
+              closeControlSurfaceDevicesWhenRendering = true;
+            };
+            general = {
+              recentProjectList.display =
+                if useAliases
+                then "fullPath"
+                else reaperLib.reaperGeneral.recentProjectListDisplay.fullPath;
+              startupSettings.skipAnimation = true;
+              preventOsScreensaverWhenAudioActiveOrRendering = true;
+              advancedUiSystemTweaks = {
+                allowSnapGridRoutingWindowsToStayOpen = true;
+                cpuAffinity.cpuIndexes = [0 2 4];
+              };
+              paths.doNotCopyOrMoveMediaFromTheFollowingPaths = ["/samples/a" "/samples/b"];
+            };
+            editingBehavior = {
+              moveEditCursorOn = {
+                timeSelectionChange = true;
+                razorEditChange = false;
+                pastingInsertingMedia = true;
+                clickingFixedLaneCompArea = true;
+              };
+              moveEditCursorToEndOfRecordedItemsOnRecordStop = false;
+              linkLoopPointsToTimeSelection = false;
+              clearLoopPointsOnClickInRuler = true;
+              clearTimeSelectionWhenEditCursorMovesOnClickInArrangeView = false;
+              minimumTimeSelectionLoopRazorEditLength = 15;
+              transientDetection = {
+                settings = {
+                  sensitivity = 0.425;
+                  threshold = -18.5;
+                  useZeroCrossing = false;
+                  displayThresholdInMediaItemsWhileThisWindowIsOpen = true;
+                  mediaItemSelectionFollowsTabToTransition = false;
+                  moveByAtLeast1PixelWhenNavigatingByTransient = true;
                 };
-                selectionIsLinkedToVisibility = true;
-                selectionIsLinkedToEditability = false;
-                closeEditorWhenTheActiveItemIsDeletedInTheArrangeView = false;
+                tabThroughMidiNotes = true;
+                treatMediaItemEdgesAsTransient = true;
               };
-              makeAllMidiItemsEditableByDefaultIfTheyAreVisibleInTheEditor = true;
-              avoid = {
-                settingItemsOnOtherTracksEditable = false;
-                settingItemsOnNonPlayingLanesVisible = true;
-              };
-              doubleClickOutsideTheBoundsOfAnyMediaItemToExtendTheNearestMedia = true;
-              opacityOfInactiveSecondaryItem = 0.5;
-              editableSecondaryItems = 0.25;
-              defaultNoteColorMap = "/colors/midi.png";
-            };
-          };
-          project = {
-            defaultProjectTemplate = "/templates/default.RPP";
-            itemFadeDefaults = {
-              defaultFadeInFadeOutLength = 0.05;
-              defaultCrossfadeLength = 0.08;
-              defaultFadeInFadeOutShape = "exponential";
-              defaultCrossfadeShape = "centerDip";
-              importedMediaItems.fadeInFadeOut = true;
-              recordedMediaItems = {
-                fadeInFadeOut = false;
-                overlap = "respectToolbarAutoCrossfadeButton";
-              };
-              splitMediaItems = {
-                fadeInFadeOut = true;
-                overlap = "overlapAndCrossfade";
-                overlapCrossfadePosition = "center";
-              };
-              fixedLaneCompAreas = false;
-              trimContentBehindMediaEditsEnabled = "noCrossfade";
-              trimContentBehindRazorEditsEnabled = "respectToolbarAutoCrossfadeButton";
-              limitSplitCreatedFadeCrossfadeTo = {
-                enable = true;
-                pixels = 75;
-              };
-              rightClickOnCrossfadeSetsFadeShapeForOnlyOneSideOfTheCrossfade = true;
-              applyFadeInFadeOutCrossfadePreferencesToMidiItems = true;
-              defaultStretchMarkerFadeSizeForNewItem = 3.75;
-            };
-            itemLoopDefaults = {
-              loopSourceFor = {
-                midiItems = true;
-                importedItems = true;
-                recordedItems = false;
-                gluedItems = false;
-              };
-              timeSelectionAutoPunchAudioRecordingCreatesLoopableSelection = true;
-            };
-            backups = {
-              whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak = {
-                enable = true;
-                limitAutoSavedBackupsToMostRecent.count = 7;
-              };
-              autoSave = {
-                autoSaveInterval.mode = "anyTime";
-                autoSaveToTimestampedFileInAdditionalDirectory.limitAutoSavedBackupsToMostRecent.count = 4;
-                autoSaveToTimestampedFileInProjectDirectory.limitAutoSavedBackupsToMostRecent.count = 9;
-              };
-            };
-          };
-        };
-      }
-    ];
-  };
+              clearExistingMediaItemEnvelopeSelectionWhenCreatingRazorEditArea = true;
+              allowDualTrimOnlyIfBothItemsAreSelected = true;
+              crossfadesStayTogetherDuringFadeEditsWhenTrimContentBehindMediaItemsIsEnabled = false;
+              automaticallyDeleteEmptyTracksCreatedByDraggingItemsBelowTheLastTrackAndBack = true;
+              draggingTheSourceStartOffsetOfTheActiveTakeAdjustsTheOffsetForAllTakes = false;
+              ifNoItemsAreSelectedSomeSplitTrimDeleteActionsAffectAllItemsAtTheEditCursor = true;
+              stretchingRazorEditAreaAddsStretchMarkersToAudioItems = false;
+              normalizeActionsAffectAllTakesWithinAMediaItem = false;
+              automaticallyZoomToTimeSelectionWhenRunningSampleEditActions = true;
+              automaticallySelectRegionsMarkersWhenNavigatingViaActionOrJumpToTimeDialog = true;
+              takeMarkerRankingLevels =
+                if useAliases
+                then reaperLib.reaperEditingBehavior.takeMarkerRankingLevels.threeUpOneDown
+                else "threeUpOneDown";
+              upDownCycleActionsSkipNoRanking = true;
 
+              midiEditor = {
+                flashMidiEditorKeysOnTrackInput = true;
+                horizontalGridLinesInCcLanes = false;
+                eventsPerQuarterNoteWhenDrawingCcLanes = {
+                  value = 64;
+                  zoomDependent = true;
+                };
+                defaultShapeForCcSegment = {
+                  shape =
+                    if useAliases
+                    then reaperLib.reaperEditingBehavior.segmentShape.bezier
+                    else "bezier";
+                  reduceCcEventsWhenDrawing = false;
+                };
+                displayEmptySpaceAtTopBottomOfCcLanes = false;
+                preventMouseEditsOfSingleCcEventsFromMovingPastOtherEvents = true;
+                oneMidiEditorPer =
+                  if useAliases
+                  then reaperLib.reaperEditingBehavior.midiEditorPer.track
+                  else "track";
+                behaviorForOpenItemsInBuiltInMidiEditor =
+                  if useAliases
+                  then reaperLib.reaperEditingBehavior.openItemsInBuiltInMidiEditor.openAllMidiInTheProject
+                  else "openAllMidiInTheProject";
+                whenUsingOneMidiEditorPerProject = {
+                  activeMidiItemFollowsSelectionChangesInArrangeView = {
+                    enable = true;
+                    type =
+                      if useAliases
+                      then reaperLib.reaperEditingBehavior.arrangeSelection.track
+                      else "track";
+                  };
+                  selectionIsLinkedToVisibility = true;
+                  selectionIsLinkedToEditability = false;
+                  closeEditorWhenTheActiveItemIsDeletedInTheArrangeView = false;
+                };
+                makeAllMidiItemsEditableByDefaultIfTheyAreVisibleInTheEditor = true;
+                avoid = {
+                  settingItemsOnOtherTracksEditable = false;
+                  settingItemsOnNonPlayingLanesVisible = true;
+                };
+                doubleClickOutsideTheBoundsOfAnyMediaItemToExtendTheNearestMedia = true;
+                opacityOfInactiveSecondaryItem = 0.5;
+                editableSecondaryItems = 0.25;
+                defaultNoteColorMap = "/colors/midi.png";
+              };
+            };
+            project = {
+              defaultProjectTemplate = "/templates/default.RPP";
+              itemFadeDefaults = {
+                defaultFadeInFadeOutLength = 0.05;
+                defaultCrossfadeLength = 0.08;
+                defaultFadeInFadeOutShape = "exponential";
+                defaultCrossfadeShape = "centerDip";
+                importedMediaItems.fadeInFadeOut = true;
+                recordedMediaItems = {
+                  fadeInFadeOut = false;
+                  overlap = "respectToolbarAutoCrossfadeButton";
+                };
+                splitMediaItems = {
+                  fadeInFadeOut = true;
+                  overlap = "overlapAndCrossfade";
+                  overlapCrossfadePosition = "center";
+                };
+                fixedLaneCompAreas = false;
+                trimContentBehindMediaEditsEnabled = "noCrossfade";
+                trimContentBehindRazorEditsEnabled = "respectToolbarAutoCrossfadeButton";
+                limitSplitCreatedFadeCrossfadeTo = {
+                  enable = true;
+                  pixels = 75;
+                };
+                rightClickOnCrossfadeSetsFadeShapeForOnlyOneSideOfTheCrossfade = true;
+                applyFadeInFadeOutCrossfadePreferencesToMidiItems = true;
+                defaultStretchMarkerFadeSizeForNewItem = 3.75;
+              };
+              itemLoopDefaults = {
+                loopSourceFor = {
+                  midiItems = true;
+                  importedItems = true;
+                  recordedItems = false;
+                  gluedItems = false;
+                };
+                timeSelectionAutoPunchAudioRecordingCreatesLoopableSelection = true;
+              };
+              backups = {
+                whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak = {
+                  enable = true;
+                  limitAutoSavedBackupsToMostRecent.count = 7;
+                };
+                autoSave = {
+                  autoSaveInterval.mode = "anyTime";
+                  autoSaveToTimestampedFileInAdditionalDirectory.limitAutoSavedBackupsToMostRecent.count = 4;
+                  autoSaveToTimestampedFileInProjectDirectory.limitAutoSavedBackupsToMostRecent.count = 9;
+                };
+              };
+            };
+          };
+        }
+      ];
+    };
+
+  evaluated = evaluate false;
+  aliasIni = (evaluate true).config.programs.reaper.ini;
   ini = evaluated.config.programs.reaper.ini;
   sections = ini.sections.reaper;
   bitfields = ini.bitfields.reaper;
 in
+  assert aliasIni.sections == ini.sections;
+  assert aliasIni.bitfields == ini.bitfields;
   assert sections.splashanim == 0;
   assert sections.autoclosetrackwnds == 0;
   assert sections.cpuallowed == 21;
@@ -294,8 +332,8 @@ in
   };
   assert bitfields.tcpalign
   == {
-    mask = 8192;
-    value = 0;
+    mask = 9984;
+    value = 1792;
   };
   assert bitfields.envlanes
   == {

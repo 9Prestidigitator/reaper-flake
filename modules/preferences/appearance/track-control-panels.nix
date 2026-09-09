@@ -186,7 +186,7 @@ in {
     };
 
     folderCollapseButtonCyclesTrackHeights = mkOption {
-      type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights));
+      type = types.nullOr (reaperTypes.numericEnum reaperLib.reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights);
       default = null;
       example = literalExpression "reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights.normalSmallCollapsed";
       description = ''
@@ -195,7 +195,7 @@ in {
     };
 
     fixedLaneCollapseButtonChangesDisplay = mkOption {
-      type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay));
+      type = types.nullOr (reaperTypes.numericEnum reaperLib.reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay);
       default = null;
       example = literalExpression "reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay.bigSmallLanes";
       description = ''

@@ -62,7 +62,7 @@ in {
     };
     defaultShapeForCcSegment = {
       shape = mkOption {
-        type = types.nullOr (types.enum (builtins.attrNames reaperEditingBehavior.segmentShape));
+        type = types.nullOr (reaperTypes.namedEnum reaperEditingBehavior.segmentShape);
         default = null;
         example = literalExpression "reaperEditingBehavior.segmentShape.square";
         description = "When adding a new segment to a CC lane, use this segment shape.";
@@ -89,7 +89,7 @@ in {
     };
 
     oneMidiEditorPer = mkOption {
-      type = types.nullOr (types.enum (builtins.attrNames reaperEditingBehavior.midiEditorPer));
+      type = types.nullOr (reaperTypes.namedEnum reaperEditingBehavior.midiEditorPer);
       default = null;
       example = literalExpression "reaperEditingBehavior.midiEditorPer.track";
       description = ''
@@ -102,7 +102,7 @@ in {
       '';
     };
     behaviorForOpenItemsInBuiltInMidiEditor = mkOption {
-      type = types.nullOr (types.enum (builtins.attrNames reaperEditingBehavior.openItemsInBuiltInMidiEditor));
+      type = types.nullOr (reaperTypes.namedEnum reaperEditingBehavior.openItemsInBuiltInMidiEditor);
       default = null;
       example = literalExpression "reaperEditingBehavior.openItemsInBuiltInMidiEditor.openAllMidiOnTheSameTrack";
       description = "Set the default behavior when double-clicking a MIDI media item.";
@@ -117,7 +117,7 @@ in {
           description = "The active MIDI item in the MIDI editor can follow the media item or track selection in the arrange view, or neither.";
         };
         type = mkOption {
-          type = types.nullOr (types.enum (builtins.attrNames reaperEditingBehavior.arrangeSelection));
+          type = types.nullOr (reaperTypes.namedEnum reaperEditingBehavior.arrangeSelection);
           default = null;
           example = literalExpression "reaperEditingBehavior.arrangeSelection.track";
           description = "The active MIDI item in the MIDI editor can follow the media item or track selection in the arrange view, or neither.";

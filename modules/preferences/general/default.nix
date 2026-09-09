@@ -5,7 +5,7 @@
   ...
 }: let
   inherit (lib) literalExpression mkOption types;
-  inherit (reaperLib) reaperBitfield reaperCodecs reaperPreference;
+  inherit (reaperLib) reaperTypes reaperBitfield reaperCodecs reaperPreference;
 
   cfg = config.programs.reaper.preferences.general;
 
@@ -182,7 +182,7 @@ in {
         description = "Whether recent projects display the project title from Project Settings / Notes.";
       };
       display = mkOption {
-        type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperGeneral.recentProjectListDisplay));
+        type = types.nullOr (reaperTypes.numericEnum reaperLib.reaperGeneral.recentProjectListDisplay);
         default = null;
         example = literalExpression "reaperGeneral.recentProjectListDisplay.fullPath";
         description = ''

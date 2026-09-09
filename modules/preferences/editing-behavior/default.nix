@@ -189,7 +189,7 @@ in {
     };
 
     takeMarkerRankingLevels = mkOption {
-      type = types.nullOr (types.enum (builtins.attrNames reaperEditingBehavior.takeMarkerRankingLevels));
+      type = types.nullOr (reaperTypes.namedEnum reaperEditingBehavior.takeMarkerRankingLevels);
       default = null;
       example = literalExpression "reaperEditingBehavior.takeMarkerRankingLevels.threeUpOneDown";
       description = "Take markers can be up-ranked or down-ranked. The maximum number of ranking levels is set here.";
