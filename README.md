@@ -236,9 +236,6 @@ The package declaration is applied through ReaPack’s native transaction engine
   </tr>
 </table>
 
-*Click a screenshot to view it full size. Screenshots show customized setups;
-third-party plug-ins shown are installed separately.*
-
 Theme packages can install more than a color theme: they may also provide scripts, fonts, and other resource files. The lower-level `colorThemes` option accepts individual theme files from any Nix path-producing expression, while `packages` accepts standardized theme derivations.
 
 ```nix
