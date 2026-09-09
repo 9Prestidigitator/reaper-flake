@@ -14,4 +14,15 @@ in {
       directory: map (format: "${directory}/${format}") formats
     )
     (profileLibDirectories username);
+
+  chainPositioning = {
+    cascade = 0;
+    automatic = 1024;
+    modalDefault = 131072;
+  };
+  floatingPositioning = {
+    cascade = 0;
+    automatic = 2048;
+    modalDefault = 262144;
+  };
 }

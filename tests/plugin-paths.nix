@@ -83,8 +83,33 @@
       };
     }).config.programs.reaper.ini.sections.reaper;
 
+  pluginUi = (evaluate {
+    programs.reaper.preferences.plugIns = {
+      automaticallyResizeFxWindow = { up = true; down = false; };
+      autoFloatUiForFxCreatedViaFxBrowser = true;
+      autoFloatUiForFxCreatedViaRightClickMenu = false;
+      fxChainPositioning = "automatic";
+      floatingFxPositioning = "modalDefault";
+      onlyAllowOneFxFloatingAtATime.onePerTrack = true;
+      preservePinMappingsWhenLoadingPresets = false;
+      onlyShowFxMatchingFilterString = "";
+      recentlyUsedListMax = 42;
+    };
+  }).config.programs.reaper.ini;
+
   clapKey = "clap_path_linux-${pkgs.stdenv.hostPlatform.qemuArch}";
 in
+  # Unset UI preferences must not overwrite REAPER's defaults.
+  assert !(defaults ? fxresize);
+  assert (evaluate {}).config.programs.reaper.ini.bitfields == {};
+  assert pluginUi.bitfields.reaper.fxresize == { mask = 3; value = 1; };
+  assert pluginUi.bitfields.reaper.fxfloat_focus == {
+    mask = 134614148;
+    value = 134481028;
+  };
+  assert pluginUi.bitfields.reaper.vstfullstate == { mask = 8388608; value = 0; };
+  assert pluginUi.sections.reaper.def_fx_filtgen == "";
+  assert pluginUi.sections.reaper.maxrecentfx == 42;
   assert defaults.vstpath
   == [
     "/etc/profiles/per-user/test-user/lib/vst"
