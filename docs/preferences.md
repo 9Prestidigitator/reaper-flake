@@ -6429,6 +6429,29 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.project\.backups\.autoSave\.autoSaveToTimestampedFileInAdditionalDirectory\.enable
 
+Auto-save to timestamped file in additional directory\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
+
+## programs\.reaper\.preferences\.project\.backups\.autoSave\.autoSaveToTimestampedFileInAdditionalDirectory\.limitBackupsToMostRecent\.enable
+
 Whether additional-directory auto-saved backups are limited to the most recent count\.
 
 _Type:_
@@ -6450,30 +6473,7 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
 
-## programs\.reaper\.preferences\.project\.backups\.autoSave\.autoSaveToTimestampedFileInAdditionalDirectory\.limitAutoSavedBackupsToMostRecent\.enable
-
-Whether additional-directory auto-saved backups are limited to the most recent count\.
-
-_Type:_
-null or boolean
-
-_Default:_
-
-```nix
-null
-```
-
-_Example:_
-
-```nix
-true
-```
-
-_Declared by:_
-
-- [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
-
-## programs\.reaper\.preferences\.project\.backups\.autoSave\.autoSaveToTimestampedFileInAdditionalDirectory\.limitAutoSavedBackupsToMostRecent\.count
+## programs\.reaper\.preferences\.project\.backups\.autoSave\.autoSaveToTimestampedFileInAdditionalDirectory\.limitBackupsToMostRecent\.count
 
 Limit timestamped backup files in an alternate path to a maximum
 number of copies or unique days, for either a given project or
@@ -6498,7 +6498,7 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
 
-## programs\.reaper\.preferences\.project\.backups\.autoSave\.autoSaveToTimestampedFileInAdditionalDirectory\.limitAutoSavedBackupsToMostRecent\.mode
+## programs\.reaper\.preferences\.project\.backups\.autoSave\.autoSaveToTimestampedFileInAdditionalDirectory\.limitBackupsToMostRecent\.mode
 
 Scope and unit for the additional-directory auto-save backup limit\.
 
@@ -6615,7 +6615,7 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.project\.backups\.autoSave\.autoSaveToTimestampedFileInProjectDirectory\.limitAutoSavedBackupsToMostRecent\.unit
 
-Limit timestamped auto-save backup files to a maximum number of copes or unique days for a given project\.
+Limit timestamped auto-save backup files to a maximum number of copies or unique days for a given project\.
 
 _Type:_
 null or one of “copies”, “uniqueDays”
@@ -6636,7 +6636,7 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
 
-## programs\.reaper\.preferences\.project\.backups\.autoSave\.autoSaveToTimestampedFileInProjectDirectory\.saveBackupsToProjectAutoSavesSubdirectory
+## programs\.reaper\.preferences\.project\.backups\.autoSave\.autoSaveToTimestampedFileInProjectDirectory\.saveAutoSavedProjectBackupsToAutoSavesProjectSubdirectory
 
 Controls whether timestamped auto-saved files are saved alongside the project or in the AutoSaves directory\.
 
@@ -6684,7 +6684,7 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
 
-## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preserveAllPreviousVersionsInOneRppBak
+## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak
 
 Whether REAPER preserves all previous saved project versions in one large `<project>.rpp-bak` file\.
 
@@ -6707,7 +6707,7 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
 
-## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviousVersionAsRppBak
+## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviouslySavedVersionOfProjectAsProjectRppBak
 
 Whether REAPER preserves the previous project version as `<project>.rpp-bak` when saving\.
 
@@ -6730,7 +6730,7 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
 
-## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviouslySavedVersionOfProjectAsRppBak\.enable
+## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak\.enable
 
 Whether REAPER preserves previously saved project versions as timestamped `.rpp-bak` files\.
 
@@ -6753,7 +6753,7 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
 
-## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviouslySavedVersionOfProjectAsRppBak\.limitAutoSavedBackupsToMostRecent\.enable
+## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak\.limitBackupsToMostRecent\.enable
 
 Whether timestamped save backups are limited to the most recent count\.
 
@@ -6776,7 +6776,7 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
 
-## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviouslySavedVersionOfProjectAsRppBak\.limitAutoSavedBackupsToMostRecent\.count
+## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak\.limitBackupsToMostRecent\.count
 
 Most recent save-backup copies or unique days to keep\.
 
@@ -6799,7 +6799,7 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
 
-## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviouslySavedVersionOfProjectAsRppBak\.limitAutoSavedBackupsToMostRecent\.unit
+## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak\.limitBackupsToMostRecent\.unit
 
 Unit for the timestamped save-backup limit\.
 
@@ -6822,7 +6822,7 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/project/backups\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/project/backups.nix)
 
-## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviouslySavedVersionOfProjectAsRppBak\.saveTimestampedBackupsToProjectBackupsSubdirectory
+## programs\.reaper\.preferences\.project\.backups\.whenSaving\.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak\.saveTimestampedBackupsToBackupsProjectSubdirectory
 
 Whether timestamped save backups are written to the project’s `Backups` subdirectory\.
 

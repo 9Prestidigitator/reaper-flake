@@ -248,13 +248,23 @@
                 timeSelectionAutoPunchAudioRecordingCreatesLoopableSelection = true;
               };
               backups = {
-                whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak = {
+                whenSaving.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak = {
                   enable = true;
-                  limitAutoSavedBackupsToMostRecent.count = 7;
+                  limitBackupsToMostRecent = {
+                    enable = true;
+                    count = 7;
+                  };
+                  saveTimestampedBackupsToBackupsProjectSubdirectory = true;
                 };
                 autoSave = {
                   autoSaveInterval.mode = "anyTime";
-                  autoSaveToTimestampedFileInAdditionalDirectory.limitAutoSavedBackupsToMostRecent.count = 4;
+                  autoSaveInterval.minutes = 10;
+                  autoSaveToTimestampedFileInAdditionalDirectory.enable = true;
+                  autoSaveToTimestampedFileInAdditionalDirectory.limitBackupsToMostRecent.enable = true;
+                  autoSaveToTimestampedFileInProjectDirectory.enable = true;
+                  autoSaveToTimestampedFileInProjectDirectory.limitAutoSavedBackupsToMostRecent.enable = true;
+                  autoSaveToTimestampedFileInProjectDirectory.saveAutoSavedProjectBackupsToAutoSavesProjectSubdirectory = true;
+                  autoSaveToTimestampedFileInAdditionalDirectory.limitBackupsToMostRecent.count = 4;
                   autoSaveToTimestampedFileInProjectDirectory.limitAutoSavedBackupsToMostRecent.count = 9;
                 };
               };
@@ -286,7 +296,9 @@ in
   assert sections.stretchmarkerfade == 3.75;
   assert sections.savebackuplimit == 7;
   assert sections.autosavebackuplimit == 9;
+  assert sections.autosavebackuplimit2 == 4;
   assert sections.autosavemode == 2;
+  assert sections.autosaveint == 10;
   assert sections.tooltipdelay == 250;
   assert sections.trackitemgap == 7;
   assert sections.trackgapmax == 24;
@@ -365,8 +377,8 @@ in
     mask = 3;
     value = 1;
   };
-  assert bitfields.saveopts.mask == 17;
-  assert bitfields.saveopts.value == 17;
+  assert bitfields.saveopts.mask == 12989;
+  assert bitfields.saveopts.value == 12989;
   assert bitfields.loopnewitems
   == {
     mask = 62;

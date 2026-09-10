@@ -104,12 +104,12 @@
 
       backups = {
         whenSaving = {
-          preservePreviousVersionAsRppBak = false;
-          preserveAllPreviousVersionsInOneRppBak = false;
-          preservePreviouslySavedVersionOfProjectAsRppBak = {
+          preservePreviouslySavedVersionOfProjectAsProjectRppBak = false;
+          preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak = false;
+          preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak = {
             enable = true;
-            saveTimestampedBackupsToProjectBackupsSubdirectory = true;
-            limitAutoSavedBackupsToMostRecent = {
+            saveTimestampedBackupsToBackupsProjectSubdirectory = true;
+            limitBackupsToMostRecent = {
               enable = true;
               count = 50;
               unit = "copies";
@@ -120,7 +120,7 @@
         autoSave = {
           autoSaveToTimestampedFileInProjectDirectory = {
             enable = true;
-            saveBackupsToProjectAutoSavesSubdirectory = true;
+            saveAutoSavedProjectBackupsToAutoSavesProjectSubdirectory = true;
             limitAutoSavedBackupsToMostRecent = {
               enable = true;
               count = 50;

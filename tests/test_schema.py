@@ -44,6 +44,19 @@ class StaticSchemaTests(unittest.TestCase):
             ["reaper-layout"],
         )
 
+    def test_backup_counts_have_independent_ini_keys(self):
+        options = {option["path"]: option for option in self.schema["options"]}
+        prefix = "preferences.project.backups"
+        expected = {
+            f"{prefix}.whenSaving.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak.limitBackupsToMostRecent.count": "savebackuplimit",
+            f"{prefix}.autoSave.autoSaveToTimestampedFileInProjectDirectory.limitAutoSavedBackupsToMostRecent.count": "autosavebackuplimit",
+            f"{prefix}.autoSave.autoSaveToTimestampedFileInAdditionalDirectory.limitBackupsToMostRecent.count": "autosavebackuplimit2",
+        }
+        for path, key in expected.items():
+            with self.subTest(path=path):
+                self.assertEqual(options[path]["key"], key)
+                self.assertEqual(options[path]["codec"], "integer")
+
     def test_unset_options_remain_in_the_schema(self):
         paths = {option["path"] for option in self.schema["options"]}
         self.assertIn("preferences.general.undo.maximumUndoMemory", paths)
@@ -456,7 +469,7 @@ class StaticSchemaTests(unittest.TestCase):
             "preferences.general.preventOsScreensaverWhenAudioActiveOrRendering",
             "preferences.general.startupSettings.skipAnimation",
             "preferences.project.backups.autoSave.autoSaveInterval.mode",
-            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak",
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsProjectRppBak",
             "preferences.project.defaultProjectTemplate",
             "preferences.project.itemFadeDefaults.defaultCrossfadeLength",
             "preferences.project.itemFadeDefaults.defaultCrossfadeShape",

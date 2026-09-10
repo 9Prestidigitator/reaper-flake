@@ -31,61 +31,61 @@
     uniqueDaysForAllProjects = 3072;
   };
 
-  timestampedSaveBackups = whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak;
+  timestampedSaveBackups = whenSaving.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak;
   autoSaveToProjectFile = autoSave.autoSaveToProjectFile;
   projectDirectoryAutoSave = autoSave.autoSaveToTimestampedFileInProjectDirectory;
   additionalDirectoryAutoSave = autoSave.autoSaveToTimestampedFileInAdditionalDirectory;
   autoSaveInterval = autoSave.autoSaveInterval;
   autoSaveUnsavedProjectsToTemporaryFile = autoSave.autoSaveUnsavedProjectsToTemporaryFile;
   configuredSaveBackupMode =
-    whenSaving.preservePreviousVersionAsRppBak
+    whenSaving.preservePreviouslySavedVersionOfProjectAsProjectRppBak
     != null
-    || whenSaving.preserveAllPreviousVersionsInOneRppBak != null
+    || whenSaving.preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak != null
     || timestampedSaveBackups.enable != null;
 
   enabledSaveBackupModes =
     builtins.length
     (builtins.filter (mode: mode) [
-      (whenSaving.preservePreviousVersionAsRppBak == true)
-      (whenSaving.preserveAllPreviousVersionsInOneRppBak == true)
+      (whenSaving.preservePreviouslySavedVersionOfProjectAsProjectRppBak == true)
+      (whenSaving.preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak == true)
       (timestampedSaveBackups.enable == true)
     ]);
 
   reaperBitfieldContributions = reaperBitfield.contributions {
     saveopts = [
       {
-        optionPath = "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak";
-        gui = "Preserve previous project versions when saving";
+        optionPath = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsProjectRppBak";
+        gui = "Preserve previously-saved version of project as <project>.rpp-bak";
         configured = configuredSaveBackupMode;
         mask = 17;
         value =
           if timestampedSaveBackups.enable == true
           then 17
-          else if whenSaving.preservePreviousVersionAsRppBak == true || whenSaving.preserveAllPreviousVersionsInOneRppBak == true
+          else if whenSaving.preservePreviouslySavedVersionOfProjectAsProjectRppBak == true || whenSaving.preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak == true
           then 1
           else 0;
         importAssignments = {
           "0" = {
-            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak" = false;
-            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.enable" = false;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsProjectRppBak" = false;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak.enable" = false;
           };
           "1" = {
-            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak" = true;
-            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.enable" = false;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsProjectRppBak" = true;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak.enable" = false;
           };
           "16" = {
-            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak" = false;
-            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.enable" = true;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsProjectRppBak" = false;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak.enable" = true;
           };
           "17" = {
-            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak" = false;
-            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.enable" = true;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsProjectRppBak" = false;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak.enable" = true;
           };
         };
       }
       {
         optionPath = "preferences.project.backups.autoSave.autoSaveToProjectFile";
-        gui = "Auto-save to project file";
+        gui = "Auto-save to project file (not recommended)";
         option = autoSaveToProjectFile;
         bit = 2;
       }
@@ -102,18 +102,18 @@
         bit = 8;
       }
       {
-        optionPath = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.limitAutoSavedBackupsToMostRecent.enable";
-        gui = "Limit timestamped save backups";
-        option = timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.enable;
+        optionPath = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak.limitBackupsToMostRecent.enable";
+        gui = "Limit backups to most recent";
+        option = timestampedSaveBackups.limitBackupsToMostRecent.enable;
         bit = 32;
       }
       {
-        optionPath = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.limitAutoSavedBackupsToMostRecent.unit";
+        optionPath = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak.limitBackupsToMostRecent.unit";
         gui = "Timestamped save backup limit unit";
-        option = timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.unit;
+        option = timestampedSaveBackups.limitBackupsToMostRecent.unit;
         mask = 64;
         value =
-          if timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.unit == "uniqueDays"
+          if timestampedSaveBackups.limitBackupsToMostRecent.unit == "uniqueDays"
           then 64
           else 0;
         importValues = {
@@ -123,7 +123,7 @@
       }
       {
         optionPath = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInProjectDirectory.limitAutoSavedBackupsToMostRecent.enable";
-        gui = "Limit project-directory auto-save backups";
+        gui = "Limit auto-saved backups to most recent";
         option = projectDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.enable;
         bit = 128;
       }
@@ -142,29 +142,29 @@
         };
       }
       {
-        optionPath = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInAdditionalDirectory.limitAutoSavedBackupsToMostRecent.enable";
-        gui = "Limit additional-directory auto-save backups";
-        option = additionalDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.enable;
+        optionPath = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInAdditionalDirectory.limitBackupsToMostRecent.enable";
+        gui = "Limit backups to most recent";
+        option = additionalDirectoryAutoSave.limitBackupsToMostRecent.enable;
         bit = 512;
       }
       {
-        optionPath = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInAdditionalDirectory.limitAutoSavedBackupsToMostRecent.mode";
+        optionPath = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInAdditionalDirectory.limitBackupsToMostRecent.mode";
         gui = "Additional-directory auto-save backup limit mode";
-        option = additionalDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.mode;
+        option = additionalDirectoryAutoSave.limitBackupsToMostRecent.mode;
         mask = 3072;
-        value = additionalDirectoryLimitModes.${additionalDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.mode};
+        value = additionalDirectoryLimitModes.${additionalDirectoryAutoSave.limitBackupsToMostRecent.mode};
         importValues = additionalDirectoryLimitModes;
       }
       {
-        optionPath = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.saveTimestampedBackupsToProjectBackupsSubdirectory";
-        gui = "Save timestamped backups to project Backups subdirectory";
-        option = timestampedSaveBackups.saveTimestampedBackupsToProjectBackupsSubdirectory;
+        optionPath = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak.saveTimestampedBackupsToBackupsProjectSubdirectory";
+        gui = "Save timestamped backups to Backups project subdirectory";
+        option = timestampedSaveBackups.saveTimestampedBackupsToBackupsProjectSubdirectory;
         bit = 4096;
       }
       {
-        optionPath = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInProjectDirectory.saveBackupsToProjectAutoSavesSubdirectory";
-        gui = "Save project-directory auto-save backups to AutoSaves subdirectory";
-        option = projectDirectoryAutoSave.saveBackupsToProjectAutoSavesSubdirectory;
+        optionPath = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInProjectDirectory.saveAutoSavedProjectBackupsToAutoSavesProjectSubdirectory";
+        gui = "Save auto-saved project backups to AutoSaves project subdirectory";
+        option = projectDirectoryAutoSave.saveAutoSavedProjectBackupsToAutoSavesProjectSubdirectory;
         bit = 8192;
       }
       {
@@ -177,51 +177,88 @@
 
     saveundostatesproj = [
       {
-        optionPath = "preferences.project.backups.whenSaving.preserveAllPreviousVersionsInOneRppBak";
-        gui = "Preserve all previous versions in one RPP-BAK";
-        option = whenSaving.preserveAllPreviousVersionsInOneRppBak;
+        optionPath = "preferences.project.backups.whenSaving.preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak";
+        gui = "Preserve all previously-saved versions of project in one (large) <project>.rpp-bak";
+        option = whenSaving.preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak;
         bit = 512;
         importAssignments = {
           "0" = {
-            "preferences.project.backups.whenSaving.preserveAllPreviousVersionsInOneRppBak" = false;
+            "preferences.project.backups.whenSaving.preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak" = false;
           };
           "512" = {
-            "preferences.project.backups.whenSaving.preserveAllPreviousVersionsInOneRppBak" = true;
-            "preferences.project.backups.whenSaving.preservePreviousVersionAsRppBak" = false;
+            "preferences.project.backups.whenSaving.preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak" = true;
+            "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsProjectRppBak" = false;
           };
         };
       }
     ];
   };
 in {
+  # Keep existing declarations working while the public names follow the GUI.
+  imports = [
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviousVersionAsRppBak"]
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviouslySavedVersionOfProjectAsProjectRppBak"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preserveAllPreviousVersionsInOneRppBak"]
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviouslySavedVersionOfProjectAsRppBak" "enable"]
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak" "enable"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviouslySavedVersionOfProjectAsRppBak" "saveTimestampedBackupsToProjectBackupsSubdirectory"]
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak" "saveTimestampedBackupsToBackupsProjectSubdirectory"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviouslySavedVersionOfProjectAsRppBak" "limitAutoSavedBackupsToMostRecent" "enable"]
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak" "limitBackupsToMostRecent" "enable"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviouslySavedVersionOfProjectAsRppBak" "limitAutoSavedBackupsToMostRecent" "count"]
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak" "limitBackupsToMostRecent" "count"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviouslySavedVersionOfProjectAsRppBak" "limitAutoSavedBackupsToMostRecent" "unit"]
+      ["programs" "reaper" "preferences" "project" "backups" "whenSaving" "preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak" "limitBackupsToMostRecent" "unit"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "project" "backups" "autoSave" "autoSaveToTimestampedFileInAdditionalDirectory" "limitAutoSavedBackupsToMostRecent" "enable"]
+      ["programs" "reaper" "preferences" "project" "backups" "autoSave" "autoSaveToTimestampedFileInAdditionalDirectory" "limitBackupsToMostRecent" "enable"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "project" "backups" "autoSave" "autoSaveToTimestampedFileInAdditionalDirectory" "limitAutoSavedBackupsToMostRecent" "count"]
+      ["programs" "reaper" "preferences" "project" "backups" "autoSave" "autoSaveToTimestampedFileInAdditionalDirectory" "limitBackupsToMostRecent" "count"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "project" "backups" "autoSave" "autoSaveToTimestampedFileInAdditionalDirectory" "limitAutoSavedBackupsToMostRecent" "mode"]
+      ["programs" "reaper" "preferences" "project" "backups" "autoSave" "autoSaveToTimestampedFileInAdditionalDirectory" "limitBackupsToMostRecent" "mode"])
+    (lib.mkRenamedOptionModule
+      ["programs" "reaper" "preferences" "project" "backups" "autoSave" "autoSaveToTimestampedFileInProjectDirectory" "saveBackupsToProjectAutoSavesSubdirectory"]
+      ["programs" "reaper" "preferences" "project" "backups" "autoSave" "autoSaveToTimestampedFileInProjectDirectory" "saveAutoSavedProjectBackupsToAutoSavesProjectSubdirectory"])
+  ];
+
   options.programs.reaper.preferences.project.backups = {
     whenSaving = {
-      preservePreviousVersionAsRppBak = mkOption {
+      preservePreviouslySavedVersionOfProjectAsProjectRppBak = mkOption {
         type = types.nullOr types.bool;
         default = null;
         example = true;
         description = "Whether REAPER preserves the previous project version as `<project>.rpp-bak` when saving.";
       };
-      preserveAllPreviousVersionsInOneRppBak = mkOption {
+      preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak = mkOption {
         type = types.nullOr types.bool;
         default = null;
         example = false;
         description = "Whether REAPER preserves all previous saved project versions in one large `<project>.rpp-bak` file.";
       };
-      preservePreviouslySavedVersionOfProjectAsRppBak = {
+      preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak = {
         enable = mkOption {
           type = types.nullOr types.bool;
           default = null;
           example = true;
           description = "Whether REAPER preserves previously saved project versions as timestamped `.rpp-bak` files.";
         };
-        saveTimestampedBackupsToProjectBackupsSubdirectory = mkOption {
+        saveTimestampedBackupsToBackupsProjectSubdirectory = mkOption {
           type = types.nullOr types.bool;
           default = null;
           example = true;
           description = "Whether timestamped save backups are written to the project's `Backups` subdirectory.";
         };
-        limitAutoSavedBackupsToMostRecent = {
+        limitBackupsToMostRecent = {
           enable = mkOption {
             type = types.nullOr types.bool;
             default = null;
@@ -254,7 +291,7 @@ in {
             This option enables automatic saving of your project to an extra timestamped file.
           '';
         };
-        saveBackupsToProjectAutoSavesSubdirectory = mkOption {
+        saveAutoSavedProjectBackupsToAutoSavesProjectSubdirectory = mkOption {
           type = types.nullOr types.bool;
           default = null;
           example = true;
@@ -284,7 +321,7 @@ in {
             default = null;
             example = "copies";
             description = ''
-              Limit timestamped auto-save backup files to a maximum number of copes or unique days for a given project.
+              Limit timestamped auto-save backup files to a maximum number of copies or unique days for a given project.
             '';
           };
         };
@@ -295,7 +332,7 @@ in {
           default = null;
           example = true;
           description = ''
-            Whether additional-directory auto-saved backups are limited to the most recent count.
+            Auto-save to timestamped file in additional directory.
           '';
         };
         path = mkOption {
@@ -306,7 +343,7 @@ in {
             REAPER can automatically save timestamped project files to this folder.
           '';
         };
-        limitAutoSavedBackupsToMostRecent = {
+        limitBackupsToMostRecent = {
           enable = mkOption {
             type = types.nullOr types.bool;
             default = null;
@@ -376,8 +413,8 @@ in {
     {
       assertion = enabledSaveBackupModes <= 1;
       message = ''
-        programs.reaper.preferences.project.backups.whenSaving preservePreviousVersionAsRppBak,
-        preserveAllPreviousVersionsInOneRppBak, and preservePreviouslySavedVersionOfProjectAsRppBak.enable
+        programs.reaper.preferences.project.backups.whenSaving preservePreviouslySavedVersionOfProjectAsProjectRppBak,
+        preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak, and preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak.enable
         are mutually exclusive.
       '';
     }
@@ -386,17 +423,17 @@ in {
   config.programs.reaper.ini.contributions =
     reaperPreference.contributions [
       {
-        path = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionOfProjectAsRppBak.limitAutoSavedBackupsToMostRecent.count";
-        value = timestampedSaveBackups.limitAutoSavedBackupsToMostRecent.count;
+        path = "preferences.project.backups.whenSaving.preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak.limitBackupsToMostRecent.count";
+        value = timestampedSaveBackups.limitBackupsToMostRecent.count;
         section = "reaper";
         key = "savebackuplimit";
         codec = "integer";
       }
       {
-        path = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInAdditionalDirectory.limitAutoSavedBackupsToMostRecent.count";
-        value = additionalDirectoryAutoSave.limitAutoSavedBackupsToMostRecent.count;
+        path = "preferences.project.backups.autoSave.autoSaveToTimestampedFileInAdditionalDirectory.limitBackupsToMostRecent.count";
+        value = additionalDirectoryAutoSave.limitBackupsToMostRecent.count;
         section = "reaper";
-        key = "autosavebackuplimit";
+        key = "autosavebackuplimit2";
         codec = "integer";
       }
       {
