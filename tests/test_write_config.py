@@ -100,6 +100,52 @@ class BitfieldOwnershipTests(WriterTestCase):
 
         self.assertEqual(self.value(), 8)
 
+    def test_numeric_formats_preserve_unmanaged_bits(self):
+        for raw_value, expected in (
+            ("008", 9),
+            ("8", 9),
+            ("010", 11),
+            ("0x8", 9),
+            ("0X8", 9),
+            ("0o10", 9),
+            ("0b1000", 9),
+            (" +008 ", 9),
+            ("-8", -7),
+            ("-008", -7),
+            ("-0x8", -7),
+        ):
+            with self.subTest(raw_value=raw_value):
+                self.target.write_text(f"[reaper]\nflags={raw_value}\n")
+                self.run_writer(self.payload_for(mask=1, value=1))
+                self.assertEqual(self.value(), expected)
+
+    def test_missing_bitfield_still_starts_from_zero(self):
+        self.run_writer(self.payload_for(mask=1, value=1))
+        self.assertEqual(self.value(), 1)
+
+    def test_invalid_bitfields_leave_target_and_state_unchanged(self):
+        for raw_value in ("", " ", "invalid", "0xGG", "8.0", "--8"):
+            for release in (False, True):
+                with self.subTest(raw_value=raw_value, release=release):
+                    self.target.write_text("[reaper]\nflags=8\n")
+                    self.run_writer(self.payload_for(mask=1, value=1))
+                    self.target.write_text(f"[reaper]\nflags={raw_value}\n")
+                    before = self.target.read_bytes(), self.state.read_bytes()
+                    payload = (
+                        self.payload_for()
+                        if release
+                        else self.payload_for(mask=1, value=0)
+                    )
+                    with self.assertRaises(subprocess.CalledProcessError) as failure:
+                        self.run_writer(payload, remove_empty_state=release)
+                    self.assertIn(
+                        f"Invalid bitfield value for [reaper].flags: {raw_value!r}",
+                        failure.exception.stderr,
+                    )
+                    self.assertEqual(
+                        (self.target.read_bytes(), self.state.read_bytes()), before
+                    )
+
     def test_direct_state_is_not_mixed_with_bitfield_ownership(self):
         self.target.write_text("[reaper]\nordinary=old\nflags=8\n")
         self.run_writer(

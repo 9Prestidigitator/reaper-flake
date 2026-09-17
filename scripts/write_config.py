@@ -232,11 +232,12 @@ def replace_sections(lines: list[Line], sections: set[str]) -> list[Line]:
 
 
 def intish(value: str) -> int:
-    # `int(..., 0)` accepts decimal as well as prefixed forms like `0x10`.
-    try:
-        return int(value, 0)
-    except ValueError:
-        return 0
+    # Base zero rejects padded decimals such as "008". Only use it for
+    # explicit prefixes, preserving support for signed and prefixed values.
+    text = value.strip()
+    unsigned = text.lstrip("+-")
+    base = 0 if unsigned.lower().startswith(("0x", "0o", "0b")) else 10
+    return int(text, base)
 
 
 def current_values(lines: list[Line]) -> dict[tuple[str, str], str]:
@@ -277,7 +278,13 @@ def resolve_bitfield_updates(
             # The key already uses REAPER's all-zero default implicitly.
             continue
 
-        old_value = intish(existing.get((section, key), "0"))
+        raw_value = existing.get((section, key), "0")
+        try:
+            old_value = intish(raw_value)
+        except ValueError as error:
+            raise ValueError(
+                f"Invalid bitfield value for [{section}].{key}: {raw_value!r}"
+            ) from error
         new_value = (old_value & ~touched_mask) | (value & mask)
         updates.setdefault(section, {})[key] = str(new_value)
 
