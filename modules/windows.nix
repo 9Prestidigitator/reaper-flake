@@ -5,9 +5,33 @@
   ...
 }: let
   inherit (lib) literalExpression mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield;
+  inherit (reaperLib) reaperBitfield reaperCodecs reaperPreference;
 
   cfg = config.programs.reaper.windows;
+  transport = cfg.transport;
+  transportTypes = reaperLib.reaperWindows.transportControls;
+
+  # Going to make this a universal reaper library option to save space
+  reaBool = description:
+    mkOption {
+      type = types.nullOr types.bool;
+      default = null;
+      example = true;
+      inherit description;
+    };
+
+  reaEnum = {
+    enum,
+    description ? null,
+    example ? null,
+    default ? null,
+  }:
+    mkOption {
+      type = types.nullOr (types.enum (builtins.attrValues enum));
+      example = literalExpression "${example}";
+      inherit description default;
+    };
+
   mixer = cfg.mixer;
   tcpHelpBar = cfg.tcpHelpBar;
   performanceMeter = cfg.performanceMeter;
@@ -16,6 +40,76 @@
   # options somewhere else that makes more sense.
 
   reaperBitfieldContributions = reaperBitfield.contributions {
+    transflags = [
+      {
+        optionPath = "windows.transport.showPlayrateControl";
+        gui = "Show playrate control";
+        option = transport.showPlayrateControl;
+        bit = 1;
+        inverted = true;
+      }
+      {
+        optionPath = "windows.transport.showPlayStateAsText";
+        gui = "Show play state as text";
+        option = transport.showPlayStateAsText;
+        bit = 2;
+        inverted = true;
+      }
+      {
+        optionPath = "windows.transport.showTimeSignature";
+        gui = "Show time signature";
+        option = transport.showTimeSignature;
+        bit = 4;
+        inverted = true;
+      }
+      {
+        optionPath = "windows.transport.centerTransportControls";
+        gui = "Center transport controls";
+        option = transport.centerTransportControls;
+        bit = 8;
+      }
+      {
+        optionPath = "windows.transport.flashOnPossibleAudioDeviceUnderrun";
+        gui = "Flash transport yellow on possible audio device underrun";
+        option = transport.flashOnPossibleAudioDeviceUnderrun;
+        bit = 128;
+      }
+    ];
+
+    viewadvance = [
+      {
+        optionPath = "windows.transport.automaticallyScrollViewDuringPlayback";
+        gui = "Automatically scroll view during playback";
+        option = transport.automaticallyScrollViewDuringPlayback;
+        bit = 1;
+      }
+      {
+        optionPath = "windows.transport.continuousScrolling";
+        gui = "Continuous scrolling";
+        option = transport.continuousScrolling;
+        bit = 16;
+      }
+    ];
+
+    smoothseek = [
+      {
+        optionPath = "windows.transport.smoothSeeking";
+        gui = "Smooth seeking (seeks at end of measure)";
+        option = transport.smoothSeeking;
+        bit = 1;
+      }
+    ];
+
+    rbn = [
+      {
+        optionPath = "windows.transport.chaseMidiNoteOnCcPitch";
+        gui = "Chase MIDI note-on/CC/PC/pitch in project playback";
+        option = transport.chaseMidiNoteOnCcPitch;
+        bit = 128;
+        inverted = true;
+      }
+    ];
+
     help = [
       {
         optionPath = "windows.tcpHelpBar.informationDisplay";
@@ -178,6 +272,55 @@
   };
 in {
   options.programs.reaper.windows = {
+    transport = {
+      automaticallyScrollViewDuringPlayback = reaBool "Automatically scroll view during playback.";
+      continuousScrolling = reaBool "Continuous scrolling.";
+      smoothSeeking = reaBool "Smooth seeking (seeks at end of measure).";
+      chaseMidiNoteOnCcPitch = reaBool "Chase MIDI note-on/CC/PC/pitch in project playback.";
+      stopPlaybackAtEndOfLoopIfRepeatDisabled = reaBool "Stop playback at the end of the loop when repeat is disabled.";
+      flashOnPossibleAudioDeviceUnderrun = reaBool "Flash transport yellow on possible audio device underrun.";
+
+      recordMode = mkOption {
+        type = types.nullOr (types.enum (builtins.attrNames transportTypes.recordMode));
+        default = null;
+        example = "normal";
+        description = "Default record mode for new projects. Existing projects retain their saved record mode.";
+      };
+      # recordMode = reaEnum {
+      #   enum = transportTypes.recordMode;
+      #   description = "Default record mode for new projects. Existing projects retain their saved record mode.";
+      #   example = reaperLib.reaperWindows.recordMode.normal;
+      # };
+
+      showPlayrateControl = reaBool "Show playrate control.";
+      showTimeSignature = reaBool "Show time signature.";
+      showPlayStateAsText = reaBool "Show play state as text.";
+      centerTransportControls = reaBool "Center transport controls.";
+
+      timeDisplay = mkOption {
+        type = types.nullOr (types.submodule {
+          options = {
+            primary = mkOption {
+              type = types.enum (["ruler"] ++ builtins.attrNames transportTypes.timeUnits);
+              default = "ruler";
+              description = "Default transport time unit for new projects, or ruler to follow the project's ruler.";
+            };
+            secondary = mkOption {
+              type = types.enum (["none"] ++ builtins.attrNames transportTypes.timeUnits);
+              default = "none";
+              description = "Secondary transport time unit. Must be none when the primary unit follows the ruler.";
+            };
+          };
+        });
+        default = null;
+        example = {
+          primary = "measuresBeats";
+          secondary = "minutesSeconds";
+        };
+        description = "Default transport time display for new projects. Existing projects retain their saved time display. Both units share one INI value and are managed together.";
+      };
+    };
+
     tcpHelpBar = {
       informationDisplay = mkOption {
         type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperWindows.tcpHelpBar.informationDisplay));
@@ -190,14 +333,7 @@ in {
         '';
       };
 
-      showMouseEditingHelp = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = ''
-          Whether mouse editing help is shown in the help bar below the track control panels.
-        '';
-      };
+      showMouseEditingHelp = reaBool "Whether mouse editing help is shown in the help bar below the track control panels.";
     };
 
     performanceMeter = {
@@ -390,6 +526,10 @@ in {
   config = {
     assertions = [
       {
+        assertion = transport.timeDisplay == null || transport.timeDisplay.primary != "ruler" || transport.timeDisplay.secondary == "none";
+        message = "REAPER transport timeDisplay.secondary must be none when primary is ruler.";
+      }
+      {
         assertion = cfg.mixer.showMaximumRowsEvenWhenTracksWouldFitInFewerRows != true || cfg.mixer.showMultipleRowsWhenSizePermits == true;
         message = ''
           REAPER mixer context menu option, "Show maximum rows even when tracks
@@ -402,6 +542,33 @@ in {
     programs.reaper.ini.sections.reaper =
       optionalAttrs (mixer.scrollViewWhenTracksActivated != null) {showctinmix = mixer.scrollViewWhenTracksActivated;};
 
-    programs.reaper.ini.contributions = map (entry: entry // {section = "reaper";}) reaperBitfieldContributions;
+    programs.reaper.ini.contributions =
+      map (entry: entry // {section = "reaper";}) reaperBitfieldContributions
+      ++ reaperPreference.contributions [
+        {
+          path = "windows.transport.stopPlaybackAtEndOfLoopIfRepeatDisabled";
+          gui = "Stop playback at end of loop if repeat is disabled";
+          value = transport.stopPlaybackAtEndOfLoopIfRepeatDisabled;
+          section = "reaper";
+          key = "stopendofloop";
+          codec = "bool";
+        }
+        {
+          path = "windows.transport.recordMode";
+          gui = "Record mode";
+          value = transport.recordMode;
+          section = "reaper";
+          key = "projrecmode";
+          codec = reaperCodecs.enum transportTypes.recordMode;
+        }
+        {
+          path = "windows.transport.timeDisplay";
+          gui = "Transport time unit / Secondary time unit";
+          value = transport.timeDisplay;
+          section = "reaper";
+          key = "projtimemode2";
+          codec = transportTypes.timeDisplayCodec;
+        }
+      ];
   };
 }

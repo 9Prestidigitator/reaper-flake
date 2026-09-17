@@ -48,6 +48,25 @@ def decode(codec: Any, value: str) -> Any:
             if str(encoded) == value:
                 return name
         raise ValueError(f"unknown enum value {value!r}")
+    if isinstance(codec, dict) and codec.get("type") == "transport-time-display":
+        encoded = int(value)
+        special = {
+            -1: ("ruler", "none"),
+            1: ("measuresBeats", "minutesSeconds"),
+            9: ("minutesSeconds", "measuresBeats"),
+        }
+        if encoded in special:
+            primary, secondary = special[encoded]
+        else:
+            units = {int(number): name for name, number in codec["units"].items()}
+            secondary_code, primary_code = divmod(encoded, 256)
+            if primary_code not in units or (
+                secondary_code != 0 and secondary_code - 1 not in units
+            ):
+                raise ValueError(f"unknown transport time display {value!r}")
+            primary = units[primary_code]
+            secondary = "none" if secondary_code == 0 else units[secondary_code - 1]
+        return {"primary": primary, "secondary": secondary}
     raise ValueError(f"unsupported codec {codec!r}")
 
 

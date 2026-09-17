@@ -319,6 +319,7 @@ Activation fails if REAPER is running. `programs.reaper.activation.allowRunning 
 - [Preferences and INI internals](docs/internal.md)
 - [Actions and shortcuts](docs/actions.md)
 - [Menus and toolbars](docs/menus.md)
+- [Transport controls](docs/transport.md)
 - [Layouts and docks](docs/layout.md)
 - [Generated preference options](docs/preferences.md)
 - [ReaPack](docs/reapack.md)

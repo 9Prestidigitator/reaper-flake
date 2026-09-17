@@ -46,6 +46,24 @@
       if codec.negative
       then -value
       else value
+    else if builtins.isAttrs codec && codec.type == "transport-time-display"
+    then
+      if value.primary == "ruler"
+      then
+        if value.secondary == "none"
+        then -1
+        else throw "Transport ruler time display cannot specify a secondary unit."
+      else if value.primary == "measuresBeats" && value.secondary == "minutesSeconds"
+      then 1
+      else if value.primary == "minutesSeconds" && value.secondary == "measuresBeats"
+      then 9
+      else
+        codec.units.${value.primary}
+        + (
+          if value.secondary == "none"
+          then 0
+          else (codec.units.${value.secondary} + 1) * 256
+        )
     else if builtins.isAttrs codec && codec.type == "enum"
     then codec.values.${value}
     else throw "Unsupported REAPER preference codec.";
@@ -85,6 +103,39 @@
       else if codec.decode == "negative"
       then value < 0
       else throw "Unsupported signed integer decode mode."
+    else if builtins.isAttrs codec && codec.type == "transport-time-display"
+    then let
+      encoded = builtins.fromJSON (toString value);
+      unit = number:
+        lib.findFirst (name: codec.units.${name} == number)
+        (throw "Unknown transport time unit ${toString number}.")
+        (builtins.attrNames codec.units);
+      secondary = builtins.div encoded 256;
+    in
+      if encoded == -1
+      then {
+        primary = "ruler";
+        secondary = "none";
+      }
+      else if encoded == 1
+      then {
+        primary = "measuresBeats";
+        secondary = "minutesSeconds";
+      }
+      else if encoded == 9
+      then {
+        primary = "minutesSeconds";
+        secondary = "measuresBeats";
+      }
+      else if encoded < 0
+      then throw "Unknown transport time display."
+      else {
+        primary = unit (encoded - secondary * 256);
+        secondary =
+          if secondary == 0
+          then "none"
+          else unit (secondary - 1);
+      }
     else if builtins.isAttrs codec && codec.type == "enum"
     then
       lib.findFirst

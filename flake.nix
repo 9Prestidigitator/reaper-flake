@@ -107,6 +107,8 @@
 
           actions-shortcuts = pkgs.callPackage ./tests/actions-shortcuts.nix {};
 
+          transport = pkgs.callPackage ./tests/transport.nix {};
+
           menus-replacement = pkgs.callPackage ./tests/menus-replacement.nix {};
 
           plugin-paths = pkgs.callPackage ./tests/plugin-paths.nix {};
