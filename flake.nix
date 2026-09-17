@@ -113,6 +113,8 @@
 
           sws-colors = pkgs.callPackage ./tests/sws-colors.nix {};
 
+          activation-dry-run = pkgs.callPackage ./tests/activation-dry-run.nix {};
+
           activation-guard =
             pkgs.runCommand "reaper-activation-guard-tests" {
               nativeBuildInputs = [pkgs.python3 pkgs.procps];

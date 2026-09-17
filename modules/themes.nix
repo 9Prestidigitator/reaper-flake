@@ -49,7 +49,6 @@ in {
         through `programs.reaper.swell.colortheme.preset` instead.
       '';
     };
-
   };
 
   config = mkMerge [
@@ -77,38 +76,42 @@ in {
     })
     (mkIf (themeCfg.packages != []) {
       home.activation.reaperThemePackages = lib.hm.dag.entryAfter ["reaper"] ''
-        reaper_resource_path=${lib.escapeShellArg cfg.configPath}
-        link_theme_resources() {
-          src=$1
-          dst=$2
+        run ${pkgs.writeShellScript "activate-reaper-themes" ''
+          set -euo pipefail
 
-          [ -d "$src" ] || return 0
-          mkdir -p "$dst"
+          reaper_resource_path=${lib.escapeShellArg cfg.configPath}
+          link_theme_resources() {
+            src=$1
+            dst=$2
 
-          find "$src" -mindepth 1 -print | while IFS= read -r src_path; do
-            rel_path=''${src_path#"$src"/}
-            dst_path="$dst/$rel_path"
+            [ -d "$src" ] || return 0
+            mkdir -p "$dst"
 
-            if [ -d "$src_path" ]; then
-              mkdir -p "$dst_path"
-            elif [[ "$rel_path" == libSwell*.colortheme ]]; then
-              # SWELL colorthemes are selected explicitly through
-              # programs.reaper.swell.colortheme.preset. Never link every
-              # package's colortheme into the same destination.
-              continue
-            elif [ -e "$dst_path" ] && [ ! -L "$dst_path" ]; then
-              :
-            else
-              mkdir -p "$(dirname "$dst_path")"
-              ln -sfn "$src_path" "$dst_path"
-            fi
-          done
-        }
+            find "$src" -mindepth 1 -print | while IFS= read -r src_path; do
+              rel_path=''${src_path#"$src"/}
+              dst_path="$dst/$rel_path"
 
-        ${concatMapStringsSep "\n" (themePackage: ''
-            link_theme_resources ${lib.escapeShellArg "${themePackage}/share/reaper"} "$reaper_resource_path"
-          '')
-          themeCfg.packages}
+              if [ -d "$src_path" ]; then
+                mkdir -p "$dst_path"
+              elif [[ "$rel_path" == libSwell*.colortheme ]]; then
+                # SWELL colorthemes are selected explicitly through
+                # programs.reaper.swell.colortheme.preset. Never link every
+                # package's colortheme into the same destination.
+                continue
+              elif [ -e "$dst_path" ] && [ ! -L "$dst_path" ]; then
+                :
+              else
+                mkdir -p "$(dirname "$dst_path")"
+                ln -sfn "$src_path" "$dst_path"
+              fi
+            done
+          }
+
+          ${concatMapStringsSep "\n" (themePackage: ''
+              link_theme_resources ${lib.escapeShellArg "${themePackage}/share/reaper"} "$reaper_resource_path"
+            '')
+            themeCfg.packages}
+        ''}
       '';
     })
   ];

@@ -577,18 +577,23 @@ in {
     };
 
     home.activation.reaperReapack = hm.dag.entryAfter ["reaper"] ''
-      mkdir -p "$reaper_resource_path/ReaPack"
-      ${optionalString (cfg.synchronizeOnActivation || cfg.packages != null) ''
-        printf '%s\n' ${lib.escapeShellArg (concatMapStringsSep "," (repository: repository.name) managedRepositories)} > "$reaper_resource_path/ReaPack/.nix-sync-requested"
-      ''}
-      ${optionalString (!(cfg.synchronizeOnActivation || cfg.packages != null)) ''
-        rm -f "$reaper_resource_path/ReaPack/.nix-sync-requested"
-      ''}
-      ${optionalString (cfg.packages != null) ''
-        install -m 0600 ${lib.escapeShellArg packageRequest} "$reaper_resource_path/ReaPack/.nix-package-request"
-      ''}
-      ${optionalString (cfg.packages == null) ''
-        rm -f "$reaper_resource_path/ReaPack/.nix-package-request"
+      run ${pkgs.writeShellScript "activate-reaper-reapack" ''
+        set -euo pipefail
+        reaper_resource_path=${lib.escapeShellArg config.programs.reaper.configPath}
+
+        mkdir -p "$reaper_resource_path/ReaPack"
+        ${optionalString (cfg.synchronizeOnActivation || cfg.packages != null) ''
+          printf '%s\n' ${lib.escapeShellArg (concatMapStringsSep "," (repository: repository.name) managedRepositories)} > "$reaper_resource_path/ReaPack/.nix-sync-requested"
+        ''}
+        ${optionalString (!(cfg.synchronizeOnActivation || cfg.packages != null)) ''
+          rm -f "$reaper_resource_path/ReaPack/.nix-sync-requested"
+        ''}
+        ${optionalString (cfg.packages != null) ''
+          install -m 0600 ${lib.escapeShellArg packageRequest} "$reaper_resource_path/ReaPack/.nix-package-request"
+        ''}
+        ${optionalString (cfg.packages == null) ''
+          rm -f "$reaper_resource_path/ReaPack/.nix-package-request"
+        ''}
       ''}
     '';
   };
