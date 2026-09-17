@@ -214,19 +214,21 @@ def remove_stale(
 
 
 def remove_sections(lines: list[Line], sections: set[str]) -> list[Line]:
-    if not sections:
-        return lines
+    # Parsed lines carry their section, including headers and comments. Filtering
+    # them also removes every occurrence of a repeated section header.
+    return [line for line in lines if (line.section or "") not in sections]
 
-    ranges = section_ranges(lines)
-    remove_indexes: set[int] = set()
-    for section in sections:
-        section_range = ranges.get(section)
-        if section_range is None:
-            continue
-        start, end = section_range
-        remove_indexes.update(range(start, end))
 
-    return [line for index, line in enumerate(lines) if index not in remove_indexes]
+def replace_sections(lines: list[Line], sections: set[str]) -> list[Line]:
+    if "" in sections:
+        raise ValueError("replaceSections requires named INI sections")
+    result = remove_sections(lines, sections)
+    for section in sorted(sections):
+        if result and result[-1].text:
+            result.append(Line(text=""))
+        # Keep a header even when the replacement has no keys.
+        result.append(Line(text=f"[{section}]", section=section))
+    return result
 
 
 def intish(value: str) -> int:
@@ -385,6 +387,20 @@ def main():
 
     current_sections = normalize_sections(payload.get("sections", {}))
     current_bitfields = normalize_bitfields(payload.get("bitfields", {}))
+    replacements = payload.get("replaceSections", [])
+    if not isinstance(replacements, list) or not all(
+        isinstance(section, str) for section in replacements
+    ):
+        raise ValueError("replaceSections must be a list of section names")
+    replacement_sections = set(replacements)
+    conflicts = replacement_sections & (
+        current_bitfields.keys() | previous.bitfields.keys()
+    )
+    if conflicts:
+        raise ValueError(
+            "Cannot replace sections with current or previous bitfield ownership: "
+            + ", ".join(sorted(conflicts))
+        )
     current_direct_identities = {
         (section, key)
         for section, entries in current_sections.items()
@@ -401,6 +417,7 @@ def main():
         current_bitfield_identities if previous.legacy else set()
     )
     lines = remove_stale(lines, previous.sections, stale_blockers)
+    lines = replace_sections(lines, replacement_sections)
 
     bitfield_updates = resolve_bitfield_updates(
         current_bitfields, previous.bitfields, lines

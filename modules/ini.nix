@@ -249,10 +249,10 @@
     then concatMapStringsSep ";" formatIniValue value
     else toString value;
 
-  renderPayload = sections: bitfields: removeSections:
+  renderPayload = sections: bitfields: removeSections: replaceSections:
     builtins.toJSON {
       sections = builtins.mapAttrs (_: entries: builtins.mapAttrs (_: formatIniValue) entries) sections;
-      inherit bitfields;
+      inherit bitfields replaceSections;
       removeSections = removeSections;
     };
 
@@ -272,12 +272,15 @@
 
   nonEmptyFileRemovedSections = filterAttrs (_: sections: sections != []) cfg.ini.removeSections;
 
-  emptyPayloadFile = pkgs.writeText "reaper-managed-empty.json" (renderPayload {} {} []);
+  nonEmptyFileReplacedSections = filterAttrs (_: sections: sections != []) cfg.ini.replaceSections;
+
+  emptyPayloadFile = pkgs.writeText "reaper-managed-empty.json" (renderPayload {} {} [] []);
   managedIniFileNames = unique (
     ["reaper.ini"]
     ++ builtins.attrNames nonEmptyFileSections
     ++ builtins.attrNames nonEmptyFileBitfieldSections
     ++ builtins.attrNames nonEmptyFileRemovedSections
+    ++ builtins.attrNames nonEmptyFileReplacedSections
   );
   schemaContributions = filter (contribution: contribution.optionPath != null) contributions;
   automaticSchemaSources = listToAttrs (map
@@ -380,6 +383,13 @@ in {
       description = "Bitfield updates generated for additional mutable REAPER INI files.";
     };
 
+    replaceSections = mkOption {
+      type = types.attrsOf (types.listOf types.str);
+      default = {};
+      internal = true;
+      description = "Named INI sections to clear before writing declared contents, retaining empty headers. Sections with current or previous managed bitfields cannot be replaced.";
+    };
+
     removeSections = mkOption {
       type = types.attrsOf (types.listOf types.str);
       default = {};
@@ -438,12 +448,13 @@ in {
                 if fileName == "reaper.ini"
                 then nonEmptyBitfieldSections
                 else nonEmptyFileBitfieldSections.${fileName} or {};
+              replaceSections = nonEmptyFileReplacedSections.${fileName} or [];
               removeSections =
                 if fileName == "reaper.ini"
                 then []
                 else nonEmptyFileRemovedSections.${fileName} or [];
             in
-              pkgs.writeText "reaper-managed-${fileName}.json" (renderPayload sections bitfields removeSections)))
+              pkgs.writeText "reaper-managed-${fileName}.json" (renderPayload sections bitfields removeSections replaceSections)))
           managedIniFileNames);
 
         generatedSchemaFile = schemaFile;

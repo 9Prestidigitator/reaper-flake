@@ -191,7 +191,11 @@ Set a managed section to `null` to remove that section from `reaper-menu.ini`:
 programs.reaper.menus."${reaperMenus.toolbars.main}" = null;
 ```
 
-REAPER then uses its built-in default toolbar or menu. The module intentionally does not generate REAPER's `default=<hash>` metadata; existing metadata is preserved when a section remains managed.
+REAPER then uses its built-in default toolbar or menu.
+
+Every explicitly configured menu or toolbar owns its entire section. Activation replaces the section with the declared contents, removing existing extra entries, omitted titles, icons, flags, comments, unknown keys, and REAPER's `default=<hash>` metadata. Removing that fingerprint also discards the reference used to compare the original default with later REAPER defaults. Other sections are left alone, apart from normal cleanup of previously managed keys.
+
+An empty entries list writes an explicit empty section; `null` removes the section entirely. This file-level distinction does not guarantee a visually empty menu: REAPER 7.80 treats an empty main-toolbar section as the default toolbar. If a menu is omitted from the configuration, previous-generation cleanup removes its unchanged managed keys while preserving keys changed outside Nix.
 
 ## Importing Existing Menus and Toolbars
 

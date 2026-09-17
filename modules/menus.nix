@@ -225,9 +225,11 @@ in {
     '';
     description = ''
       Declarative contents of `reaper-menu.ini`. Attribute names are REAPER's
-      exact section names, such as `"Main file"` and `"Main toolbar"`. Set a
-      menu to `null` to remove its customization section and use REAPER's
-      built-in default again.
+      exact section names, such as `"Main file"` and `"Main toolbar"`. Each
+      configured section is replaced completely on activation, including its
+      title, icons, flags, and application metadata. An empty entries list
+      writes an empty section. Set a menu to `null` to remove its customization
+      section and use REAPER's built-in default again.
     '';
   };
 
@@ -308,6 +310,7 @@ in {
       };
 
       ini.files."reaper-menu.ini" = mapAttrs (_: menu: menuAttrs menu) configuredMenus;
+      ini.replaceSections."reaper-menu.ini" = builtins.attrNames configuredMenus;
       ini.removeSections."reaper-menu.ini" = resetMenus;
     };
   };

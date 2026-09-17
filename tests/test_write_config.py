@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = Path(os.environ.get("WRITE_CONFIG_SCRIPT", ROOT / "scripts/write_config.py"))
 
 
-class BitfieldOwnershipTests(unittest.TestCase):
+class WriterTestCase(unittest.TestCase):
     def setUp(self):
         self.temporary_directory = tempfile.TemporaryDirectory()
         self.directory = Path(self.temporary_directory.name)
@@ -35,6 +35,8 @@ class BitfieldOwnershipTests(unittest.TestCase):
             command.append("--remove-empty-state")
         subprocess.run(command, check=True, capture_output=True, text=True)
 
+
+class BitfieldOwnershipTests(WriterTestCase):
     def value(self, key="flags"):
         for line in self.target.read_text().splitlines():
             if line.startswith(f"{key}="):
@@ -62,9 +64,7 @@ class BitfieldOwnershipTests(unittest.TestCase):
         self.assertEqual(self.value(), 10)
         state = json.loads(self.state.read_text())
         self.assertEqual(state["version"], 2)
-        self.assertEqual(
-            state["bitfields"]["reaper"]["flags"], {"mask": 2, "value": 2}
-        )
+        self.assertEqual(state["bitfields"]["reaper"]["flags"], {"mask": 2, "value": 2})
 
     def test_releasing_last_mask_clears_it_without_deleting_unmanaged_bits(self):
         self.target.write_text("[reaper]\nflags=8\n")
@@ -129,6 +129,115 @@ class BitfieldOwnershipTests(unittest.TestCase):
         self.assertEqual(state["version"], 2)
         self.assertEqual(state["sections"], {})
         self.assertEqual(state["bitfields"]["reaper"]["flags"]["mask"], 2)
+
+
+class SectionReplacementTests(WriterTestCase):
+    @staticmethod
+    def menu_payload(entries=None):
+        return {
+            "sections": {"Main toolbar": entries or {}},
+            "replaceSections": ["Main toolbar"],
+        }
+
+    def test_adoption_replaces_all_occurrences_and_preserves_other_sections(self):
+        self.target.write_text(
+            "; preamble\n[Main toolbar]\nitem_0=40023 Old\n"
+            "icon_0=old.png\nitem_1=40025 Extra\ntitle=Old title\n"
+            "tbf_0=1\ndefault=hash\nunknown=metadata\n; old comment\n"
+            "[Main file]\nitem_0=40026 Keep\n"
+            "[Main toolbar]\nitem_2=40027 Duplicate section\n"
+        )
+        payload = self.menu_payload({"item_0": "40023 New"})
+        self.run_writer(payload)
+        expected = (
+            "; preamble\n[Main file]\nitem_0=40026 Keep\n\n"
+            "[Main toolbar]\nitem_0=40023 New\n"
+        )
+        self.assertEqual(self.target.read_text(), expected)
+        self.run_writer(payload)
+        self.assertEqual(self.target.read_text(), expected)
+        self.assertEqual(
+            json.loads(self.state.read_text())["sections"], payload["sections"]
+        )
+
+    def test_shortening_replaces_gui_edits_and_omitted_metadata(self):
+        self.run_writer(
+            self.menu_payload(
+                {
+                    "item_0": "40023 Old",
+                    "item_1": "40025 Extra",
+                    "icon_0": "old.png",
+                    "tbf_0": "1",
+                    "title": "Old",
+                }
+            )
+        )
+        self.target.write_text(self.target.read_text().replace("Extra", "GUI edit"))
+        self.run_writer(self.menu_payload({"item_0": "40023 New"}))
+        self.assertEqual(self.target.read_text(), "[Main toolbar]\nitem_0=40023 New\n")
+
+    def test_empty_replacement_keeps_header_and_null_reset_removes_it(self):
+        self.target.write_text("[Main toolbar]\nitem_0=40023 Old\n")
+        self.run_writer(self.menu_payload())
+        self.assertEqual(self.target.read_text(), "[Main toolbar]\n")
+        self.run_writer({"removeSections": ["Main toolbar"]})
+        self.assertEqual(self.target.read_text(), "")
+
+    def test_removal_wins_over_replacement_and_values(self):
+        self.target.write_text("[Main toolbar]\nold=1\n[Main toolbar]\nold=2\n")
+        payload = self.menu_payload({"item_0": "40023 New"})
+        payload["removeSections"] = ["Main toolbar"]
+        self.run_writer(payload)
+        self.assertEqual(self.target.read_text(), "")
+
+    def test_removal_alone_removes_duplicate_sections(self):
+        self.target.write_text("[Main toolbar]\nold=1\n[Main toolbar]\nold=2\n")
+        self.run_writer({"removeSections": ["Main toolbar"]})
+        self.assertEqual(self.target.read_text(), "")
+
+    def test_omitting_menu_retains_existing_key_cleanup_semantics(self):
+        self.run_writer(
+            self.menu_payload({"item_0": "40023 Old", "item_1": "40025 Extra"})
+        )
+        self.target.write_text(self.target.read_text().replace("Extra", "GUI edit"))
+        self.run_writer({}, remove_empty_state=True)
+        self.assertEqual(
+            self.target.read_text(), "[Main toolbar]\nitem_1=40025 GUI edit\n"
+        )
+        self.assertFalse(self.state.exists())
+
+    def test_bitfield_conflicts_fail_without_modifying_files(self):
+        bitfields = {"Main toolbar": {"flags": {"mask": 1, "value": 1}}}
+        for previous in (False, True):
+            with self.subTest(previous=previous):
+                self.target.write_text("[Main toolbar]\nflags=9\n")
+                self.state.write_text(
+                    json.dumps(
+                        {
+                            "version": 2,
+                            "sections": {},
+                            "bitfields": bitfields if previous else {},
+                        }
+                    )
+                )
+                before = self.target.read_bytes(), self.state.read_bytes()
+                payload = self.menu_payload()
+                if not previous:
+                    payload["bitfields"] = bitfields
+                with self.assertRaises(subprocess.CalledProcessError) as failure:
+                    self.run_writer(payload)
+                self.assertIn("bitfield ownership", failure.exception.stderr)
+                self.assertEqual(
+                    (self.target.read_bytes(), self.state.read_bytes()), before
+                )
+
+    def test_unrelated_bitfields_still_preserve_unmanaged_bits(self):
+        self.target.write_text("[reaper]\nflags=8\n[Main toolbar]\nold=1\n")
+        payload = self.menu_payload({"item_0": "40023 New"})
+        payload["bitfields"] = {"reaper": {"flags": {"mask": 1, "value": 1}}}
+        self.run_writer(payload)
+        self.assertIn("flags=9\n", self.target.read_text())
+        self.assertNotIn("old=", self.target.read_text())
 
 
 if __name__ == "__main__":
