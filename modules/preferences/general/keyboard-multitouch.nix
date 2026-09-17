@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  reaBool,
   reaperLib,
   ...
 }: let
@@ -10,65 +11,47 @@
   gestureGearing = types.addCheck reaperTypes.number (value: value >= 1.0);
 in {
   options.programs.reaper.preferences.general.keyboardMultitouch = {
-    commitChangesToEditFieldsAfterOneSecond = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether REAPER commits changes to supported edit fields after one second without typing.";
-    };
+    commitChangesToEditFieldsAfterOneSecond = reaBool ''
+      Whether REAPER commits changes to supported edit fields after one second
+      without typing.
+    '';
 
-    useAlternateKeyboardSectionWhenRecording = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether REAPER uses the alternate keyboard section while recording.";
-    };
+    useAlternateKeyboardSectionWhenRecording = reaBool ''
+      Whether REAPER uses the alternate keyboard section while recording.
+    '';
 
-    preventAltKeyFocusingMainMenu = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether pressing Alt is prevented from focusing REAPER's main menu.";
-    };
+    preventAltKeyFocusingMainMenu = reaBool ''
+      Whether pressing Alt is prevented from focusing REAPER's main menu.
+    '';
 
-    allowSpaceKeyForNavigationInWindows = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether the space key can be used for navigation in REAPER windows.";
-    };
+    allowSpaceKeyForNavigationInWindows = reaBool ''
+      Whether the space key can be used for navigation in REAPER windows.
+    '';
 
-    sendSpaceKeyFromPluginTextFieldsToMainWindow = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether pressing space in a plug-in text field is sent to REAPER's main window.";
-    };
+    sendSpaceKeyFromPluginTextFieldsToMainWindow = reaBool ''
+      Whether pressing space in a plug-in text field is sent to REAPER's main
+      window.
+    '';
 
     momentaryKeyboardSectionOverrideTimeoutMilliseconds = mkOption {
       type = types.nullOr types.ints.positive;
       default = null;
       example = 1000;
-      description = "Timeout for momentary keyboard-section overrides, in milliseconds.";
+      description = ''
+        Timeout for momentary keyboard-section overrides, in milliseconds.
+      '';
     };
 
     multitouch = {
       swipe = {
-        enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Whether multitouch swipe gestures are enabled.";
-        };
-        suppressInertia = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+        enable = reaBool "Whether multitouch swipe gestures are enabled.";
+        suppressInertia = reaBool {
           example = false;
-          description = "Whether inertia is suppressed for multitouch swipe gestures.";
+          description = ''
+            Whether inertia is suppressed for multitouch swipe gestures.
+          '';
         };
-        reverse = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+        reverse = reaBool {
           example = false;
           description = "Whether multitouch swipe direction is reversed.";
         };
@@ -81,21 +64,14 @@ in {
       };
 
       zoom = {
-        enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Whether multitouch zoom gestures are enabled.";
-        };
-        suppressInertia = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+        enable = reaBool "Whether multitouch zoom gestures are enabled.";
+        suppressInertia = reaBool {
           example = false;
-          description = "Whether inertia is suppressed for multitouch zoom gestures.";
+          description = ''
+            Whether inertia is suppressed for multitouch zoom gestures.
+          '';
         };
-        reverse = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+        reverse = reaBool {
           example = false;
           description = "Whether multitouch zoom direction is reversed.";
         };
@@ -108,21 +84,14 @@ in {
       };
 
       rotate = {
-        enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Whether multitouch rotate gestures are enabled.";
-        };
-        suppressInertia = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+        enable = reaBool "Whether multitouch rotate gestures are enabled.";
+        suppressInertia = reaBool {
           example = false;
-          description = "Whether inertia is suppressed for multitouch rotate gestures.";
+          description = ''
+            Whether inertia is suppressed for multitouch rotate gestures.
+          '';
         };
-        reverse = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+        reverse = reaBool {
           example = false;
           description = "Whether multitouch rotate direction is reversed.";
         };
@@ -134,32 +103,28 @@ in {
         };
       };
 
-      reverseVerticalScroll = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether vertical scrolling is reversed.";
-      };
+      reverseVerticalScroll = reaBool "Whether vertical scrolling is reversed.";
 
-      reverseHorizontalScroll = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether horizontal scrolling is reversed.";
-      };
+      reverseHorizontalScroll = reaBool ''
+        Whether horizontal scrolling is reversed.
+      '';
 
       ignoreNewGestureAfterGestureMilliseconds = mkOption {
         type = types.nullOr types.ints.unsigned;
         default = null;
         example = 150;
-        description = "Milliseconds to ignore a new gesture after a multitouch gesture.";
+        description = ''
+          Milliseconds to ignore a new gesture after a multitouch gesture.
+        '';
       };
 
       ignoreScrollAfterGestureMilliseconds = mkOption {
         type = types.nullOr types.ints.unsigned;
         default = null;
         example = 150;
-        description = "Milliseconds to ignore scrolling after a multitouch gesture.";
+        description = ''
+          Milliseconds to ignore scrolling after a multitouch gesture.
+        '';
       };
     };
   };

@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  reaBool,
   reaperLib,
   ...
 }: let
@@ -20,23 +21,27 @@ in {
       type = types.nullOr types.str;
       default = null;
       example = "Renders";
-      description = "Default render path. A relative path is resolved relative to the current project.";
+      description = ''
+        Default render path. A relative path is resolved relative to the current
+        project.
+      '';
     };
 
     defaultRecordingPath = mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "/home/user/Music/Recordings";
-      description = "Default recording path when the project is unsaved and no recording path is configured.";
+      description = ''
+        Default recording path when the project is unsaved and no recording path
+        is configured.
+      '';
     };
 
     peakCache = {
-      storeAllInAlternatePath = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether all `.reapeaks` peak-cache files are stored in the alternate path.";
-      };
+      storeAllInAlternatePath = reaBool ''
+        Whether all `.reapeaks` peak-cache files are stored in the alternate
+        path.
+      '';
 
       alternatePath = mkOption {
         type = types.nullOr types.str;
@@ -49,7 +54,10 @@ in {
         type = types.nullOr types.str;
         default = null;
         example = "/mnt/samples";
-        description = "Paths for which REAPER uses the alternate peak-cache path, in REAPER's native list format.";
+        description = ''
+          Paths for which REAPER uses the alternate peak-cache path, in REAPER's
+          native list format.
+        '';
       };
     };
 
@@ -60,7 +68,10 @@ in {
         "/home/user/Downloads/samplepack"
         "/mnt/samples"
       ];
-      description = "List of paths that will not have media copied or moved from (on import if configured, or save-as with copy). Useful for sample libraries, etc.";
+      description = ''
+        List of paths that will not have media copied or moved from (on import
+        if configured, or save-as with copy). Useful for sample libraries, etc.
+      '';
     };
   };
 

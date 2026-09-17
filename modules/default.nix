@@ -147,14 +147,18 @@ in {
     installPackage = mkOption {
       type = types.bool;
       default = true;
-      description = "Install `programs.reaper.package` into `home.packages`; useful outside NixOS system package management.";
+      description = ''
+        Install `programs.reaper.package` into `home.packages`; useful outside
+        NixOS system package management.
+      '';
     };
 
     stockResources.enable = mkOption {
       type = types.bool;
       default = true;
       description = ''
-        Whether to seed REAPER's stock first-run resources from `$out/opt/REAPER/InstallData`.
+        Whether to seed REAPER's stock first-run resources from
+        `$out/opt/REAPER/InstallData`.
       '';
     };
 
@@ -163,7 +167,8 @@ in {
       default = false;
       description = ''
         Allow Home Manager activation to modify the REAPER resource directory
-        while REAPER is running. Disabled by default because REAPER can overwrite
+        while REAPER is running. Disabled by default because REAPER can
+        overwrite
         activated configuration with its in-memory state when it exits.
       '';
     };
@@ -174,6 +179,9 @@ in {
   config = mkMerge [
     {
       _module.args.reaperLib = reaperLib;
+      _module.args.reaperOptions = reaperLib.reaperOptions;
+      _module.args.reaBool = reaperLib.reaBool;
+      _module.args.reaEnum = reaperLib.reaEnum;
       _module.args.reaperBitfield = reaperLib.reaperBitfield;
       _module.args.reaperCodecs = reaperLib.reaperCodecs;
       _module.args.reaperPreference = reaperLib.reaperPreference;

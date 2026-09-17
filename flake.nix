@@ -113,6 +113,8 @@
 
           plugin-paths = pkgs.callPackage ./tests/plugin-paths.nix {};
 
+          option-helpers = pkgs.callPackage ./tests/option-helpers.nix {};
+
           preference-schema = pkgs.callPackage ./tests/preference-schema.nix {};
 
           sws-colors = pkgs.callPackage ./tests/sws-colors.nix {};

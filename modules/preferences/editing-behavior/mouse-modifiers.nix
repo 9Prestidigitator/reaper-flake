@@ -36,7 +36,10 @@ in {
       type = types.listOf types.str;
       default = [];
       example = ["MM_CTX_ARRANGE_MMOUSE" "MM_CTX_MIDI_NOTE_CLK"];
-      description = "Raw mouse modifier contexts whose REAPER factory defaults have been imported.";
+      description = ''
+        Raw mouse modifier contexts whose REAPER factory defaults have been
+        imported.
+      '';
     };
 
     contexts = mkOption {
@@ -51,7 +54,10 @@ in {
           mm_1 = "7 m";
         };
       };
-      description = "Raw REAPER mouse modifier bindings by `reaper-mouse.ini` context and modifier key.";
+      description = ''
+        Raw REAPER mouse modifier bindings by `reaper-mouse.ini` context and
+        modifier key.
+      '';
     };
   };
 

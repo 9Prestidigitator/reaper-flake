@@ -269,7 +269,9 @@ in {
     fileName = mkOption {
       type = types.str;
       default = "libSwell.colortheme";
-      description = "REAPER resource-path file name for the generated SWELL color theme.";
+      description = ''
+        REAPER resource-path file name for the generated SWELL color theme.
+      '';
     };
 
     preset = mkOption {

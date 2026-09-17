@@ -19,7 +19,9 @@ in {
       type = types.attrsOf (types.oneOf [types.path types.str]);
       default = {};
       internal = true;
-      description = "Whole REAPER resource files symlinked from package outputs.";
+      description = ''
+        Whole REAPER resource files symlinked from package outputs.
+      '';
     };
 
     resourceLinks.backupFileExtension = mkOption {

@@ -1,6 +1,8 @@
 {
   config,
   lib,
+  reaBool,
+  reaEnum,
   reaperLib,
   ...
 }: let
@@ -113,59 +115,48 @@ in {
       default = null;
       example = "";
       description = ''
-        REAPER language pack setting. Use an empty string for REAPER's default language.
+        REAPER language pack setting. Use an empty string for REAPER's default
+        language.
       '';
     };
 
     startupSettings = {
-      openProjectOnStartup = mkOption {
-        type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperGeneral.openProjectOnStartup));
-        default = null;
+      openProjectOnStartup = reaEnum {
+        enum = reaperLib.reaperGeneral.openProjectOnStartup;
         example = literalExpression "reaperGeneral.openProjectOnStartup.newProjectIgnoreDefaultTemplate";
         description = ''
-          The project(s) to open on startup. Default null value is reaperGeneral.lastProjectTabs.
+          The project(s) to open on startup. Default null value is
+          reaperGeneral.lastProjectTabs.
         '';
       };
-      showSplashScreenOnStartup = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      showSplashScreenOnStartup = reaBool {
         example = false;
         description = ''
-          Displays the splash screen and REAPER logo when the application starts.
+          Displays the splash screen and REAPER logo when the application
+          starts.
         '';
       };
-      skipAnimation = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      skipAnimation = reaBool {
         example = false;
         description = ''
-          Skips the REAPER logo animation and potentially slightly reduces startup time.
+          Skips the REAPER logo animation and potentially slightly reduces
+          startup time.
         '';
       };
-      automaticallyCheckForNewVersions = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      automaticallyCheckForNewVersions = reaBool {
         example = false;
         description = "Whether REAPER checks for new versions on startup.";
       };
-      createNewProjectTabWhenOpeningMedia = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether media opened from the file browser creates a new project tab.";
-      };
-      checkForMultipleInstancesWhenLaunching = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether REAPER checks for multiple instances when launching.";
-      };
-      checkForMultipleInstancesWhenLaunchingWithProjectMedia = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether the multiple-instance check applies when launching with project or media files.";
-      };
+      createNewProjectTabWhenOpeningMedia = reaBool ''
+        Whether media opened from the file browser creates a new project tab.
+      '';
+      checkForMultipleInstancesWhenLaunching = reaBool ''
+        Whether REAPER checks for multiple instances when launching.
+      '';
+      checkForMultipleInstancesWhenLaunchingWithProjectMedia = reaBool ''
+        Whether the multiple-instance check applies when launching with project
+        or media files.
+      '';
     };
 
     recentProjectList = {
@@ -175,38 +166,35 @@ in {
         example = 50;
         description = "Maximum projects in REAPER's recent project list.";
       };
-      displayProjectTitle = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      displayProjectTitle = reaBool {
         example = false;
-        description = "Whether recent projects display the project title from Project Settings / Notes.";
+        description = ''
+          Whether recent projects display the project title from Project
+          Settings / Notes.
+        '';
       };
-      display = mkOption {
-        type = types.nullOr (reaperTypes.numericEnum reaperLib.reaperGeneral.recentProjectListDisplay);
-        default = null;
+      display = reaEnum {
+        enum = reaperLib.reaperGeneral.recentProjectListDisplay;
+        coerce = "values";
         example = literalExpression "reaperGeneral.recentProjectListDisplay.fullPath";
         description = ''
           File/path display mode for the recent project list. Named values are
           available from `reaperGeneral.recentProjectListDisplay`.
         '';
       };
-      addLoadedProjects = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether loading projects adds them to the recent project list.";
-      };
-      addSaveCopyProjects = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether using Save copy of project adds that project to the recent project list.";
-      };
-      removeOldProjectWhenSavingNewVersion = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      addLoadedProjects = reaBool ''
+        Whether loading projects adds them to the recent project list.
+      '';
+      addSaveCopyProjects = reaBool ''
+        Whether using Save copy of project adds that project to the recent
+        project list.
+      '';
+      removeOldProjectWhenSavingNewVersion = reaBool {
         example = false;
-        description = "Whether using Save new version of project removes the old project from the recent project list.";
+        description = ''
+          Whether using Save new version of project removes the old project from
+          the recent project list.
+        '';
       };
     };
 
@@ -214,42 +202,45 @@ in {
       type = types.nullOr types.ints.unsigned;
       default = null;
       example = 1800;
-      description = "Warn when REAPER's memory use reaches this many megabytes. Use 0 to never warn.";
+      description = ''
+        Warn when REAPER's memory use reaches this many megabytes. Use 0 to
+        never warn.
+      '';
     };
 
-    preventOsScreensaverWhenAudioActiveOrRendering = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether REAPER prevents OS screensaver/screen blanking when audio is active or when rendering.";
-    };
+    preventOsScreensaverWhenAudioActiveOrRendering = reaBool ''
+      Whether REAPER prevents OS screensaver/screen blanking when audio is
+      active or when rendering.
+    '';
 
     filenameAutoIncrement = {
       suffix = mkOption {
         type = types.nullOr types.str;
         default = null;
         example = "-001";
-        description = "Auto-increment filename suffix used by rendering/conversion filename collision handling.";
+        description = ''
+          Auto-increment filename suffix used by rendering/conversion filename
+          collision handling.
+        '';
       };
-      ensureAutoIncrementedFilenamesHaveHigherNumberThanSimilarNamedFiles = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      ensureAutoIncrementedFilenamesHaveHigherNumberThanSimilarNamedFiles = reaBool {
         example = false;
-        description = "Whether auto-incremented filenames must have a higher number than all similarly named files.";
+        description = ''
+          Whether auto-incremented filenames must have a higher number than all
+          similarly named files.
+        '';
       };
-      treatUnderscoreAndDashAsInterchangeable = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether `_` and `-` are treated as interchangeable when auto-incrementing filenames.";
-      };
+      treatUnderscoreAndDashAsInterchangeable = reaBool ''
+        Whether `_` and `-` are treated as interchangeable when
+        auto-incrementing filenames.
+      '';
     };
 
-    unloadProjectsInBackgroundWhenQuitting = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    unloadProjectsInBackgroundWhenQuitting = reaBool {
       example = false;
-      description = "Whether projects are unloaded in the background when quitting REAPER.";
+      description = ''
+        Whether projects are unloaded in the background when quitting REAPER.
+      '';
     };
 
     advancedUiSystemTweaks = {
@@ -275,26 +266,21 @@ in {
         type = types.nullOr reaperLib.reaperTypes.number;
         default = null;
         example = 1.0;
-        description = "Font size adjustment for theme, arrange view, and ruler text.";
+        description = ''
+          Font size adjustment for theme, arrange view, and ruler text.
+        '';
       };
 
-      allowSnapGridRoutingWindowsToStayOpen = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether snap/grid/routing windows are allowed to stay open.";
-      };
+      allowSnapGridRoutingWindowsToStayOpen = reaBool ''
+        Whether snap/grid/routing windows are allowed to stay open.
+      '';
 
-      allowKeyboardCommandsEvenWhenMouseEditing = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether keyboard commands are allowed even when mouse-editing.";
-      };
+      allowKeyboardCommandsEvenWhenMouseEditing = reaBool ''
+        Whether keyboard commands are allowed even when mouse-editing.
+      '';
 
-      modalWindowPositioning = mkOption {
-        type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperGeneral.modalWindowPositioning));
-        default = null;
+      modalWindowPositioning = reaEnum {
+        enum = reaperLib.reaperGeneral.modalWindowPositioning;
         example = literalExpression "reaperGeneral.modalWindowPositioning.centerOnCurrentScreen";
         description = ''
           Modal window positioning behavior. Named values are available from
@@ -302,43 +288,33 @@ in {
         '';
       };
 
-      useLargeNonToolWindowFrames = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether REAPER uses large, non-tool window frames for windows.";
-      };
+      useLargeNonToolWindowFrames = reaBool ''
+        Whether REAPER uses large, non-tool window frames for windows.
+      '';
 
       cpuAffinity = {
-        enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Whether REAPER is restricted to the configured CPU indexes.";
-        };
+        enable = reaBool ''
+          Whether REAPER is restricted to the configured CPU indexes.
+        '';
 
         cpuIndexes = mkOption {
           type = types.nullOr (types.listOf (types.ints.between 0 31));
           default = null;
           example = [0 2 4 6];
-          description = "CPU indexes REAPER may use. REAPER supports indexes 0 through 31 in this setting.";
+          description = ''
+            CPU indexes REAPER may use. REAPER supports indexes 0 through 31 in
+            this setting.
+          '';
         };
 
-        preventOsRelocatingWorkerThreads = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Whether REAPER prevents the OS from relocating worker threads between CPUs.";
-        };
+        preventOsRelocatingWorkerThreads = reaBool ''
+          Whether REAPER prevents the OS from relocating worker threads between
+          CPUs.
+        '';
       };
 
       processWorkingSet = {
-        enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Whether REAPER sets a process working-set size.";
-        };
+        enable = reaBool "Whether REAPER sets a process working-set size.";
 
         minimum = mkOption {
           type = types.nullOr types.ints.unsigned;

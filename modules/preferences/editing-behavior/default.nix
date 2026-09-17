@@ -1,6 +1,8 @@
 {
   config,
   lib,
+  reaBool,
+  reaEnum,
   reaperLib,
   ...
 }: let
@@ -16,62 +18,49 @@ in {
 
   options.programs.reaper.preferences.editingBehavior = {
     moveEditCursorOn = {
-      timeSelectionChange = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "The edit cursor (where playback will begin) moves to the start of the time selection when you change the time selection.";
-      };
-      razorEditChange = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "The edit cursor (where playback will begin) moves to the start of the razor edit when you create the razor editor move it without contents.";
-      };
-      pastingInsertingMedia = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "The edit cursor (where playback will begin) moves to the mouse when pasting or inserting media items.";
-      };
-      clickingFixedLaneCompArea = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "The edit cursor (where playback will begin) moves to start of the fixed lane comp area when you click the area.";
-      };
+      timeSelectionChange = reaBool ''
+        The edit cursor (where playback will begin) moves to the start of the
+        time selection when you change the time selection.
+      '';
+      razorEditChange = reaBool ''
+        The edit cursor (where playback will begin) moves to the start of the
+        razor edit when you create the razor editor move it without contents.
+      '';
+      pastingInsertingMedia = reaBool ''
+        The edit cursor (where playback will begin) moves to the mouse when
+        pasting or inserting media items.
+      '';
+      clickingFixedLaneCompArea = reaBool ''
+        The edit cursor (where playback will begin) moves to start of the fixed
+        lane comp area when you click the area.
+      '';
     };
 
-    moveEditCursorToEndOfRecordedItemsOnRecordStop = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "The edit cursor (where playback will begin) moves to the end of newly recorded items when recording stops.";
-    };
-    linkLoopPointsToTimeSelection = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Time selection and loop points can be linked, or unlinked so that they can be set or cleared independently.";
-    };
-    clearLoopPointsOnClickInRuler = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Loop points are cleared using the escape key, or optionally by single-clicking in the ruler/timeline area.";
-    };
-    clearTimeSelectionWhenEditCursorMovesOnClickInArrangeView = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "The time selection is cleared using the escape key, or optionally whenever a mouse click in the arrange view moves the edit cursor.";
-    };
+    moveEditCursorToEndOfRecordedItemsOnRecordStop = reaBool ''
+      The edit cursor (where playback will begin) moves to the end of newly
+      recorded items when recording stops.
+    '';
+    linkLoopPointsToTimeSelection = reaBool ''
+      Time selection and loop points can be linked, or unlinked so that they can
+      be set or cleared independently.
+    '';
+    clearLoopPointsOnClickInRuler = reaBool ''
+      Loop points are cleared using the escape key, or optionally by
+      single-clicking in the ruler/timeline area.
+    '';
+    clearTimeSelectionWhenEditCursorMovesOnClickInArrangeView = reaBool ''
+      The time selection is cleared using the escape key, or optionally whenever
+      a mouse click in the arrange view moves the edit cursor.
+    '';
 
     minimumTimeSelectionLoopRazorEditLength = mkOption {
       type = types.nullOr types.int;
       default = null;
       example = 15;
-      description = "Contrain the mouse-edited time selection, loop, and razor edit length to a minimum pixel size.";
+      description = ''
+        Contrain the mouse-edited time selection, loop, and razor edit length to
+        a minimum pixel size.
+      '';
     };
 
     transientDetection = {
@@ -80,126 +69,117 @@ in {
           type = types.nullOr reaperTypes.percentage.sensitivity;
           default = null;
           example = 0.5;
-          description = "Sensitivity used by tab-to-transient and dynamic split, from 0 to 1.";
+          description = ''
+            Sensitivity used by tab-to-transient and dynamic split, from 0 to 1.
+          '';
         };
         threshold = mkOption {
           type = types.nullOr reaperTypes.number;
           default = null;
           example = -24.0;
-          description = "Threshold used by tab-to-transient and dynamic split, in dB.";
+          description = ''
+            Threshold used by tab-to-transient and dynamic split, in dB.
+          '';
         };
-        useZeroCrossing = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Move detected transients to the nearest zero crossing.";
-        };
-        displayThresholdInMediaItemsWhileThisWindowIsOpen = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Display the transient-detection threshold in media items while the transient settings window is open.";
-        };
-        mediaItemSelectionFollowsTabToTransition = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Make media item selection follow tab-to-transient navigation.";
-        };
-        moveByAtLeast1PixelWhenNavigatingByTransient = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Move by at least one pixel when navigating between transients.";
-        };
+        useZeroCrossing = reaBool ''
+          Move detected transients to the nearest zero crossing.
+        '';
+        displayThresholdInMediaItemsWhileThisWindowIsOpen = reaBool ''
+          Display the transient-detection threshold in media items while the
+          transient settings window is open.
+        '';
+        mediaItemSelectionFollowsTabToTransition = reaBool ''
+          Make media item selection follow tab-to-transient navigation.
+        '';
+        moveByAtLeast1PixelWhenNavigatingByTransient = reaBool ''
+          Move by at least one pixel when navigating between transients.
+        '';
       };
-      tabThroughMidiNotes = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Tab-to-transient can ignore MIDI items, or consider MIDI notes as transients.";
-      };
-      treatMediaItemEdgesAsTransient = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Tab-to-transient can tab past media items edges, or consider media item edges as transients.";
-      };
+      tabThroughMidiNotes = reaBool ''
+        Tab-to-transient can ignore MIDI items, or consider MIDI notes as
+        transients.
+      '';
+      treatMediaItemEdgesAsTransient = reaBool ''
+        Tab-to-transient can tab past media items edges, or consider media item
+        edges as transients.
+      '';
     };
 
-    clearExistingMediaItemEnvelopeSelectionWhenCreatingRazorEditArea = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    clearExistingMediaItemEnvelopeSelectionWhenCreatingRazorEditArea = reaBool {
+      description = ''
+        When creating a razor edit area, existing media item and envelope
+        selection can be cleared, or preserved.
+      '';
       example = true;
-      description = "When creating a razor edit area, existing media item and envelope selection can be cleared, or preserved.";
     };
-    allowDualTrimOnlyIfBothItemsAreSelected = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    allowDualTrimOnlyIfBothItemsAreSelected = reaBool ''
+      Media item edges between adjacent items can trim both items at once. This
+      behavior can be restricted so both items are edited only if both are
+      selected.
+    '';
+    crossfadesStayTogetherDuringFadeEditsWhenTrimContentBehindMediaItemsIsEnabled = reaBool {
+      description = ''
+        When auto-crossfades (toolbar button) are disabled, normally editing a
+        crossfade will cause the fade-in and fade-out to separate.
+      '';
       example = true;
-      description = "Media item edges between adjacent items can trim both items at once. This behavior can be restricted so both items are edited only if both are selected.";
     };
-    crossfadesStayTogetherDuringFadeEditsWhenTrimContentBehindMediaItemsIsEnabled = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    automaticallyDeleteEmptyTracksCreatedByDraggingItemsBelowTheLastTrackAndBack = reaBool {
+      description = ''
+        Tracks that are automatically created when dragging media into empty
+        space
+        below the last track can be automatically deleted if not used.
+      '';
       example = true;
-      description = "When auto-crossfades (toolbar button) are disabled, normally editing a crossfade will cause the fade-in and fade-out to separate.";
     };
-    automaticallyDeleteEmptyTracksCreatedByDraggingItemsBelowTheLastTrackAndBack = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    draggingTheSourceStartOffsetOfTheActiveTakeAdjustsTheOffsetForAllTakes = reaBool {
+      description = ''
+        When using mouse modifiers like 'move item contents', the edit can be
+        applied to only the take being edited, or to all takes in the same media
+        item.
+      '';
       example = true;
-      description = "Tracks that are automatically created when dragging media into empty space below the last track can be automatically deleted if not used.";
     };
-    draggingTheSourceStartOffsetOfTheActiveTakeAdjustsTheOffsetForAllTakes = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    ifNoItemsAreSelectedSomeSplitTrimDeleteActionsAffectAllItemsAtTheEditCursor = reaBool {
+      description = ''
+        Actions to split, trim, or delete media items can affect all media items
+        that intersect the edit cursor, if no media items are selected.
+      '';
       example = true;
-      description = "When using mouse modifiers like 'move item contents', the edit can be applied to only the take being edited, or to all takes in the same media item.";
     };
-    ifNoItemsAreSelectedSomeSplitTrimDeleteActionsAffectAllItemsAtTheEditCursor = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    stretchingRazorEditAreaAddsStretchMarkersToAudioItems = reaBool ''
+      When stretching a razor edit area edge that falls within an audio media
+      item, either stretch markers can be added, or the item can be split.
+    '';
+    normalizeActionsAffectAllTakesWithinAMediaItem = reaBool ''
+      Actions to normalize media items affect only the active take by default,
+      but can affect all takes within the media item.
+    '';
+    automaticallyZoomToTimeSelectionWhenRunningSampleEditActions = reaBool ''
+      Actions like 'Sample edits: Set sample values to zero' can automatically
+      zoom in, to enable sample editing with the mouse if needed.
+    '';
+    automaticallySelectRegionsMarkersWhenNavigatingViaActionOrJumpToTimeDialog = reaBool {
+      description = ''
+        Actions like 'go to next marker' or jumping via Jump To Time dialog can
+        automatically select the region/markers that is navigated to.
+      '';
       example = true;
-      description = "Actions to split, trim, or delete media items can affect all media items that intersect the edit cursor, if no media items are selected.";
-    };
-    stretchingRazorEditAreaAddsStretchMarkersToAudioItems = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "When stretching a razor edit area edge that falls within an audio media item, either stretch markers can be added, or the item can be split.";
-    };
-    normalizeActionsAffectAllTakesWithinAMediaItem = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Actions to normalize media items affect only the active take by default, but can affect all takes within the media item.";
-    };
-    automaticallyZoomToTimeSelectionWhenRunningSampleEditActions = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Actions like 'Sample edits: Set sample values to zero' can automatically zoom in, to enable sample editing with the mouse if needed.";
-    };
-    automaticallySelectRegionsMarkersWhenNavigatingViaActionOrJumpToTimeDialog = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Actions like 'go to next marker' or jumping via Jump To Time dialog can automatically select the region/markers that is navigated to.";
     };
 
-    takeMarkerRankingLevels = mkOption {
-      type = types.nullOr (reaperTypes.namedEnum reaperEditingBehavior.takeMarkerRankingLevels);
-      default = null;
+    takeMarkerRankingLevels = reaEnum {
+      enum = reaperEditingBehavior.takeMarkerRankingLevels;
+      coerce = "names";
       example = literalExpression "reaperEditingBehavior.takeMarkerRankingLevels.threeUpOneDown";
-      description = "Take markers can be up-ranked or down-ranked. The maximum number of ranking levels is set here.";
+      description = ''
+        Take markers can be up-ranked or down-ranked. The maximum number of
+        ranking levels is set here.
+      '';
     };
-    upDownCycleActionsSkipNoRanking = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Actions to up-rank, down-rank, or cycle through rankings can either include or skip setting the take to have no ranking.";
-    };
+    upDownCycleActionsSkipNoRanking = reaBool ''
+      Actions to up-rank, down-rank, or cycle through rankings can either
+      include or skip setting the take to have no ranking.
+    '';
   };
 
   config.programs.reaper.ini.contributions =

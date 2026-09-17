@@ -1,6 +1,8 @@
 {
   config,
   lib,
+  reaBool,
+  reaEnum,
   reaperLib,
   ...
 }: let
@@ -10,27 +12,6 @@
   cfg = config.programs.reaper.windows;
   transport = cfg.transport;
   transportTypes = reaperLib.reaperWindows.transportControls;
-
-  # Going to make this a universal reaper library option to save space
-  reaBool = description:
-    mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      inherit description;
-    };
-
-  reaEnum = {
-    enum,
-    description ? null,
-    example ? null,
-    default ? null,
-  }:
-    mkOption {
-      type = types.nullOr (types.enum (builtins.attrValues enum));
-      example = literalExpression "${example}";
-      inherit description default;
-    };
 
   mixer = cfg.mixer;
   tcpHelpBar = cfg.tcpHelpBar;
@@ -273,24 +254,29 @@
 in {
   options.programs.reaper.windows = {
     transport = {
-      automaticallyScrollViewDuringPlayback = reaBool "Automatically scroll view during playback.";
+      automaticallyScrollViewDuringPlayback = reaBool ''
+        Automatically scroll view during playback.
+      '';
       continuousScrolling = reaBool "Continuous scrolling.";
       smoothSeeking = reaBool "Smooth seeking (seeks at end of measure).";
-      chaseMidiNoteOnCcPitch = reaBool "Chase MIDI note-on/CC/PC/pitch in project playback.";
-      stopPlaybackAtEndOfLoopIfRepeatDisabled = reaBool "Stop playback at the end of the loop when repeat is disabled.";
-      flashOnPossibleAudioDeviceUnderrun = reaBool "Flash transport yellow on possible audio device underrun.";
+      chaseMidiNoteOnCcPitch = reaBool ''
+        Chase MIDI note-on/CC/PC/pitch in project playback.
+      '';
+      stopPlaybackAtEndOfLoopIfRepeatDisabled = reaBool ''
+        Stop playback at the end of the loop when repeat is disabled.
+      '';
+      flashOnPossibleAudioDeviceUnderrun = reaBool ''
+        Flash transport yellow on possible audio device underrun.
+      '';
 
-      recordMode = mkOption {
-        type = types.nullOr (types.enum (builtins.attrNames transportTypes.recordMode));
-        default = null;
+      recordMode = reaEnum {
+        enum = builtins.attrNames transportTypes.recordMode;
         example = "normal";
-        description = "Default record mode for new projects. Existing projects retain their saved record mode.";
+        description = ''
+          Default record mode for new projects. Existing projects retain their
+          saved record mode.
+        '';
       };
-      # recordMode = reaEnum {
-      #   enum = transportTypes.recordMode;
-      #   description = "Default record mode for new projects. Existing projects retain their saved record mode.";
-      #   example = reaperLib.reaperWindows.recordMode.normal;
-      # };
 
       showPlayrateControl = reaBool "Show playrate control.";
       showTimeSignature = reaBool "Show time signature.";
@@ -303,12 +289,18 @@ in {
             primary = mkOption {
               type = types.enum (["ruler"] ++ builtins.attrNames transportTypes.timeUnits);
               default = "ruler";
-              description = "Default transport time unit for new projects, or ruler to follow the project's ruler.";
+              description = ''
+                Default transport time unit for new projects, or ruler to follow
+                the project's ruler.
+              '';
             };
             secondary = mkOption {
               type = types.enum (["none"] ++ builtins.attrNames transportTypes.timeUnits);
               default = "none";
-              description = "Secondary transport time unit. Must be none when the primary unit follows the ruler.";
+              description = ''
+                Secondary transport time unit. Must be none when the primary
+                unit follows the ruler.
+              '';
             };
           };
         });
@@ -317,14 +309,17 @@ in {
           primary = "measuresBeats";
           secondary = "minutesSeconds";
         };
-        description = "Default transport time display for new projects. Existing projects retain their saved time display. Both units share one INI value and are managed together.";
+        description = ''
+          Default transport time display for new projects. Existing projects
+          retain their saved time display. Both units share one INI value and
+          are managed together.
+        '';
       };
     };
 
     tcpHelpBar = {
-      informationDisplay = mkOption {
-        type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperWindows.tcpHelpBar.informationDisplay));
-        default = null;
+      informationDisplay = reaEnum {
+        enum = reaperLib.reaperWindows.tcpHelpBar.informationDisplay;
         example = literalExpression "reaperWindows.tcpHelpBar.informationDisplay.cpuRamUseTimeSinceLastSave";
         description = ''
           Information shown in the help bar below the track control panels.
@@ -333,13 +328,15 @@ in {
         '';
       };
 
-      showMouseEditingHelp = reaBool "Whether mouse editing help is shown in the help bar below the track control panels.";
+      showMouseEditingHelp = reaBool ''
+        Whether mouse editing help is shown in the help bar below the track
+        control panels.
+      '';
     };
 
     performanceMeter = {
-      cpuUtilizationDisplay = mkOption {
-        type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperWindows.performanceMeter.cpuUtilizationDisplay));
-        default = null;
+      cpuUtilizationDisplay = reaEnum {
+        enum = reaperLib.reaperWindows.performanceMeter.cpuUtilizationDisplay;
         example = literalExpression "reaperWindows.performanceMeter.cpuUtilizationDisplay.allCoresFullyUtilized";
         description = ''
           CPU utilization display mode in the performance meter context menu.
@@ -350,158 +347,120 @@ in {
     };
 
     mixer = {
-      showFolders = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether folder tracks are shown in the mixer.";
-      };
+      showFolders = reaBool "Whether folder tracks are shown in the mixer.";
 
-      showNormalTopLevelTracks = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether normal top-level tracks are shown in the mixer.";
-      };
+      showNormalTopLevelTracks = reaBool ''
+        Whether normal top-level tracks are shown in the mixer.
+      '';
 
-      showTracksThatAreInFolders = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether tracks inside folders are shown in the mixer.";
-      };
+      showTracksThatAreInFolders = reaBool ''
+        Whether tracks inside folders are shown in the mixer.
+      '';
 
-      showTracksThatHaveReceives = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether tracks that have receives are shown in the mixer.";
-      };
+      showTracksThatHaveReceives = reaBool ''
+        Whether tracks that have receives are shown in the mixer.
+      '';
 
-      scrollViewWhenTracksActivated = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether the mixer scrolls its view when tracks are activated. Default null value is true.";
-      };
+      scrollViewWhenTracksActivated = reaBool ''
+        Whether the mixer scrolls its view when tracks are activated. Default
+        null value is true.
+      '';
 
-      autoArrangeTracks = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether tracks are auto-arranged in the mixer. Default null value is true.";
-      };
+      autoArrangeTracks = reaBool ''
+        Whether tracks are auto-arranged in the mixer. Default null value is
+        true.
+      '';
 
-      groupFoldersToLeft = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      groupFoldersToLeft = reaBool {
         example = false;
-        description = "Whether folder tracks are grouped to the left in the mixer. Default null value is false.";
+        description = ''
+          Whether folder tracks are grouped to the left in the mixer. Default
+          null value is false.
+        '';
       };
 
-      groupTracksThatHaveReceivesToLeft = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      groupTracksThatHaveReceivesToLeft = reaBool {
         example = false;
-        description = "Whether tracks that have receives are grouped to the left in the mixer. Default null value is false.";
+        description = ''
+          Whether tracks that have receives are grouped to the left in the
+          mixer. Default null value is false.
+        '';
       };
 
-      clickableIconForFolderTracksToShowHideChildren = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      clickableIconForFolderTracksToShowHideChildren = reaBool {
         example = false;
-        description = "Whether folder track icons are clickable to show or hide children. Default null value is false.";
+        description = ''
+          Whether folder track icons are clickable to show or hide children.
+          Default null value is false.
+        '';
       };
 
-      showMultipleRowsWhenSizePermits = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether the mixer shows multiple rows of tracks when size permits. Default null value is false.";
-      };
+      showMultipleRowsWhenSizePermits = reaBool ''
+        Whether the mixer shows multiple rows of tracks when size permits.
+        Default null value is false.
+      '';
 
-      showMaximumRowsEvenWhenTracksWouldFitInFewerRows = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      showMaximumRowsEvenWhenTracksWouldFitInFewerRows = reaBool {
         example = false;
-        description = "Whether the mixer shows maximum rows even when tracks would fit in fewer rows. Default null value is false. Requires showMultipleRowsWhenSizePermits to be true.";
+        description = ''
+          Whether the mixer shows maximum rows even when tracks would fit in
+          fewer rows. Default null value is false. Requires
+          showMultipleRowsWhenSizePermits to be true.
+        '';
       };
 
-      showFxInserts = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether FX inserts are shown in the mixer when size permits. Default null value is true.";
-      };
+      showFxInserts = reaBool ''
+        Whether FX inserts are shown in the mixer when size permits. Default
+        null value is true.
+      '';
 
-      showFxParameters = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether FX parameters are shown in the mixer when size permits. Default null value is false.";
-      };
+      showFxParameters = reaBool ''
+        Whether FX parameters are shown in the mixer when size permits. Default
+        null value is false.
+      '';
 
-      groupFxParametersWithInserts = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether FX parameters are grouped with FX inserts in the mixer. Default null value is false.";
-      };
+      groupFxParametersWithInserts = reaBool ''
+        Whether FX parameters are grouped with FX inserts in the mixer. Default
+        null value is false.
+      '';
 
-      showSends = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether sends are shown in the mixer when size permits. Default null value is true.";
-      };
+      showSends = reaBool ''
+        Whether sends are shown in the mixer when size permits. Default null
+        value is true.
+      '';
 
-      groupSendsWithFxInserts = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      groupSendsWithFxInserts = reaBool {
         example = false;
-        description = "Whether sends are grouped with FX inserts in the mixer. Default null value is false.";
+        description = ''
+          Whether sends are grouped with FX inserts in the mixer. Default null
+          value is false.
+        '';
       };
 
-      allowEmptySlotsInFxLists = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether empty slots are allowed in mixer FX lists. Default null value is false.";
-      };
+      allowEmptySlotsInFxLists = reaBool ''
+        Whether empty slots are allowed in mixer FX lists. Default null value is
+        false.
+      '';
 
-      allowReoarderingEmptySlotsInTcpMcpSendLists = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Allow for reoarding of empty slots in the tcp/mcp send lists. Default null value is true.";
-      };
+      allowReoarderingEmptySlotsInTcpMcpSendLists = reaBool ''
+        Allow for reoarding of empty slots in the tcp/mcp send lists. Default
+        null value is true.
+      '';
 
-      showTrackIconsInMixer = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether track icons are shown in the mixer. Default null value is false.";
-      };
+      showTrackIconsInMixer = reaBool ''
+        Whether track icons are shown in the mixer. Default null value is false.
+      '';
 
-      showIconForLastTrackInFolder = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether the icon for the last track in a folder is shown. Default null value is true.";
-      };
+      showIconForLastTrackInFolder = reaBool ''
+        Whether the icon for the last track in a folder is shown. Default null
+        value is true.
+      '';
 
       master = {
-        showInMixer = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Whether the master track is shown in the mixer.";
-        };
+        showInMixer = reaBool "Whether the master track is shown in the mixer.";
 
         # TODO(max): Test this specifically
-        showOnRightSide = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+        showOnRightSide = reaBool {
           example = false;
           visible = false;
           description = lib.mdDoc ''
@@ -510,15 +469,10 @@ in {
           '';
         };
 
-        showInDockerOrWindow = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = ''
-            Whether to show reaper master track in the mixer
-            window/dock or to have it be in it's own dock or window.
-          '';
-        };
+        showInDockerOrWindow = reaBool ''
+          Whether to show reaper master track in the mixer
+          window/dock or to have it be in it's own dock or window.
+        '';
       };
     };
   };

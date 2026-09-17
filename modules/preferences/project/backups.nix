@@ -1,6 +1,8 @@
 {
   config,
   lib,
+  reaBool,
+  reaEnum,
   reaperLib,
   ...
 }: let
@@ -233,47 +235,41 @@ in {
 
   options.programs.reaper.preferences.project.backups = {
     whenSaving = {
-      preservePreviouslySavedVersionOfProjectAsProjectRppBak = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether REAPER preserves the previous project version as `<project>.rpp-bak` when saving.";
-      };
-      preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      preservePreviouslySavedVersionOfProjectAsProjectRppBak = reaBool ''
+        Whether REAPER preserves the previous project version as
+        `<project>.rpp-bak` when saving.
+      '';
+      preserveAllPreviouslySavedVersionsOfProjectInOneLargeProjectRppBak = reaBool {
         example = false;
-        description = "Whether REAPER preserves all previous saved project versions in one large `<project>.rpp-bak` file.";
+        description = ''
+          Whether REAPER preserves all previous saved project versions in one
+          large `<project>.rpp-bak` file.
+        '';
       };
       preservePreviouslySavedVersionsOfProjectAsProjectTimestampRppBak = {
-        enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Whether REAPER preserves previously saved project versions as timestamped `.rpp-bak` files.";
-        };
-        saveTimestampedBackupsToBackupsProjectSubdirectory = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = "Whether timestamped save backups are written to the project's `Backups` subdirectory.";
-        };
+        enable = reaBool ''
+          Whether REAPER preserves previously saved project versions as
+          timestamped `.rpp-bak` files.
+        '';
+        saveTimestampedBackupsToBackupsProjectSubdirectory = reaBool ''
+          Whether timestamped save backups are written to the project's
+          `Backups` subdirectory.
+        '';
         limitBackupsToMostRecent = {
-          enable = mkOption {
-            type = types.nullOr types.bool;
-            default = null;
-            example = true;
-            description = "Whether timestamped save backups are limited to the most recent count.";
-          };
+          enable = reaBool ''
+            Whether timestamped save backups are limited to the most recent
+            count.
+          '';
           count = mkOption {
             type = types.nullOr backupLimit;
             default = null;
             example = 50;
-            description = "Most recent save-backup copies or unique days to keep.";
+            description = ''
+              Most recent save-backup copies or unique days to keep.
+            '';
           };
-          unit = mkOption {
-            type = types.nullOr (types.enum (builtins.attrNames backupLimitUnits));
-            default = null;
+          unit = reaEnum {
+            enum = builtins.attrNames backupLimitUnits;
             example = "copies";
             description = "Unit for the timestamped save-backup limit.";
           };
@@ -283,73 +279,56 @@ in {
 
     autoSave = {
       autoSaveToTimestampedFileInProjectDirectory = {
-        enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = ''
-            This option enables automatic saving of your project to an extra timestamped file.
-          '';
-        };
-        saveAutoSavedProjectBackupsToAutoSavesProjectSubdirectory = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = ''
-            Controls whether timestamped auto-saved files are saved alongside the project or in the AutoSaves directory.
-          '';
-        };
+        enable = reaBool ''
+          This option enables automatic saving of your project to an extra
+          timestamped file.
+        '';
+        saveAutoSavedProjectBackupsToAutoSavesProjectSubdirectory = reaBool ''
+          Controls whether timestamped auto-saved files are saved alongside the
+          project or in the AutoSaves directory.
+        '';
         limitAutoSavedBackupsToMostRecent = {
-          enable = mkOption {
-            type = types.nullOr types.bool;
-            default = null;
-            example = true;
-            description = ''
-              Limit timestamped auto-save backup files to a maximum number of copies or unique days for a given project.
-            '';
-          };
+          enable = reaBool ''
+            Limit timestamped auto-save backup files to a maximum number of
+            copies or unique days for a given project.
+          '';
           count = mkOption {
             type = types.nullOr backupLimit;
             default = null;
             example = 50;
             description = ''
-              Limit timestamped auto-save backup files to a maximum number of copies or unique days for a given project.
+              Limit timestamped auto-save backup files to a maximum number of
+              copies or unique days for a given project.
             '';
           };
-          unit = mkOption {
-            type = types.nullOr (types.enum (builtins.attrNames backupLimitUnits));
-            default = null;
+          unit = reaEnum {
+            enum = builtins.attrNames backupLimitUnits;
             example = "copies";
             description = ''
-              Limit timestamped auto-save backup files to a maximum number of copies or unique days for a given project.
+              Limit timestamped auto-save backup files to a maximum number of
+              copies or unique days for a given project.
             '';
           };
         };
       };
       autoSaveToTimestampedFileInAdditionalDirectory = {
-        enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
-          example = true;
-          description = ''
-            Auto-save to timestamped file in additional directory.
-          '';
-        };
+        enable = reaBool ''
+          Auto-save to timestamped file in additional directory.
+        '';
         path = mkOption {
           type = types.nullOr types.str;
           default = null;
           example = "/tmp/reaper-projects";
           description = ''
-            REAPER can automatically save timestamped project files to this folder.
+            REAPER can automatically save timestamped project files to this
+            folder.
           '';
         };
         limitBackupsToMostRecent = {
-          enable = mkOption {
-            type = types.nullOr types.bool;
-            default = null;
-            example = true;
-            description = "Whether additional-directory auto-saved backups are limited to the most recent count.";
-          };
+          enable = reaBool ''
+            Whether additional-directory auto-saved backups are limited to the
+            most recent count.
+          '';
           count = mkOption {
             type = types.nullOr backupLimit;
             default = null;
@@ -360,30 +339,25 @@ in {
               for all backups.
             '';
           };
-          mode = mkOption {
-            type = types.nullOr (types.enum (builtins.attrNames additionalDirectoryLimitModes));
-            default = null;
+          mode = reaEnum {
+            enum = builtins.attrNames additionalDirectoryLimitModes;
             example = "copiesForCurrentProject";
-            description = "Scope and unit for the additional-directory auto-save backup limit.";
+            description = ''
+              Scope and unit for the additional-directory auto-save backup
+              limit.
+            '';
           };
         };
       };
-      autoSaveToProjectFile = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      autoSaveToProjectFile = reaBool {
         example = false;
         description = "Whether REAPER auto-saves directly to the project file.";
       };
-      autoSaveUnsavedProjectsToTemporaryFile = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = ''
-          If enabled, unsaved projects will be saved automatically to
-          temporary files to be possibly re-loaded on relaunch (if configured
-          to load last project).
-        '';
-      };
+      autoSaveUnsavedProjectsToTemporaryFile = reaBool ''
+        If enabled, unsaved projects will be saved automatically to
+        temporary files to be possibly re-loaded on relaunch (if configured
+        to load last project).
+      '';
       autoSaveInterval = {
         minutes = mkOption {
           type = types.nullOr positiveMinutes;
@@ -391,9 +365,8 @@ in {
           example = 15;
           description = "Auto-save interval in minutes.";
         };
-        mode = mkOption {
-          type = types.nullOr (types.enum (builtins.attrNames autoSaveIntervalModes));
-          default = null;
+        mode = reaEnum {
+          enum = builtins.attrNames autoSaveIntervalModes;
           example = "whenNotRecording";
           description = "When REAPER may auto-save.";
         };

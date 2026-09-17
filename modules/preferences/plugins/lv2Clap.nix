@@ -38,13 +38,19 @@ in {
         type = types.listOf types.str;
         default = [];
         example = ["~/.lv2"];
-        description = "LV2 search paths written to `[reaper].lv2path_linux` before any enabled Nix and conventional user paths are appended.";
+        description = ''
+          LV2 search paths written to `[reaper].lv2path_linux` before any
+          enabled Nix and conventional user paths are appended.
+        '';
       };
 
       enableNixPaths = mkOption {
         type = types.bool;
         default = true;
-        description = "Whether to append LV2 directories from the per-user, user, and system Nix profiles.";
+        description = ''
+          Whether to append LV2 directories from the per-user, user, and system
+          Nix profiles.
+        '';
       };
 
       enableUserPaths = mkOption {
@@ -59,13 +65,19 @@ in {
         type = types.listOf types.str;
         default = [];
         example = ["~/.clap"];
-        description = "CLAP search paths written to REAPER's Linux CLAP path before any enabled Nix and conventional user paths are appended.";
+        description = ''
+          CLAP search paths written to REAPER's Linux CLAP path before any
+          enabled Nix and conventional user paths are appended.
+        '';
       };
 
       enableNixPaths = mkOption {
         type = types.bool;
         default = true;
-        description = "Whether to append CLAP directories from the per-user, user, and system Nix profiles.";
+        description = ''
+          Whether to append CLAP directories from the per-user, user, and system
+          Nix profiles.
+        '';
       };
 
       enableUserPaths = mkOption {

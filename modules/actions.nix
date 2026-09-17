@@ -34,14 +34,18 @@
         type = types.int;
         default = 0;
         example = 32060;
-        description = "REAPER action section id. `0` is the main action section.";
+        description = ''
+          REAPER action section id. `0` is the main action section.
+        '';
       };
 
       comment = mkOption {
         type = types.nullOr types.str;
         default = null;
         example = "Main : Ctrl+Alt+Shift+O : Transport: Stop";
-        description = "Optional human-readable comment written after the key binding.";
+        description = ''
+          Optional human-readable comment written after the key binding.
+        '';
       };
     };
   };
@@ -95,7 +99,8 @@
         default = "scripts";
         description = ''
           How `path` is resolved before writing `reaper-kb.ini`: under
-          `Scripts`, under the REAPER resource directory, or as an absolute path.
+          `Scripts`, under the REAPER resource directory, or as an absolute
+          path.
         '';
       };
 
@@ -116,7 +121,9 @@
       name = mkOption {
         type = types.str;
         example = "Prepare recording";
-        description = "Name used to derive a stable command id when `commandId` is unset.";
+        description = ''
+          Name used to derive a stable command id when `commandId` is unset.
+        '';
       };
 
       description = mkOption {
@@ -124,7 +131,9 @@
         default = "Custom: ${config.name}";
         defaultText = literalExpression ''"Custom: ''${config.name}"'';
         example = "Custom: Prepare recording";
-        description = "Custom action description shown in REAPER's Actions list.";
+        description = ''
+          Custom action description shown in REAPER's Actions list.
+        '';
       };
 
       commandId = mkOption {
@@ -133,7 +142,8 @@
         example = "prepare_recording";
         description = ''
           Stable custom-action command id. When unset, a deterministic `CA...`
-          id is generated from the action section and `name`. Set this explicitly
+          id is generated from the action section and `name`. Set this
+          explicitly
           when a command id must remain unchanged after renaming the action.
         '';
       };
@@ -141,14 +151,17 @@
       section = mkOption {
         type = types.int;
         default = 0;
-        description = "REAPER action section in which this custom action is available.";
+        description = ''
+          REAPER action section in which this custom action is available.
+        '';
       };
 
       actions = mkOption {
         type = types.listOf (types.oneOf [types.int types.str]);
         example = [40001 40044 "RS_toggle_click"];
         description = ''
-          REAPER command ids, ReaScript ids, extension-action ids, or custom-action
+          REAPER command ids, ReaScript ids, extension-action ids, or
+          custom-action
           ids to run in order. String ids may be written with or without their
           leading underscore.
         '';
@@ -266,13 +279,18 @@ in {
     customActions = mkOption {
       type = types.listOf customActionType;
       default = [];
-      description = "Managed REAPER custom actions that run a sequence of actions.";
+      description = ''
+        Managed REAPER custom actions that run a sequence of actions.
+      '';
     };
 
     rawLines = mkOption {
       type = types.listOf types.str;
       default = [];
-      description = "Advanced raw `reaper-kb.ini` lines managed with previous-generation cleanup.";
+      description = ''
+        Advanced raw `reaper-kb.ini` lines managed with previous-generation
+        cleanup.
+      '';
     };
   };
 

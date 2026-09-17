@@ -1,6 +1,8 @@
 {
   config,
   lib,
+  reaBool,
+  reaEnum,
   reaperLib,
   ...
 }: let
@@ -115,100 +117,69 @@
   };
 in {
   options.programs.reaper.preferences.appearance.trackControlPanels = {
-    allowReorderingEmptySlotsInTcpMcpFxLists = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether reordering and empty slots are allowed in TCP/MCP FX lists.";
-    };
+    allowReorderingEmptySlotsInTcpMcpFxLists = reaBool ''
+      Whether reordering and empty slots are allowed in TCP/MCP FX lists.
+    '';
 
-    setTrackLabelBackgroundToCustomTrackColors = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = ''
-        Whether track label backgrounds are set to custom track colors.
-      '';
-    };
+    setTrackLabelBackgroundToCustomTrackColors = reaBool ''
+      Whether track label backgrounds are set to custom track colors.
+    '';
 
-    tintTrackPanelBackgrounds = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    tintTrackPanelBackgrounds = reaBool {
       example = false;
       description = ''
         Whether track panel backgrounds are tinted.
       '';
     };
 
-    alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = ''
-        Whether TCP controls are aligned when track icons or fixed item lanes are used.
-      '';
-    };
+    alignTcpControlsWhenTrackIconsOrFixedItemLanesAreUsed = reaBool ''
+      Whether TCP controls are aligned when track icons or fixed item lanes are
+      used.
+    '';
 
-    showFxInserts = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = ''
-        Whether FX inserts are shown in the track control panel when size permits.
-      '';
-    };
+    showFxInserts = reaBool ''
+      Whether FX inserts are shown in the track control panel when size permits.
+    '';
 
-    showSends = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = ''
-        Whether sends are shown in the track control panel when size permits.
-      '';
-    };
+    showSends = reaBool ''
+      Whether sends are shown in the track control panel when size permits.
+    '';
 
-    groupSendsWithFxInserts = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    groupSendsWithFxInserts = reaBool {
       example = false;
       description = ''
         Whether sends are grouped with before/after FX inserts.
       '';
     };
 
-    groupFxParametersWithInserts = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = ''
-        Whether FX parameters are grouped with their inserts.
-      '';
-    };
+    groupFxParametersWithInserts = reaBool ''
+      Whether FX parameters are grouped with their inserts.
+    '';
 
-    folderCollapseButtonCyclesTrackHeights = mkOption {
-      type = types.nullOr (reaperTypes.numericEnum reaperLib.reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights);
-      default = null;
+    folderCollapseButtonCyclesTrackHeights = reaEnum {
+      enum = reaperLib.reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights;
+      coerce = "values";
       example = literalExpression "reaperAppearance.trackControlPanels.folderCollapseButtonCyclesTrackHeights.normalSmallCollapsed";
       description = ''
         Track height cycle used by the folder collapse button.
       '';
     };
 
-    fixedLaneCollapseButtonChangesDisplay = mkOption {
-      type = types.nullOr (reaperTypes.numericEnum reaperLib.reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay);
-      default = null;
+    fixedLaneCollapseButtonChangesDisplay = reaEnum {
+      enum = reaperLib.reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay;
+      coerce = "values";
       example = literalExpression "reaperAppearance.trackControlPanels.fixedLaneCollapseButtonChangesDisplay.bigSmallLanes";
       description = ''
         Fixed lane display mode toggled by the fixed lane collapse button.
       '';
     };
 
-    trackGroupingIndicators = mkOption {
-      type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.trackGroupingIndicators));
-      default = null;
+    trackGroupingIndicators = reaEnum {
+      enum = reaperLib.reaperAppearance.trackControlPanels.trackGroupingIndicators;
       example = literalExpression "reaperAppearance.trackControlPanels.trackGroupingIndicators.ribbons";
       description = ''
-        Track grouping indicator display mode in Track Control Panel preferences.
+        Track grouping indicator display mode in Track Control Panel
+        preferences.
       '';
     };
 
@@ -237,14 +208,14 @@ in {
       default = null;
       example = literalExpression "reaperAppearance.trackControlPanels.volumeFaderShape.default";
       description = ''
-        TCP volume fader shape. Use `reaperAppearance.trackControlPanels.volumeFaderShape`
+        TCP volume fader shape. Use
+        `reaperAppearance.trackControlPanels.volumeFaderShape`
         for REAPER's named choices, or a custom shape between `0.25` and `4.0`.
       '';
     };
 
-    panFaderUnitDisplay = mkOption {
-      type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.trackControlPanels.panFaderUnitDisplay));
-      default = null;
+    panFaderUnitDisplay = reaEnum {
+      enum = reaperLib.reaperAppearance.trackControlPanels.panFaderUnitDisplay;
       example = literalExpression "reaperAppearance.trackControlPanels.panFaderUnitDisplay.percent100";
       description = ''
         TCP pan fader unit display mode.

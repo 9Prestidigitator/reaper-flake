@@ -1,6 +1,8 @@
 {
   config,
   lib,
+  reaBool,
+  reaEnum,
   reaperLib,
   reaperProject,
   ...
@@ -49,99 +51,111 @@ in {
       example = 0.080;
       description = "The default crossfade length, in seconds.";
     };
-    defaultFadeInFadeOutShape = mkOption {
-      type = types.nullOr (types.enum (builtins.attrNames fadeInOutShapes));
-      default = null;
+    defaultFadeInFadeOutShape = reaEnum {
+      enum = builtins.attrNames fadeInOutShapes;
       example = literalExpression "fadeInOutShapes.exponential";
       description = "The default fade-in/fade-out shape.";
     };
-    defaultCrossfadeShape = mkOption {
-      type = types.nullOr (types.enum (builtins.attrNames crossfadeShapes));
-      default = null;
+    defaultCrossfadeShape = reaEnum {
+      enum = builtins.attrNames crossfadeShapes;
       example = literalExpression "crossfadeShapes.centerDip";
       description = "The default crossfade shape.";
     };
 
     importedMediaItems = {
-      fadeInFadeOut = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      fadeInFadeOut = reaBool {
         description = "Automatically fade-in/fade-out imported media items.";
       };
     };
     recordedMediaItems = {
-      fadeInFadeOut = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        description = "Automatically fade-in/fade-out newly recorded media items.";
+      fadeInFadeOut = reaBool {
+        description = ''
+          Automatically fade-in/fade-out newly recorded media items.
+        '';
       };
-      overlap = mkOption {
-        type = types.nullOr (types.enum (builtins.attrNames itemOverlapModes));
-        default = null;
-        description = "Overlap and crossfade when a new recording overlaps existing media items.";
+      overlap = reaEnum {
+        enum = builtins.attrNames itemOverlapModes;
+        description = ''
+          Overlap and crossfade when a new recording overlaps existing media
+          items.
+        '';
       };
     };
     splitMediaItems = {
-      fadeInFadeOut = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        description = "Automatically fade-in/fade-out media items created by splitting.";
+      fadeInFadeOut = reaBool {
+        description = ''
+          Automatically fade-in/fade-out media items created by splitting.
+        '';
       };
-      overlap = mkOption {
-        type = types.nullOr (types.enum (builtins.attrNames itemOverlapModes));
-        default = null;
+      overlap = reaEnum {
+        enum = builtins.attrNames itemOverlapModes;
         description = "Overlap and crossfade when splitting media items.";
       };
-      overlapCrossfadePosition = mkOption {
-        type = types.nullOr (types.enum (builtins.attrNames crossfadePositions));
-        default = null;
+      overlapCrossfadePosition = reaEnum {
+        enum = builtins.attrNames crossfadePositions;
         example = literalExpression "crossfadePositions.left";
-        description = "Crossfade to the left, right, or center when splitting media items.";
+        description = ''
+          Crossfade to the left, right, or center when splitting media items.
+        '';
       };
     };
 
-    fixedLaneCompAreas = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      description = "Automatically fade-in/fade-out and crossfade fixed-lane comp areas.";
+    fixedLaneCompAreas = reaBool {
+      description = ''
+        Automatically fade-in/fade-out and crossfade fixed-lane comp areas.
+      '';
     };
-    trimContentBehindMediaEditsEnabled = mkOption {
-      type = types.nullOr (types.enum (builtins.attrNames itemOverlapModes));
-      default = null;
-      description = "Overlap and crossfade when editing with 'trim content behind media items' enabled.";
+    trimContentBehindMediaEditsEnabled = reaEnum {
+      enum = builtins.attrNames itemOverlapModes;
+      description = ''
+        Overlap and crossfade when editing with 'trim content behind media
+        items' enabled.
+      '';
     };
-    trimContentBehindRazorEditsEnabled = mkOption {
-      type = types.nullOr (types.enum (builtins.attrNames itemOverlapModes));
-      default = null;
-      description = "Overlap and crossfade when editing with 'trim content behind razor edits' enabled.";
+    trimContentBehindRazorEditsEnabled = reaEnum {
+      enum = builtins.attrNames itemOverlapModes;
+      description = ''
+        Overlap and crossfade when editing with 'trim content behind razor
+        edits' enabled.
+      '';
     };
 
     limitSplitCreatedFadeCrossfadeTo = {
-      enable = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        description = "Whether splits limit created fade/crossfade lengths to a fixed number of pixels instead of a percentage of the visible arrange view.";
+      enable = reaBool {
+        description = ''
+          Whether splits limit created fade/crossfade lengths to a fixed number
+          of pixels instead of a percentage of the visible arrange view.
+        '';
       };
       pixels = mkOption {
         type = types.nullOr types.ints.unsigned;
         default = null;
-        description = "Maximum fade/crossfade length created by splits, in pixels.";
+        description = ''
+          Maximum fade/crossfade length created by splits, in pixels.
+        '';
       };
     };
-    rightClickOnCrossfadeSetsFadeShapeForOnlyOneSideOfTheCrossfade = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      description = "Right-click a fade or crossfade to change the fade shape. For a crossfade, right-click can change the shape of both sides, or one side only.";
+    rightClickOnCrossfadeSetsFadeShapeForOnlyOneSideOfTheCrossfade = reaBool {
+      description = ''
+        Right-click a fade or crossfade to change the fade shape. For a
+        crossfade, right-click can change the shape of both sides, or one side
+        only.
+      '';
     };
-    applyFadeInFadeOutCrossfadePreferencesToMidiItems = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      description = "Apply the above fade/crossfade settings, and the project auto-crossfade setting, to MIDI items. Fades on MIDI items affect note velocities, not MIDI volume.";
+    applyFadeInFadeOutCrossfadePreferencesToMidiItems = reaBool {
+      description = ''
+        Apply the above fade/crossfade settings, and the project auto-crossfade
+        setting, to MIDI items. Fades on MIDI items affect note velocities, not
+        MIDI volume.
+      '';
     };
     defaultStretchMarkerFadeSizeForNewItem = mkOption {
       type = types.nullOr reaperTypes.number;
       default = null;
-      description = "Default stretch marker crossfade size for new items, in milliseconds. Change existing items through media item properties.";
+      description = ''
+        Default stretch marker crossfade size for new items, in milliseconds.
+        Change existing items through media item properties.
+      '';
     };
   };
 

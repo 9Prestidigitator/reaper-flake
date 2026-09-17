@@ -1,4 +1,9 @@
-{lib}: {
+{lib}: let
+  reaperOptions = import ./options.nix {inherit lib;};
+in {
+  inherit reaperOptions;
+  inherit (reaperOptions) reaBool reaEnum;
+
   reaperTypes = import ./types.nix {inherit lib;};
 
   reaperCodecs = import ./codecs.nix {inherit lib;};

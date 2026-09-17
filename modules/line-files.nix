@@ -12,7 +12,10 @@ in {
       type = types.attrsOf (types.listOf types.str);
       default = {};
       internal = true;
-      description = "Line-oriented REAPER files managed additively with previous-generation cleanup.";
+      description = ''
+        Line-oriented REAPER files managed additively with previous-generation
+        cleanup.
+      '';
     };
     generatedFiles = mkOption {
       type = types.attrsOf types.path;

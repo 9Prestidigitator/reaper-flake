@@ -410,3 +410,51 @@ Future ordered formats should receive dedicated adapters that emit their public 
   ownership checks.
 - `modules/default.nix` — activation ordering, state cleanup, and the REAPER
   launcher wrapper.
+
+## Shared option declarations
+
+`reaBool` and `reaEnum` are available as Home Manager module arguments, through
+`reaperOptions`, and through `reaperLib`. They declare nullable options with a
+`null` default; the existing INI contribution helpers still handle encoding and
+ownership.
+
+```nix
+{ reaBool, reaEnum, ... }: {
+  options.programs.reaper.example = {
+    enabled = reaBool "Whether this feature is enabled.";
+
+    prompt = reaBool {
+      description = "Whether to prompt before continuing.";
+      example = false;
+    };
+
+    mode = reaEnum {
+      enum = ["automatic" "manual"];
+      description = "How this feature operates.";
+      example = "automatic";
+    };
+
+    placement = reaEnum {
+      enum = { left = 0; right = 1; };
+      description = "Placement of the control.";
+      example = 1;
+    };
+  };
+}
+```
+
+The boolean string shorthand supplies `example = true`. Its attribute-set form
+passes metadata through without adding an example. Both helpers accept normal
+`mkOption` attributes such as `default`, `example`, `visible`, and `internal`.
+Examples are preserved as supplied: use `lib.literalExpression` explicitly for
+Nix-expression examples.
+
+An enum list contains the accepted values directly. An enum attribute set uses
+its values; pass `builtins.attrNames values` to accept only its names. For options
+that already accept names and numbers, use `enum = values` with `coerce = "names"`
+to normalize numeric aliases to names, or `coerce = "values"` to normalize names
+to numeric values. These retain the behavior of `reaperTypes.namedEnum` and
+`reaperTypes.numericEnum`, respectively.
+
+Use `mkOption` directly for non-nullable options, compound structures, or other
+specialized types.

@@ -335,7 +335,9 @@ in {
           type = types.nullOr types.bool;
           default = null;
           example = false;
-          description = "Whether the floating master mixer window is maximized.";
+          description = ''
+            Whether the floating master mixer window is maximized.
+          '';
         };
       };
 
@@ -347,7 +349,8 @@ in {
           default = null;
           example = literalExpression "reaperWindows.transport.topOfMainWindow";
           description = ''
-            Transport position in REAPER's main window. Named values are available
+            Transport position in REAPER's main window. Named values are
+            available
             from `reaperWindows.transport`.
           '';
         };

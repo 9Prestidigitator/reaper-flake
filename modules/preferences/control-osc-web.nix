@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  reaBool,
   pkgs,
   reaperControlOscWeb,
   reaperLib,
@@ -25,31 +26,44 @@
       midiInput = mkOption {
         type = types.int;
         default = -1;
-        description = "Zero-based native MIDI input device index, or `-1` for none.";
+        description = ''
+          Zero-based native MIDI input device index, or `-1` for none.
+        '';
       };
 
       midiOutput = mkOption {
         type = types.int;
         default = -1;
-        description = "Zero-based native MIDI output device index, or `-1` for none.";
+        description = ''
+          Zero-based native MIDI output device index, or `-1` for none.
+        '';
       };
 
       surfaceOffsetTracks = mkOption {
         type = types.nullOr types.ints.unsigned;
         default = null;
-        description = "Surface offset (tracks). When unset, REAPER's mode default is used: `1` for HUI and `0` for the other applicable modes.";
+        description = ''
+          Surface offset (tracks). When unset, REAPER's mode default is used:
+          `1` for HUI and `0` for the other applicable modes.
+        '';
       };
 
       sizeTweak = mkOption {
         type = types.ints.positive;
         default = 9;
-        description = "Size tweak. REAPER recommends leaving this at `9` unless the surface requires another value.";
+        description = ''
+          Size tweak. REAPER recommends leaving this at `9` unless the surface
+          requires another value.
+        '';
       };
 
       faderCount = mkOption {
         type = types.ints.positive;
         default = 8;
-        description = "HUI fader count; usually `8`, but it may be larger for multichannel HUI devices.";
+        description = ''
+          HUI fader count; usually `8`, but it may be larger for multichannel
+          HUI devices.
+        '';
       };
 
       ignoreFaderMovesWhenFaderIsNotBeingTouched = mkOption {
@@ -67,7 +81,10 @@
       ignoreGlobalBankOffsetsAlwaysMapToTracksSpecified = mkOption {
         type = types.bool;
         default = false;
-        description = "Ignore global bank offsets and always map to the tracks specified by the surface offset.";
+        description = ''
+          Ignore global bank offsets and always map to the tracks specified by
+          the surface offset.
+        '';
       };
 
       deviceName = mkOption {
@@ -80,7 +97,10 @@
         type = types.str;
         default = "";
         example = "Default.ReaperOSC";
-        description = "OSC pattern config. An empty string selects REAPER's Default pattern config.";
+        description = ''
+          OSC pattern config. An empty string selects REAPER's Default pattern
+          config.
+        '';
       };
 
       oscMode = mkOption {
@@ -111,7 +131,9 @@
       allowBindingMessagesToReaperActionsAndFxLearn = mkOption {
         type = types.bool;
         default = false;
-        description = "Allow binding OSC messages to REAPER actions and FX learn.";
+        description = ''
+          Allow binding OSC messages to REAPER actions and FX learn.
+        '';
       };
 
       outgoingMaxPacketSize = mkOption {
@@ -144,20 +166,28 @@
         type = types.str;
         default = "";
         example = "user:password";
-        description = "Web browser interface username and password in REAPER's `username:password` format; blank disables authentication.";
+        description = ''
+          Web browser interface username and password in REAPER's
+          `username:password` format; blank disables authentication.
+        '';
       };
 
       defaultInterface = mkOption {
         type = types.str;
         default = "index.html";
-        description = "Default web browser interface page, from user pages or REAPER's built-in pages.";
+        description = ''
+          Default web browser interface page, from user pages or REAPER's
+          built-in pages.
+        '';
       };
 
       useRcReaperFm = {
         enable = mkOption {
           type = types.bool;
           default = false;
-          description = "Publish the web browser interface through rc.reaper.fm.";
+          description = ''
+            Publish the web browser interface through rc.reaper.fm.
+          '';
         };
 
         id = mkOption {
@@ -256,31 +286,36 @@ in {
           }
         ]
       '';
-      description = "Ordered control surfaces, OSC devices, and web browser interfaces. `null` preserves REAPER's current list; a list replaces it.";
+      description = ''
+        Ordered control surfaces, OSC devices, and web browser interfaces.
+        `null` preserves REAPER's current list; a list replaces it.
+      '';
     };
 
     controlSurfaceDisplayUpdateFrequency = mkOption {
       type = types.nullOr types.ints.positive;
       default = null;
       example = 15;
-      description = "Control surface display update frequency in Hz (REAPER defaults to 15 Hz).";
+      description = ''
+        Control surface display update frequency in Hz (REAPER defaults to 15
+        Hz).
+      '';
     };
 
-    warnWhenErrorsOpeningSurfaceMidiDevices = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      description = "Warn when errors occur while opening surface MIDI devices.";
+    warnWhenErrorsOpeningSurfaceMidiDevices = reaBool {
+      description = ''
+        Warn when errors occur while opening surface MIDI devices.
+      '';
     };
 
-    closeControlSurfaceDevicesWhenStoppedAndNotActiveApplication = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      description = "Close control surface devices when stopped and REAPER is not the active application.";
+    closeControlSurfaceDevicesWhenStoppedAndNotActiveApplication = reaBool {
+      description = ''
+        Close control surface devices when stopped and REAPER is not the active
+        application.
+      '';
     };
 
-    closeControlSurfaceDevicesWhenRendering = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    closeControlSurfaceDevicesWhenRendering = reaBool {
       description = "Close control surface devices when rendering.";
     };
   };

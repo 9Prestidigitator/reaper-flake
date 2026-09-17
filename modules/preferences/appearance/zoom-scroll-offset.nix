@@ -1,6 +1,8 @@
 {
   config,
   lib,
+  reaBool,
+  reaEnum,
   reaperLib,
   ...
 }: let
@@ -68,12 +70,12 @@
   };
 in {
   options.programs.reaper.preferences.appearance.zoomScrollOffset = {
-    verticalZoomCenter = mkOption {
-      type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.zoomScrollOffset.zoomCenter.vertical));
-      default = null;
+    verticalZoomCenter = reaEnum {
+      enum = reaperLib.reaperAppearance.zoomScrollOffset.zoomCenter.vertical;
       example = literalExpression "reaperAppearance.zoomScrollOffset.zoomCenter.vertical.lastSelectedTrack";
       description = ''
-        Vertical zoom center in Zoom/Scroll/Offset menu in Appearance preferences menu. Null default is `Track at view center`.
+        Vertical zoom center in Zoom/Scroll/Offset menu in Appearance
+        preferences menu. Null default is `Track at view center`.
       '';
     };
     maximumVerticalZoom = mkOption {
@@ -81,8 +83,10 @@ in {
       default = null;
       example = 1.25;
       description = ''
-        Maximum vertical zoom in Zoom/Scroll/Offset menu in Appearance preferences menu.
-        Use a normalized percentage where `1.0` is `100%`. Null default is `100%`.
+        Maximum vertical zoom in Zoom/Scroll/Offset menu in Appearance
+        preferences menu.
+        Use a normalized percentage where `1.0` is `100%`. Null default is
+        `100%`.
       '';
     };
     envelopeLaneVerticalZoom = mkOption {
@@ -90,41 +94,43 @@ in {
       default = null;
       example = 0.32;
       description = ''
-        Envelope lane vertical zoom in Zoom/Scroll/Offset menu in Appearance preferences menu.
+        Envelope lane vertical zoom in Zoom/Scroll/Offset menu in Appearance
+        preferences menu.
         Use a normalized percentage where `0.5` is `50%`. Null default is `50%`.
       '';
     };
-    horizontalZoomCenter = mkOption {
-      type = types.nullOr (types.enum (builtins.attrValues reaperLib.reaperAppearance.zoomScrollOffset.zoomCenter.horizontal));
-      default = null;
+    horizontalZoomCenter = reaEnum {
+      enum = reaperLib.reaperAppearance.zoomScrollOffset.zoomCenter.horizontal;
       example = literalExpression "reaperAppearance.zoomScrollOffset.zoomCenter.horizontal.editCursor";
       description = ''
-        Horizontal zoom center in Zoom/Scroll/Offset menu in Appearance preferences menu. Null default is `Edit cursor or play cursor (default)`.
+        Horizontal zoom center in Zoom/Scroll/Offset menu in Appearance
+        preferences menu. Null default is `Edit cursor or play cursor
+        (default)`.
       '';
     };
-    limitHorizontalZoomScrollToProjectStart = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    limitHorizontalZoomScrollToProjectStart = reaBool {
       example = false;
       description = ''
-        Whether horizontal zoom and scroll are limited to the project start. Null default is checked.
+        Whether horizontal zoom and scroll are limited to the project start.
+        Null default is checked.
       '';
     };
-    disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
+    disableMousewheelVerticalZoomForTracksThatArePinnedInArrangeView = reaBool {
       description = ''
-        Whether mousewheel vertical zoom is disabled for tracks pinned in arrange view.
+        Whether mousewheel vertical zoom is disabled for tracks pinned in
+        arrange
+        view.
       '';
+      example = true;
     };
     verticalScrollStep = {
-      unit = mkOption {
-        type = types.nullOr (reaperTypes.numericEnum reaperLib.reaperAppearance.zoomScrollOffset.verticalScrollStep.units);
-        default = null;
+      unit = reaEnum {
+        enum = reaperLib.reaperAppearance.zoomScrollOffset.verticalScrollStep.units;
+        coerce = "values";
         example = literalExpression "reaperAppearance.zoomScrollOffset.verticalScrollStep.units.trackHeight";
         description = ''
-          Unit used for vertical scroll step. Null default is `% of track height`.
+          Unit used for vertical scroll step. Null default is `% of track
+          height`.
         '';
       };
       trackHeight = mkOption {
@@ -132,7 +138,8 @@ in {
         default = null;
         example = 0.5;
         description = ''
-          Vertical scroll step as a percentage of track height, where `0.5` is `50%`.
+          Vertical scroll step as a percentage of track height, where `0.5` is
+          `50%`.
         '';
       };
       arrangeViewHeight = mkOption {
@@ -140,7 +147,8 @@ in {
         default = null;
         example = 0.1;
         description = ''
-          Vertical scroll step as a percentage of arrange view height, where `0.1` is `10%`.
+          Vertical scroll step as a percentage of arrange view height, where
+          `0.1` is `10%`.
         '';
       };
     };
@@ -150,21 +158,21 @@ in {
         default = null;
         example = 100;
         description = ''
-          Vertical offset for overlapping media items, as a percent of item height.
+          Vertical offset for overlapping media items, as a percent of item
+          height.
         '';
       };
-      drawAsOpaque = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = false;
-        description = "Whether vertically offset overlapping media items are drawn as opaque.";
-      };
-      arrangeInCreationOrder = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      drawAsOpaque = reaBool {
         example = false;
         description = ''
-          Whether overlapping media items are arranged in the order they were created.
+          Whether vertically offset overlapping media items are drawn as opaque.
+        '';
+      };
+      arrangeInCreationOrder = reaBool {
+        example = false;
+        description = ''
+          Whether overlapping media items are arranged in the order they were
+          created.
         '';
       };
     };

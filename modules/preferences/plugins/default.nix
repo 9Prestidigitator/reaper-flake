@@ -1,6 +1,8 @@
 {
   config,
   lib,
+  reaBool,
+  reaEnum,
   reaperLib,
   reaperPlugins,
   ...
@@ -18,180 +20,90 @@ in {
   ];
 
   options.programs.reaper.preferences.plugIns = {
-    automaticallyResizeFxWindow.up = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Automatically resize FX window up.";
-    };
-    automaticallyResizeFxWindow.down = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Automatically resize FX window down.";
-    };
-    autoFloatUiForFxCreatedViaFxBrowser = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Auto-float UI for FX created via FX browser.";
-    };
-    autoFloatUiForFxCreatedViaRightClickMenu = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Auto-float UI for FX created via right-click menu.";
-    };
-    autoOpenUiAfterDragDropEntireFxChain = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Auto-open UI after drag/drop entire FX chain.";
-    };
+    automaticallyResizeFxWindow.up = reaBool ''
+      Automatically resize FX window up.
+    '';
+    automaticallyResizeFxWindow.down = reaBool ''
+      Automatically resize FX window down.
+    '';
+    autoFloatUiForFxCreatedViaFxBrowser = reaBool ''
+      Auto-float UI for FX created via FX browser.
+    '';
+    autoFloatUiForFxCreatedViaRightClickMenu = reaBool ''
+      Auto-float UI for FX created via right-click menu.
+    '';
+    autoOpenUiAfterDragDropEntireFxChain = reaBool ''
+      Auto-open UI after drag/drop entire FX chain.
+    '';
     autoOpenFxBrowserWhenOpeningEmptyFxChain = {
-      enable = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Auto-open FX browser when opening empty FX chain.";
-      };
-      hideChainUntilAdded = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Hide chain until added.";
-      };
+      enable = reaBool "Auto-open FX browser when opening empty FX chain.";
+      hideChainUntilAdded = reaBool "Hide chain until added.";
     };
 
-    fxChainPositioning = mkOption {
-      type = types.nullOr (types.enum ["cascade" "automatic" "modalDefault"]);
-      default = null;
+    fxChainPositioning = reaEnum {
+      enum = ["cascade" "automatic" "modalDefault"];
       example = "cascade";
       description = "Positioning mode for FX chain windows.";
     };
-    floatingFxPositioning = mkOption {
-      type = types.nullOr (types.enum ["cascade" "automatic" "modalDefault"]);
-      default = null;
+    floatingFxPositioning = reaEnum {
+      enum = ["cascade" "automatic" "modalDefault"];
       example = "cascade";
       description = "Positioning mode for floating FX windows.";
     };
 
-    autoDockNewFxChainWindows = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Auto-dock new FX chain windows.";
-    };
+    autoDockNewFxChainWindows = reaBool "Auto-dock new FX chain windows.";
 
     onlyAllowOneFxChainWindowAtATime = {
-      enable = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Only allow one FX chain window at a time.";
-      };
-      openTrackFxWindowOnTrackSelectionChange = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Open track FX window on track selection change.";
-      };
-      onlyIfAnyFxWindowIsOpen = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Only if any FX window is open.";
-      };
+      enable = reaBool "Only allow one FX chain window at a time.";
+      openTrackFxWindowOnTrackSelectionChange = reaBool ''
+        Open track FX window on track selection change.
+      '';
+      onlyIfAnyFxWindowIsOpen = reaBool "Only if any FX window is open.";
     };
 
     onlyAllowOneFxFloatingAtATime = {
-      enable = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Only allow one FX floating at a time.";
-      };
-      excludeMonitoringFx = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Exclude monitoring FX.";
-      };
-      excludeMasterTrackFx = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Exclude master track FX.";
-      };
-      onePerTrack = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "One per track.";
-      };
+      enable = reaBool "Only allow one FX floating at a time.";
+      excludeMonitoringFx = reaBool "Exclude monitoring FX.";
+      excludeMasterTrackFx = reaBool "Exclude master track FX.";
+      onePerTrack = reaBool "One per track.";
     };
 
-    automaticallyForegroundFloatingWindowIfOpenWhenSelectingFx = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Automatically foreground floating window, if open, when selecting FX in the FX chain.";
-    };
-    showFxListOnRightSideOfFxChainWindow = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Show FX list on right side of FX chain window.";
-    };
-    showFxChainButtonsAboveFxList = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Show FX chain buttons above FX list.";
-    };
-    showCommentFieldAboveFxUi = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Show comment field above FX UI.";
-    };
-    showFxStateAsAccessibleTextInName = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Show FX state as accessible text in name.";
-    };
+    automaticallyForegroundFloatingWindowIfOpenWhenSelectingFx = reaBool ''
+      Automatically foreground floating window, if open, when selecting FX in
+      the FX chain.
+    '';
+    showFxListOnRightSideOfFxChainWindow = reaBool ''
+      Show FX list on right side of FX chain window.
+    '';
+    showFxChainButtonsAboveFxList = reaBool ''
+      Show FX chain buttons above FX list.
+    '';
+    showCommentFieldAboveFxUi = reaBool "Show comment field above FX UI.";
+    showFxStateAsAccessibleTextInName = reaBool ''
+      Show FX state as accessible text in name.
+    '';
 
-    showCurrentTrackFxInFxButtonRightClickMenu = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Show current track FX in FX button right-click menu.";
-    };
-    doNotCreateUndoPointsWhenClosingFxWindows = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Do not create undo points when closing FX windows.";
-    };
-    promptToCreateRoutingWhenInsertingNewMultichannelInstruments = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Prompt to create routing when inserting new multichannel instruments.";
-    };
-    preservePinMappingsWhenLoadingPresets = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Preserve pin mappings when loading presets.";
-    };
+    showCurrentTrackFxInFxButtonRightClickMenu = reaBool ''
+      Show current track FX in FX button right-click menu.
+    '';
+    doNotCreateUndoPointsWhenClosingFxWindows = reaBool ''
+      Do not create undo points when closing FX windows.
+    '';
+    promptToCreateRoutingWhenInsertingNewMultichannelInstruments = reaBool ''
+      Prompt to create routing when inserting new multichannel instruments.
+    '';
+    preservePinMappingsWhenLoadingPresets = reaBool ''
+      Preserve pin mappings when loading presets.
+    '';
 
     onlyShowFxMatchingFilterString = mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "NOT VST2";
-      description = "Filter expression limiting the FX shown in the browser. An empty string clears the filter.";
+      description = ''
+        Filter expression limiting the FX shown in the browser. An empty string
+        clears the filter.
+      '';
     };
     recentlyUsedListMax = mkOption {
       type = types.nullOr types.ints.unsigned;

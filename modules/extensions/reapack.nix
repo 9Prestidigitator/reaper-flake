@@ -64,7 +64,9 @@
         type = types.nullOr types.str;
         default = null;
         example = "1.2.3";
-        description = "Exact package version, or null to install the latest eligible version.";
+        description = ''
+          Exact package version, or null to install the latest eligible version.
+        '';
       };
 
       pin = mkOption {
@@ -76,7 +78,10 @@
       enablePrereleases = mkOption {
         type = types.bool;
         default = false;
-        description = "Allow the latest eligible version to be a pre-release and enable bleeding-edge updates for this package.";
+        description = ''
+          Allow the latest eligible version to be a pre-release and enable
+          bleeding-edge updates for this package.
+        '';
       };
     };
   };
@@ -492,7 +497,8 @@ in {
         default = null;
         example = "ask";
         description = ''
-          Whether ReaPack may download through reapack.com when GitHub rate limits
+          Whether ReaPack may download through reapack.com when GitHub rate
+          limits
           file download requests.
         '';
       };

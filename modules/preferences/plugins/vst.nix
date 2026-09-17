@@ -24,19 +24,27 @@ in {
       type = types.listOf types.str;
       default = [];
       example = ["~/Documents/vsts" "~/Downloads/vst3"];
-      description = "VST(3) search paths written to `[reaper].vstpath` before any enabled Nix and conventional user paths are appended.";
+      description = ''
+        VST(3) search paths written to `[reaper].vstpath` before any enabled Nix
+        and conventional user paths are appended.
+      '';
     };
 
     enableNixPaths = mkOption {
       type = types.bool;
       default = true;
-      description = "Whether to append VST and VST3 directories from the per-user, user, and system Nix profiles.";
+      description = ''
+        Whether to append VST and VST3 directories from the per-user, user, and
+        system Nix profiles.
+      '';
     };
 
     enableUserPaths = mkOption {
       type = types.bool;
       default = true;
-      description = "Whether to append the default `~/.vst` and `~/.vst3` paths.";
+      description = ''
+        Whether to append the default `~/.vst` and `~/.vst3` paths.
+      '';
     };
   };
 

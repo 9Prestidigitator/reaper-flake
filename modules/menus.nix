@@ -114,7 +114,9 @@
 
       entries = mkOption {
         type = types.listOf menuEntryType;
-        description = "Top-level entries in this REAPER menu, context menu, or toolbar.";
+        description = ''
+          Top-level entries in this REAPER menu, context menu, or toolbar.
+        '';
       };
 
       title = mkOption {

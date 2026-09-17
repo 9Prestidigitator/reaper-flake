@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  reaBool,
   reaperLib,
   ...
 }: let
@@ -20,53 +21,39 @@ in {
       type = types.nullOr types.str;
       default = null;
       example = "/home/user/.config/REAPER/ProjectTemplates/default.RPP";
-      description = "Project file REAPER uses as the template when creating new projects.";
+      description = ''
+        Project file REAPER uses as the template when creating new projects.
+      '';
     };
 
-    promptToSaveOnNewProject = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether REAPER prompts to save when creating a new project.";
-    };
+    promptToSaveOnNewProject = reaBool ''
+      Whether REAPER prompts to save when creating a new project.
+    '';
 
-    openPropertiesOnNewProject = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether REAPER opens Project Settings when creating a new project.";
-    };
+    openPropertiesOnNewProject = reaBool ''
+      Whether REAPER opens Project Settings when creating a new project.
+    '';
 
     projectLoading = {
-      lookForProjectMediaInProjectDirectoryBeforeQualifiedPath = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether REAPER looks for project media in the project directory before using its qualified path.";
-      };
+      lookForProjectMediaInProjectDirectoryBeforeQualifiedPath = reaBool ''
+        Whether REAPER looks for project media in the project directory before
+        using its qualified path.
+      '';
 
-      promptWhenFilesAreNotFound = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether REAPER prompts when files are not found while loading a project.";
-      };
+      promptWhenFilesAreNotFound = reaBool ''
+        Whether REAPER prompts when files are not found while loading a project.
+      '';
 
-      showLoadStatusAndSplash = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether REAPER shows load status and the splash screen while loading projects.";
-      };
+      showLoadStatusAndSplash = reaBool ''
+        Whether REAPER shows load status and the splash screen while loading
+        projects.
+      '';
     };
 
     projectSaving = {
-      saveFileReferencesWithRelativePathnames = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether project file references are saved with relative pathnames.";
-      };
+      saveFileReferencesWithRelativePathnames = reaBool ''
+        Whether project file references are saved with relative pathnames.
+      '';
 
       defaultSaveAsWildcardPattern = mkOption {
         type = types.nullOr types.str;

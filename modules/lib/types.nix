@@ -78,7 +78,9 @@ in {
     sliderShape =
       (types.addCheck number (value: value == -1.0 || (value >= 0.25 && value <= 4.0)))
       // {
-        description = "volume fader shape of -1 for REAPER default, or between 0.25 and 4";
+        description = ''
+          volume fader shape of -1 for REAPER default, or between 0.25 and 4
+        '';
       };
   };
 

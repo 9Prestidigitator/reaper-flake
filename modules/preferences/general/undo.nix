@@ -1,12 +1,13 @@
 {
   config,
   lib,
+  reaBool,
   reaperLib,
   ...
 }: let
   cfg = config.programs.reaper.preferences.general.undo;
 
-  inherit (lib) mkOption types;
+  inherit (lib) types;
   inherit (reaperLib) reaperBitfield reaperPreference;
 in {
   options.programs.reaper.preferences.general.undo = {
@@ -14,82 +15,54 @@ in {
       type = types.nullOr types.ints.unsigned;
       default = null;
       example = 256;
-      description = "Maxmimum undo memory (default: 256 MB). Enter 0 to disable the Undo function as well as the prompt to save modified projects on close.";
+      description = ''
+        Maxmimum undo memory (default: 256 MB). Enter 0 to disable the Undo
+        function as well as the prompt to save modified projects on close.
+      '';
     };
 
     includeSelection = {
-      item = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether item selections create undo points.";
-      };
-      track = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        example = true;
-        description = "Whether track selections create undo points.";
-      };
-      envelopePoint = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      item = reaBool "Whether item selections create undo points.";
+      track = reaBool "Whether track selections create undo points.";
+      envelopePoint = reaBool {
         example = false;
         description = "Whether envelope-point selections create undo points.";
       };
-      time = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      time = reaBool {
         example = false;
         description = "Whether time-selection changes create undo points.";
       };
-      cursorPosition = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      cursorPosition = reaBool {
         example = false;
         description = "Whether cursor-position changes create undo points.";
       };
-      midiEvents = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      midiEvents = reaBool {
         example = false;
         description = "Whether midi event changes create undo points.";
       };
     };
 
-    keepNewestStateWhenApproachingMemoryLimit = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether REAPER keeps the newest undo state when the undo memory limit is approached.";
-    };
+    keepNewestStateWhenApproachingMemoryLimit = reaBool ''
+      Whether REAPER keeps the newest undo state when the undo memory limit is
+      approached.
+    '';
 
-    storeMultipleRedoPathsWhenPossible = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    storeMultipleRedoPathsWhenPossible = reaBool {
       example = false;
       description = "Whether REAPER stores multiple redo paths when possible.";
     };
 
-    saveHistoryWithProjectFiles = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether REAPER saves undo history with project files in `.rpp-undo` files.";
-    };
+    saveHistoryWithProjectFiles = reaBool ''
+      Whether REAPER saves undo history with project files in `.rpp-undo` files.
+    '';
 
-    allowLoadingHistory = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Whether REAPER is allowed to load saved undo history.";
-    };
+    allowLoadingHistory = reaBool ''
+      Whether REAPER is allowed to load saved undo history.
+    '';
 
-    showLastUndoPointInMenuBar = reaperPreference.option {
-      type = types.nullOr types.bool;
-      default = null;
-      example = true;
-      description = "Show the last user action in REAPER's menu bar.";
-    };
+    showLastUndoPointInMenuBar = reaBool ''
+      Show the last user action in REAPER's menu bar.
+    '';
   };
 
   config.programs.reaper.ini.contributions =

@@ -1,6 +1,8 @@
 {
   config,
   lib,
+  reaBool,
+  reaEnum,
   reaperLib,
   reaperProject,
   ...
@@ -19,165 +21,123 @@ in {
       description = "Track volume fader gain in dB for new tracks.";
     };
 
-    mainParentSend = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    mainParentSend = reaBool {
       description = "Enable the Main (parent) send for new tracks.";
     };
 
     visibleEnvelopes = {
-      preFxVolume = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      preFxVolume = reaBool {
         description = "Whether new tracks show the pre-FX volume envelope.";
       };
-      preFxPan = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      preFxPan = reaBool {
         description = "Whether new tracks show the pre-FX pan envelope.";
       };
-      volume = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      volume = reaBool {
         description = "Whether new tracks show the volume envelope.";
       };
-      pan = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      pan = reaBool {
         description = "Whether new tracks show the pan envelope.";
       };
-      mute = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      mute = reaBool {
         description = "Whether new tracks show the mute envelope.";
       };
     };
 
-    envelopePointShape = mkOption {
-      type = types.nullOr (types.enum (builtins.attrNames envelopePointShapes));
-      default = null;
+    envelopePointShape = reaEnum {
+      enum = builtins.attrNames envelopePointShapes;
       example = "linear";
       description = "Default envelope point shape for new track envelopes.";
     };
 
-    automationMode = mkOption {
-      type = types.nullOr (types.enum (builtins.attrNames automationModes));
-      default = null;
+    automationMode = reaEnum {
+      enum = builtins.attrNames automationModes;
       example = "trimRead";
       description = "Default automation mode for new tracks.";
     };
-    armNewEnvelopes = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    armNewEnvelopes = reaBool {
       description = "Arm new envelopes by default.";
     };
 
-    trackHeightInNewProjects = mkOption {
-      type = types.nullOr (types.enum (builtins.attrNames trackHeights));
-      default = null;
+    trackHeightInNewProjects = reaEnum {
+      enum = builtins.attrNames trackHeights;
       example = "medium";
       description = "Track height in new projects.";
     };
 
-    showInMixer = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    showInMixer = reaBool {
       description = "Whether new tracks are shown in the mixer.";
     };
 
-    freeItemPositioning = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    freeItemPositioning = reaBool {
       description = "Enable free item positioning for new tracks.";
     };
 
-    fixedItemLanes = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    fixedItemLanes = reaBool {
       description = "Enable fixed item lanes for new tracks.";
     };
 
     fixedLaneDefaults = {
-      laneSize = mkOption {
-        type = types.nullOr (types.enum ["smallLanes" "bigLanes"]);
-        default = null;
+      laneSize = reaEnum {
+        enum = ["smallLanes" "bigLanes"];
         example = "bigLanes";
         description = "Default fixed lane size.";
       };
 
-      showPlayOnlyOneLane = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      showPlayOnlyOneLane = reaBool {
         description = "Show/play only one lane.";
       };
 
-      hideLaneButtons = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      hideLaneButtons = reaBool {
         description = "Hide lane buttons.";
       };
 
-      mediaItemsInHigherNumberedLanesMaskPlaybackOfLowerNumberedLanes = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        description = "Media items in higher numbered lanes mask playback of lower numbered lanes.";
+      mediaItemsInHigherNumberedLanesMaskPlaybackOfLowerNumberedLanes = reaBool {
+        description = ''
+          Media items in higher numbered lanes mask playback of lower numbered
+          lanes.
+        '';
       };
 
-      allowEditingSourceMediaWhileComping = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      allowEditingSourceMediaWhileComping = reaBool {
         description = "Allow editing source media while comping.";
       };
 
-      createCompAreasForNewRecordingWhileComping = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      createCompAreasForNewRecordingWhileComping = reaBool {
         description = "Create comp areas for new recording while comping.";
       };
 
-      newRecordingBehavior = mkOption {
-        type = types.nullOr (types.enum (builtins.attrNames fixedLaneRecordingBehaviors));
-        default = null;
+      newRecordingBehavior = reaEnum {
+        enum = builtins.attrNames fixedLaneRecordingBehaviors;
         example = "newRecordingAddsLanesNewLanesPlayExclusively";
         description = "Default behavior for new recording with fixed lanes.";
       };
 
-      automaticallyDeleteEmptyLanesAtBottomOfTrack = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      automaticallyDeleteEmptyLanesAtBottomOfTrack = reaBool {
         description = "Automatically delete empty lanes at bottom of track.";
       };
     };
 
-    recordArm = mkOption {
-      type = types.nullOr types.bool;
-      default = null;
+    recordArm = reaBool {
       description = "Whether new tracks are record-armed.";
     };
 
     recordConfig = {
-      monitorInput = mkOption {
-        type = types.nullOr (types.enum (builtins.attrNames recordConfigMonitorInputModes));
-        default = null;
+      monitorInput = reaEnum {
+        enum = builtins.attrNames recordConfigMonitorInputModes;
         example = "monitorInput";
         description = "Monitor Input mode.";
       };
 
-      monitorTrackMediaWhenRecording = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      monitorTrackMediaWhenRecording = reaBool {
         description = "Monitor track media when recording.";
       };
 
-      preservePdcDelayedMonitoringInRecordedItems = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      preservePdcDelayedMonitoringInRecordedItems = reaBool {
         description = "Preserve PDC delayed monitoring in recorded items.";
       };
 
-      record = mkOption {
-        type = types.nullOr (types.enum (builtins.attrNames recordConfigRecordModes));
-        default = null;
+      record = reaEnum {
+        enum = builtins.attrNames recordConfigRecordModes;
         example = "recordInputAudioOrMidi";
         description = "Record mode.";
       };
@@ -191,52 +151,49 @@ in {
           for Input: None. Audio inputs are zero-based: `0` is mono channel 1,
           `7` is mono channel 8, `1024 + n` selects a stereo pair beginning at
           channel `n + 1`, and `2048 + n` selects a multichannel input beginning
-          at channel `n + 1`. MIDI uses bit `4096` plus encoded device and channel
+          at channel `n + 1`. MIDI uses bit `4096` plus encoded device and
+          channel
           fields; for example, `6112` is All MIDI Inputs on all channels and
-          `6113` is All MIDI Inputs on channel 1. Specific MIDI-device values are
+          `6113` is All MIDI Inputs on channel 1. Specific MIDI-device values
+          are
           hardware-dependent and may not be portable between machines.
         '';
       };
 
-      automaticRecordArmWhenTrackSelected = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      automaticRecordArmWhenTrackSelected = reaBool {
         description = "Automatic record-arm when track selected.";
       };
     };
 
     newVolumeEnvelopes = {
-      scaling = mkOption {
-        type = types.nullOr (types.enum ["amplitude" "volumeFader"]);
-        default = null;
+      scaling = reaEnum {
+        enum = ["amplitude" "volumeFader"];
         example = "volumeFader";
         description = "Scaling used for new volume envelopes.";
       };
 
-      warnWhenChangingScalingChangesEnvelopeSound = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        description = "Whether REAPER warns when changing envelope scaling changes the envelope's sound.";
+      warnWhenChangingScalingChangesEnvelopeSound = reaBool {
+        description = ''
+          Whether REAPER warns when changing envelope scaling changes the
+          envelope's sound.
+        '';
       };
     };
 
     trackMeterDisplay = {
-      display = mkOption {
-        type = types.nullOr (types.enum (builtins.attrNames trackMeterDisplays));
-        default = null;
+      display = reaEnum {
+        enum = builtins.attrNames trackMeterDisplays;
         example = "stereoPeaks";
         description = "Track meter display.";
       };
 
-      lufsMeasuresFirstTwoChannelsOnlyIgnoreSidechain = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
-        description = "LUFS measures first two channels only (ignore sidechain).";
+      lufsMeasuresFirstTwoChannelsOnlyIgnoreSidechain = reaBool {
+        description = ''
+          LUFS measures first two channels only (ignore sidechain).
+        '';
       };
 
-      displayGainReductionForPlugInsThatSupportIt = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      displayGainReductionForPlugInsThatSupportIt = reaBool {
         description = "Display gain reduction for plug-ins that support it.";
       };
     };
@@ -253,25 +210,24 @@ in {
         type = types.nullOr reaperTypes.number;
         default = null;
         example = 1.0;
-        description = "Hardware output gain in dB for new track hardware outputs.";
+        description = ''
+          Hardware output gain in dB for new track hardware outputs.
+        '';
       };
 
-      sendHardwareOutputMode = mkOption {
-        type = types.nullOr (types.enum (builtins.attrNames sendHardwareOutputModes));
-        default = null;
+      sendHardwareOutputMode = reaEnum {
+        enum = builtins.attrNames sendHardwareOutputModes;
         example = "postFaderPostPan";
-        description = "Default routing mode for new sends and track hardware outputs.";
+        description = ''
+          Default routing mode for new sends and track hardware outputs.
+        '';
       };
 
-      sendsSendMidiByDefault = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      sendsSendMidiByDefault = reaBool {
         description = "Whether new sends send MIDI by default.";
       };
 
-      sendsSendAudioByDefault = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+      sendsSendAudioByDefault = reaBool {
         description = "Whether new sends send audio by default.";
       };
     };
