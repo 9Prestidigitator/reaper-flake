@@ -25,8 +25,10 @@ in {
       default = [];
       example = ["~/Documents/vsts" "~/Downloads/vst3"];
       description = ''
-        VST(3) search paths written to `[reaper].vstpath` before any enabled Nix
-        and conventional user paths are appended.
+        Additional VST(3) search paths written to `[reaper].vstpath`.
+        When empty and both `enableNixPaths` and `enableUserPaths` are
+        enabled (the default), REAPER uses its own built-in defaults,
+        leaving the INI key unmanaged and fully mutable at runtime.
       '';
     };
 
@@ -51,7 +53,7 @@ in {
   config.programs.reaper.ini.contributions = reaperPreference.contribution {
     path = "preferences.plugIns.vst.searchPaths";
     value = searchPaths;
-    configured = searchPaths != [] || !cfg.vst.enableNixPaths || !cfg.vst.enableUserPaths;
+    configured = cfg.vst.searchPaths != [] || !cfg.vst.enableNixPaths || !cfg.vst.enableUserPaths;
     section = "reaper";
     key = "vstpath";
     codec = "list";
