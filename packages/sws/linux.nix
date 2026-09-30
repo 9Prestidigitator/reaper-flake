@@ -33,4 +33,8 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   buildInputs = [gtk3];
+
+  # SWS 2.14 uses aggregate initialization that is incompatible with C++20.
+  # Keep the language mode stable when the compiler's default changes.
+  cmakeFlags = ["-DCMAKE_CXX_STANDARD=17"];
 })

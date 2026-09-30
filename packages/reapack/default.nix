@@ -46,7 +46,12 @@ stdenv.mkDerivation (finalAttrs: {
     zlib
   ];
 
-  cmakeFlags = ["-Wno-dev"];
+  cmakeFlags = [
+    "-Wno-dev"
+    # Upstream requires C++17; newer compiler defaults enable C++20 lambda
+    # deprecation warnings that its -Werror turns into build failures.
+    "-DCMAKE_CXX_STANDARD=17"
+  ];
 
   # Building from source on every platform ensures the managed-package API is
   # present in both the Linux shared object and the macOS dylib.

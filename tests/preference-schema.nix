@@ -344,11 +344,14 @@ in
     mask = 1;
     value = 1;
   };
-  assert bitfields.nativedrawtext_linux
-  == {
-    mask = 1;
-    value = 0;
-  };
+  assert if pkgs.stdenv.hostPlatform.isLinux
+  then
+    bitfields.nativedrawtext_linux
+    == {
+      mask = 1;
+      value = 0;
+    }
+  else !(bitfields ? nativedrawtext_linux);
   assert bitfields.custommenu
   == {
     mask = 1812;
