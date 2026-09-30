@@ -87,8 +87,6 @@
             part-theme = pkgs.callPackage ./packages/themes/part.nix {};
             reark-theme = pkgs.callPackage ./packages/themes/reark.nix {};
             reaclassical-theme = pkgs.callPackage ./packages/themes/reaclassical.nix {};
-            realinux-dark-swell-theme = pkgs.callPackage ./packages/themes/realinux-swell.nix {variant = "dark";};
-            realinux-light-swell-theme = pkgs.callPackage ./packages/themes/realinux-swell.nix {variant = "light";};
             reapertips-theme = pkgs.callPackage ./packages/themes/reapertips.nix {};
             smooth6-theme = pkgs.callPackage ./packages/themes/smooth6.nix {};
             xraym-analog-theme = pkgs.callPackage ./packages/themes/xraym-analog.nix {};
@@ -97,6 +95,8 @@
             sws = pkgs.callPackage ./packages/sws {};
           }
           // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+            realinux-dark-swell-theme = pkgs.callPackage ./packages/themes/realinux-swell.nix {variant = "dark";};
+            realinux-light-swell-theme = pkgs.callPackage ./packages/themes/realinux-swell.nix {variant = "light";};
             swell-wayland = swellWayland;
           };
 

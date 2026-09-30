@@ -8,8 +8,9 @@
   };
 
   darkTheme = fetchurl {
+    # The download endpoint currently serves Analog Dark v1.0.7.
     url = "https://www.extremraym.com/en/file/x-raym-analog-dark-v1-0/";
-    hash = "sha256-Z6ESHCsJTEWtCN6sCjjSXCzGilyqnevpoAFfsUcP11w=";
+    hash = "sha256-cY0VUTJtQYQ5pXsRKmUZAg+vb7IV6a1V1p+lIvUwSDk=";
   };
 in
   stdenvNoCC.mkDerivation {

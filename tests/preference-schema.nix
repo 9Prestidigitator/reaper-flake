@@ -319,8 +319,20 @@ in
   assert sections.transientthreshold == -18.5;
   assert bitfields.audiocloseinactive_linux
   == {
-    mask = 159;
-    value = 149;
+    mask =
+      if pkgs.stdenv.hostPlatform.isLinux
+      then 159
+      else 128;
+    value =
+      if pkgs.stdenv.hostPlatform.isLinux
+      then 149
+      else 128;
+  };
+  assert pkgs.stdenv.hostPlatform.isLinux
+  || bitfields.audiocloseinactive
+  == {
+    mask = 31;
+    value = 21;
   };
   assert bitfields.tooltips
   == {
