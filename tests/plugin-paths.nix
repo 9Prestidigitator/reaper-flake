@@ -129,6 +129,7 @@ in
     "/usr/lib/lv2"
     "/usr/local/lib/lv2"
     "~/.lv2"
+    "%LV2_PATH%"
   ];
   assert defaults.${clapKey}
   == [
@@ -162,6 +163,7 @@ in
     "/usr/lib/lv2"
     "/usr/local/lib/lv2"
     "~/.lv2"
+    "%LV2_PATH%"
   ];
   assert explicit.${clapKey}
   == [

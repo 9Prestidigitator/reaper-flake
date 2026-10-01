@@ -73,6 +73,16 @@ in
         default = true;
         description = "Whether to append the conventional LV2 paths.";
       };
+
+      mutable = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Whether to merge the computed search paths with the existing on-disk
+          value. When true, paths added via REAPER's UI are preserved across
+          activations. When false, the INI key is overwritten on every activation.
+        '';
+      };
     };
 
     clap = {
@@ -103,6 +113,16 @@ in
         default = true;
         description = "Whether to append the conventional CLAP paths.";
       };
+
+      mutable = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Whether to merge the computed search paths with the existing on-disk
+          value. When true, paths added via REAPER's UI are preserved across
+          activations. When false, the INI key is overwritten on every activation.
+        '';
+      };
     };
   };
 
@@ -110,7 +130,8 @@ in
     {
       path = "preferences.plugIns.clap.searchPaths";
       value = clapSearchPaths;
-      configured = cfg.clap.searchPaths != [ ] || !cfg.clap.enableNixPaths || !cfg.clap.enableUserPaths;
+      configured = true;
+      mutable = cfg.clap.mutable;
       section = "reaper";
       key = clapPathKey;
       codec = "list";
@@ -118,7 +139,8 @@ in
     {
       path = "preferences.plugIns.lv2.searchPaths";
       value = lv2SearchPaths;
-      configured = cfg.lv2.searchPaths != [ ] || !cfg.lv2.enableNixPaths || !cfg.lv2.enableUserPaths;
+      configured = true;
+      mutable = cfg.lv2.mutable;
       section = "reaper";
       key = "lv2path_linux";
       codec = "list";

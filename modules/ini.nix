@@ -44,6 +44,15 @@
           Whether this mapping currently contributes a managed value.
         '';
       };
+      mutable = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          When true, the writer merges the contributed value with any existing
+          on-disk value instead of replacing it. Currently supported only for
+          semicolon-separated list values.
+        '';
+      };
       mask = mkOption {
         type = types.nullOr types.ints.unsigned;
         default = null;
@@ -109,6 +118,31 @@
 
   contributions = cfg.ini.contributions;
   valueContributions = filter (contribution: contribution.kind == "value" && contribution.configured) contributions;
+
+  mutableKeys = builtins.foldl'
+    (result: contribution:
+      if contribution.file == "reaper.ini"
+      then
+        result
+        // {
+          ${contribution.section} =
+            (result.${contribution.section} or [])
+            ++ [contribution.key];
+        }
+      else
+        result
+        // {
+          ${contribution.file} =
+            (result.${contribution.file} or {})
+            // {
+              ${contribution.section} =
+                (result.${contribution.file}.${contribution.section} or [])
+                ++ [contribution.key];
+            };
+        }
+    )
+    {}
+    (filter (contribution: contribution.kind == "value" && contribution.configured && contribution.mutable) contributions);
 
   addValue = result: contribution:
     if contribution.file == "reaper.ini"
@@ -257,12 +291,14 @@
     then concatMapStringsSep ";" formatIniValue value
     else toString value;
 
-  renderPayload = sections: bitfields: removeSections: replaceSections:
-    builtins.toJSON {
+  renderPayload = sections: bitfields: removeSections: replaceSections: mutableKeys:
+    builtins.toJSON ({
       sections = builtins.mapAttrs (_: entries: builtins.mapAttrs (_: formatIniValue) entries) sections;
       inherit bitfields replaceSections;
       removeSections = removeSections;
-    };
+    } // lib.optionalAttrs (mutableKeys != {}) {
+      mutableKeys = mutableKeys;
+    });
 
   nonEmptySections = filterAttrs (_: entries: entries != {}) cfg.ini.sections;
 
@@ -282,7 +318,7 @@
 
   nonEmptyFileReplacedSections = filterAttrs (_: sections: sections != []) cfg.ini.replaceSections;
 
-  emptyPayloadFile = pkgs.writeText "reaper-managed-empty.json" (renderPayload {} {} [] []);
+  emptyPayloadFile = pkgs.writeText "reaper-managed-empty.json" (renderPayload {} {} [] [] {});
   managedIniFileNames = unique (
     ["reaper.ini"]
     ++ builtins.attrNames nonEmptyFileSections
@@ -484,8 +520,12 @@ in {
                 if fileName == "reaper.ini"
                 then []
                 else nonEmptyFileRemovedSections.${fileName} or [];
+              fileMutableKeys =
+                if fileName == "reaper.ini"
+                then mutableKeys
+                else mutableKeys.${fileName} or {};
             in
-              pkgs.writeText "reaper-managed-${fileName}.json" (renderPayload sections bitfields removeSections replaceSections)))
+              pkgs.writeText "reaper-managed-${fileName}.json" (renderPayload sections bitfields removeSections replaceSections fileMutableKeys)))
           managedIniFileNames);
 
         generatedSchemaFile = schemaFile;
