@@ -99,9 +99,24 @@ def section_ranges(lines: list[Line]) -> dict[str, tuple[int, int]]:
     return ranges
 
 
+def _merge_list(required: str, existing: str) -> str:
+    required_parts = [v for v in required.split(";") if v]
+    existing_parts = [v for v in existing.split(";") if v]
+    seen = set(required_parts)
+    merged = list(required_parts)
+    for part in existing_parts:
+        if part not in seen:
+            seen.add(part)
+            merged.append(part)
+    return ";".join(merged)
+
+
 def apply_managed_values(
-    lines: list[Line], managed: dict[str, dict[str, str]]
+    lines: list[Line],
+    managed: dict[str, dict[str, str]],
+    mutable_keys: set[tuple[str, str]] | None = None,
 ) -> list[Line]:
+    mutable_keys = mutable_keys or set()
     result = list(lines)
     positions: dict[tuple[str, str], list[int]] = {}
     for index, line in enumerate(lines):
@@ -111,11 +126,26 @@ def apply_managed_values(
     for section, entries in managed.items():
         for key, value in entries.items():
             identity = (section, key)
-            replacement = Line(text=f"{key}={value}", section=section, key=key)
-            if identity in positions:
-                result[positions[identity][-1]] = replacement
+            if identity in mutable_keys:
+                required_parts = [v for v in value.split(";") if v]
+                if not required_parts:
+                    # Empty required list for a mutable key: leave existing value untouched.
+                    continue
+                if identity in positions:
+                    existing_line = result[positions[identity][-1]]
+                    existing_value = value_part(existing_line.text)
+                    merged_value = _merge_list(value, existing_value)
+                    result[positions[identity][-1]] = Line(
+                        text=f"{key}={merged_value}", section=section, key=key
+                    )
+                else:
+                    missing.add(identity)
             else:
-                missing.add(identity)
+                replacement = Line(text=f"{key}={value}", section=section, key=key)
+                if identity in positions:
+                    result[positions[identity][-1]] = replacement
+                else:
+                    missing.add(identity)
 
     # Insert missing keys
 
@@ -339,6 +369,7 @@ def load_payload(path: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise ValueError(f"{path}: payload must be JSON")
     payload.setdefault("sections", {})
+    payload.setdefault("mutableKeys", {})
     payload.setdefault("bitfields", {})
     return payload
 
@@ -394,6 +425,12 @@ def main():
 
     current_sections = normalize_sections(payload.get("sections", {}))
     current_bitfields = normalize_bitfields(payload.get("bitfields", {}))
+    current_mutable_keys = {
+        (section, key)
+        for section, keys in payload.get("mutableKeys", {}).items()
+        for key in keys
+        if isinstance(keys, list)
+    }
     replacements = payload.get("replaceSections", [])
     if not isinstance(replacements, list) or not all(
         isinstance(section, str) for section in replacements
@@ -430,7 +467,7 @@ def main():
         current_bitfields, previous.bitfields, lines
     )
     lines = apply_managed_values(lines, bitfield_updates)
-    lines = apply_managed_values(lines, current_sections)
+    lines = apply_managed_values(lines, current_sections, current_mutable_keys)
     remove_sections_value = payload.get("removeSections", [])
     remove_sections_set = (
         {str(section) for section in remove_sections_value}

@@ -44,6 +44,15 @@
           Whether this mapping currently contributes a managed value.
         '';
       };
+      mutable = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          When true, the writer merges the contributed value with any existing
+          on-disk value instead of replacing it. Only supported when the
+          contribution's codec is "list".
+        '';
+      };
       mask = mkOption {
         type = types.nullOr types.ints.unsigned;
         default = null;
@@ -109,6 +118,31 @@
 
   contributions = cfg.ini.contributions;
   valueContributions = filter (contribution: contribution.kind == "value" && contribution.configured) contributions;
+
+  mutableKeys = builtins.foldl'
+    (result: contribution:
+      if contribution.file == "reaper.ini"
+      then
+        result
+        // {
+          ${contribution.section} =
+            (result.${contribution.section} or [])
+            ++ [contribution.key];
+        }
+      else
+        result
+        // {
+          ${contribution.file} =
+            (result.${contribution.file} or {})
+            // {
+              ${contribution.section} =
+                (result.${contribution.file}.${contribution.section} or [])
+                ++ [contribution.key];
+            };
+        }
+    )
+    {}
+    (filter (contribution: contribution.kind == "value" && contribution.configured && contribution.mutable) contributions);
 
   addValue = result: contribution:
     if contribution.file == "reaper.ini"
@@ -224,6 +258,18 @@
       && overlappingBits pair.entry.mask pair.other.mask)
     bitfieldContributionPairs);
 
+  mutableCodecAssertions =
+    map
+    (contribution: {
+      assertion = false;
+      message = ''
+        REAPER INI contribution for ${contribution.file}:[${contribution.section}].${contribution.key} uses mutable = true but codec is "${toString contribution.codec}".
+        The mutable flag is only supported for list codecs.
+        ${contribution.optionPath or "Contribution"}
+      '';
+    })
+    (filter (c: c.kind == "value" && c.configured && c.mutable && c.codec != "list") contributions);
+
   bitfieldNumberType = types.mkOptionType {
     name = "bitfield number";
     description = "an unsigned integer bitfield contribution";
@@ -257,12 +303,14 @@
     then concatMapStringsSep ";" formatIniValue value
     else toString value;
 
-  renderPayload = sections: bitfields: removeSections: replaceSections:
-    builtins.toJSON {
+  renderPayload = sections: bitfields: removeSections: replaceSections: mutableKeys:
+    builtins.toJSON ({
       sections = builtins.mapAttrs (_: entries: builtins.mapAttrs (_: formatIniValue) entries) sections;
       inherit bitfields replaceSections;
       removeSections = removeSections;
-    };
+    } // lib.optionalAttrs (mutableKeys != {}) {
+      mutableKeys = mutableKeys;
+    });
 
   nonEmptySections = filterAttrs (_: entries: entries != {}) cfg.ini.sections;
 
@@ -282,7 +330,7 @@
 
   nonEmptyFileReplacedSections = filterAttrs (_: sections: sections != []) cfg.ini.replaceSections;
 
-  emptyPayloadFile = pkgs.writeText "reaper-managed-empty.json" (renderPayload {} {} [] []);
+  emptyPayloadFile = pkgs.writeText "reaper-managed-empty.json" (renderPayload {} {} [] [] {});
   managedIniFileNames = unique (
     ["reaper.ini"]
     ++ builtins.attrNames nonEmptyFileSections
@@ -462,7 +510,7 @@ in {
       programs.reaper.ini.files = builtins.foldl' addFileValue {} valueContributions;
       programs.reaper.ini.bitfields = reducedBitfields;
       programs.reaper.ini.fileBitfields = reducedFileBitfields;
-      assertions = bitfieldConflictAssertions;
+      assertions = bitfieldConflictAssertions ++ mutableCodecAssertions;
     }
     {
       programs.reaper.ini = {
@@ -484,8 +532,12 @@ in {
                 if fileName == "reaper.ini"
                 then []
                 else nonEmptyFileRemovedSections.${fileName} or [];
+              fileMutableKeys =
+                if fileName == "reaper.ini"
+                then mutableKeys
+                else mutableKeys.${fileName} or {};
             in
-              pkgs.writeText "reaper-managed-${fileName}.json" (renderPayload sections bitfields removeSections replaceSections)))
+              pkgs.writeText "reaper-managed-${fileName}.json" (renderPayload sections bitfields removeSections replaceSections fileMutableKeys)))
           managedIniFileNames);
 
         generatedSchemaFile = schemaFile;

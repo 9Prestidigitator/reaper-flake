@@ -25,8 +25,10 @@ in {
       default = [];
       example = ["~/Documents/vsts" "~/Downloads/vst3"];
       description = ''
-        VST(3) search paths written to `[reaper].vstpath` before any enabled Nix
-        and conventional user paths are appended.
+        Additional VST(3) search paths written to `[reaper].vstpath`.
+        This key is always managed, but by default `mutable` is true,
+        meaning paths added via REAPER's UI are preserved across
+        activations by merging them with the computed list.
       '';
     };
 
@@ -46,12 +48,25 @@ in {
         Whether to append the default `~/.vst` and `~/.vst3` paths.
       '';
     };
+
+    mutable = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Whether to merge the computed search paths with the existing on-disk
+        value instead of replacing it. When true, paths added via REAPER's UI
+        are preserved across activations. When false, the INI key is
+        overwritten on every activation. Only supported for list-valued
+        preferences.
+      '';
+    };
   };
 
   config.programs.reaper.ini.contributions = reaperPreference.contribution {
     path = "preferences.plugIns.vst.searchPaths";
     value = searchPaths;
-    configured = searchPaths != [] || !cfg.vst.enableNixPaths || !cfg.vst.enableUserPaths;
+    configured = true;
+    mutable = cfg.vst.mutable;
     section = "reaper";
     key = "vstpath";
     codec = "list";

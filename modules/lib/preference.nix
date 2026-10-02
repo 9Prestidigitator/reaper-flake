@@ -19,6 +19,7 @@
       key = spec.key;
       value = value;
       configured = spec.configured or (value != null);
+      mutable = spec.mutable or false;
       codec = spec.codec or "identity";
       optionPath = spec.path;
       gui = spec.gui or null;
