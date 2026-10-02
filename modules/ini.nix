@@ -49,8 +49,8 @@
         default = false;
         description = ''
           When true, the writer merges the contributed value with any existing
-          on-disk value instead of replacing it. Currently supported only for
-          semicolon-separated list values.
+          on-disk value instead of replacing it. Only supported when the
+          contribution's codec is "list".
         '';
       };
       mask = mkOption {
@@ -257,6 +257,18 @@
       && pair.entry.key == pair.other.key
       && overlappingBits pair.entry.mask pair.other.mask)
     bitfieldContributionPairs);
+
+  mutableCodecAssertions =
+    map
+    (contribution: {
+      assertion = false;
+      message = ''
+        REAPER INI contribution for ${contribution.file}:[${contribution.section}].${contribution.key} uses mutable = true but codec is "${toString contribution.codec}".
+        The mutable flag is only supported for list codecs.
+        ${contribution.optionPath or "Contribution"}
+      '';
+    })
+    (filter (c: c.kind == "value" && c.configured && c.mutable && c.codec != "list") contributions);
 
   bitfieldNumberType = types.mkOptionType {
     name = "bitfield number";
@@ -498,7 +510,7 @@ in {
       programs.reaper.ini.files = builtins.foldl' addFileValue {} valueContributions;
       programs.reaper.ini.bitfields = reducedBitfields;
       programs.reaper.ini.fileBitfields = reducedFileBitfields;
-      assertions = bitfieldConflictAssertions;
+      assertions = bitfieldConflictAssertions ++ mutableCodecAssertions;
     }
     {
       programs.reaper.ini = {

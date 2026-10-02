@@ -26,9 +26,9 @@ in {
       example = ["~/Documents/vsts" "~/Downloads/vst3"];
       description = ''
         Additional VST(3) search paths written to `[reaper].vstpath`.
-        When empty and both `enableNixPaths` and `enableUserPaths` are
-        enabled (the default), REAPER uses its own built-in defaults,
-        leaving the INI key unmanaged and fully mutable at runtime.
+        This key is always managed, but by default `mutable` is true,
+        meaning paths added via REAPER's UI are preserved across
+        activations by merging them with the computed list.
       '';
     };
 
@@ -54,8 +54,10 @@ in {
       default = true;
       description = ''
         Whether to merge the computed search paths with the existing on-disk
-        value. When true, paths added via REAPER's UI are preserved across
-        activations. When false, the INI key is overwritten on every activation.
+        value instead of replacing it. When true, paths added via REAPER's UI
+        are preserved across activations. When false, the INI key is
+        overwritten on every activation. Only supported for list-valued
+        preferences.
       '';
     };
   };

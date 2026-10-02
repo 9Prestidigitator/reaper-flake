@@ -52,10 +52,9 @@ in
         example = [ "~/.lv2" ];
         description = ''
           Additional LV2 search paths written to `[reaper].lv2path_linux`.
-          When empty and both `enableNixPaths` and `enableUserPaths` are
-          enabled (the default), REAPER uses its own built-in defaults and
-          the `LV2_PATH` environment variable, leaving the INI key unmanaged
-          and fully mutable at runtime.
+          This key is always managed, but by default `mutable` is true,
+          meaning paths added via REAPER's UI are preserved across
+          activations by merging them with the computed list.
         '';
       };
 
@@ -79,8 +78,10 @@ in
         default = true;
         description = ''
           Whether to merge the computed search paths with the existing on-disk
-          value. When true, paths added via REAPER's UI are preserved across
-          activations. When false, the INI key is overwritten on every activation.
+          value instead of replacing it. When true, paths added via REAPER's UI
+          are preserved across activations. When false, the INI key is
+          overwritten on every activation. Only supported for list-valued
+          preferences.
         '';
       };
     };
@@ -92,10 +93,9 @@ in
         example = [ "~/.clap" ];
         description = ''
           Additional CLAP search paths written to REAPER's Linux CLAP path.
-          When empty and both `enableNixPaths` and `enableUserPaths` are
-          enabled (the default), REAPER uses its own built-in defaults and
-          the `CLAP_PATH` environment variable, leaving the INI key unmanaged
-          and fully mutable at runtime.
+          This key is always managed, but by default `mutable` is true,
+          meaning paths added via REAPER's UI are preserved across
+          activations by merging them with the computed list.
         '';
       };
 
@@ -119,8 +119,10 @@ in
         default = true;
         description = ''
           Whether to merge the computed search paths with the existing on-disk
-          value. When true, paths added via REAPER's UI are preserved across
-          activations. When false, the INI key is overwritten on every activation.
+          value instead of replacing it. When true, paths added via REAPER's UI
+          are preserved across activations. When false, the INI key is
+          overwritten on every activation. Only supported for list-valued
+          preferences.
         '';
       };
     };
