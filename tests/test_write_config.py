@@ -177,6 +177,110 @@ class BitfieldOwnershipTests(WriterTestCase):
         self.assertEqual(state["bitfields"]["reaper"]["flags"]["mask"], 2)
 
 
+class MutableValueTests(WriterTestCase):
+    @staticmethod
+    def payload_for(sections=None, mutable_keys=None):
+        return {
+            "sections": sections or {},
+            "mutableKeys": mutable_keys or {},
+            "bitfields": {},
+            "removeSections": [],
+        }
+
+    def list_value(self, key="paths"):
+        for line in self.target.read_text().splitlines():
+            if line.startswith(f"{key}="):
+                return line.split("=", 1)[1]
+        self.fail(f"{key} was not written")
+
+    def test_merge_adds_required_paths_and_preserves_existing(self):
+        self.target.write_text("[reaper]\npaths=/user/path;/other/path\n")
+        self.run_writer(
+            self.payload_for(
+                sections={"reaper": {"paths": "/nix/path;/other/path"}},
+                mutable_keys={"reaper": ["paths"]},
+            )
+        )
+        self.assertEqual(self.list_value(), "/nix/path;/other/path;/user/path")
+
+    def test_merge_deduplicates_required_and_existing(self):
+        self.target.write_text("[reaper]\npaths=/nix/path;/user/path\n")
+        self.run_writer(
+            self.payload_for(
+                sections={"reaper": {"paths": "/nix/path;/other/path"}},
+                mutable_keys={"reaper": ["paths"]},
+            )
+        )
+        self.assertEqual(self.list_value(), "/nix/path;/other/path;/user/path")
+
+    def test_empty_required_list_leaves_existing_untouched(self):
+        self.target.write_text("[reaper]\npaths=/user/path\n")
+        self.run_writer(
+            self.payload_for(
+                sections={"reaper": {"paths": ""}},
+                mutable_keys={"reaper": ["paths"]},
+            )
+        )
+        self.assertEqual(self.list_value(), "/user/path")
+
+    def test_missing_mutable_key_is_inserted_with_required_values(self):
+        self.target.write_text("[reaper]\nother=value\n")
+        self.run_writer(
+            self.payload_for(
+                sections={"reaper": {"paths": "/nix/path"}},
+                mutable_keys={"reaper": ["paths"]},
+            )
+        )
+        self.assertEqual(self.list_value(), "/nix/path")
+
+    def test_mutable_key_is_not_stale_removed(self):
+        self.target.write_text("[reaper]\npaths=/user/path\n")
+        self.run_writer(
+            self.payload_for(
+                sections={"reaper": {"paths": "/nix/path"}},
+                mutable_keys={"reaper": ["paths"]},
+            )
+        )
+        # Remove management entirely
+        self.run_writer(self.payload_for(), remove_empty_state=True)
+        self.assertEqual(self.list_value(), "/nix/path;/user/path")
+        self.assertFalse(self.state.exists())
+
+    def test_transition_from_mutable_to_immutable_overwrites(self):
+        self.target.write_text("[reaper]\npaths=/user/path\n")
+        self.run_writer(
+            self.payload_for(
+                sections={"reaper": {"paths": "/nix/path"}},
+                mutable_keys={"reaper": ["paths"]},
+            )
+        )
+        self.assertEqual(self.list_value(), "/nix/path;/user/path")
+
+        self.run_writer(
+            self.payload_for(sections={"reaper": {"paths": "/strict/path"}})
+        )
+        self.assertEqual(self.list_value(), "/strict/path")
+
+    def test_mutable_values_do_not_block_stale_removal_of_immutable(self):
+        self.target.write_text("[reaper]\nold=previous\npaths=/user/path\n")
+        self.run_writer(
+            self.payload_for(
+                sections={"reaper": {"old": "previous", "paths": "/nix/path"}},
+                mutable_keys={"reaper": ["paths"]},
+            )
+        )
+        # Remove immutable key, keep mutable
+        self.run_writer(
+            self.payload_for(
+                sections={"reaper": {"paths": "/nix/path"}},
+                mutable_keys={"reaper": ["paths"]},
+            )
+        )
+        text = self.target.read_text()
+        self.assertNotIn("old=", text)
+        self.assertIn("paths=/nix/path;/user/path", text)
+
+
 class SectionReplacementTests(WriterTestCase):
     @staticmethod
     def menu_payload(entries=None):

@@ -97,6 +97,30 @@
     };
   }).config.programs.reaper.ini;
 
+  mutableWithNonListCodec = evaluate {
+    programs.reaper.ini.contributions = reaperLib.reaperPreference.contribution {
+      path = "test.bad";
+      value = "hello";
+      section = "reaper";
+      key = "badkey";
+      codec = "identity";
+      mutable = true;
+      configured = true;
+    };
+  };
+
+  mutableWithListCodec = evaluate {
+    programs.reaper.ini.contributions = reaperLib.reaperPreference.contribution {
+      path = "test.good";
+      value = [ "hello" ];
+      section = "reaper";
+      key = "goodkey";
+      codec = "list";
+      mutable = true;
+      configured = true;
+    };
+  };
+
   clapKey = "clap_path_linux-${pkgs.stdenv.hostPlatform.qemuArch}";
 in
   # Unset UI preferences must not overwrite REAPER's defaults.
@@ -129,6 +153,7 @@ in
     "/usr/lib/lv2"
     "/usr/local/lib/lv2"
     "~/.lv2"
+    "%LV2_PATH%"
   ];
   assert defaults.${clapKey}
   == [
@@ -162,6 +187,7 @@ in
     "/usr/lib/lv2"
     "/usr/local/lib/lv2"
     "~/.lv2"
+    "%LV2_PATH%"
   ];
   assert explicit.${clapKey}
   == [
@@ -180,6 +206,9 @@ in
   assert empty.vstpath == [];
   assert empty.lv2path_linux == [];
   assert empty.${clapKey} == [];
+  assert !(lib.all (x: x.assertion) mutableWithNonListCodec.config.assertions);
+  assert lib.any (x: !x.assertion && lib.hasInfix "mutable = true but codec is" x.message) mutableWithNonListCodec.config.assertions;
+  assert lib.all (x: x.assertion) mutableWithListCodec.config.assertions;
     runCommand "reaper-plugin-path-tests" {} ''
       touch "$out"
     ''
