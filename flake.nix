@@ -103,6 +103,7 @@
         devShells.default = pkgs.callPackage ./devshell.nix {};
 
         checks = {
+          managed-launcher = pkgs.callPackage ./tests/managed-launcher.nix {};
           reapack = reapackPackage;
 
           actions-shortcuts = pkgs.callPackage ./tests/actions-shortcuts.nix {};

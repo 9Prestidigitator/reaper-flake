@@ -29,7 +29,10 @@ in {
   config.programs.reaper.ini = {
     sections.reaper = optionalAttrs cfg.python.enable {
       pythonlibpath64 = "${cfg.python.package}/lib";
-      pythonlibdll64 = "libpython${cfg.python.package.pythonVersion}.so";
+      pythonlibdll64 =
+        if pkgs.stdenv.hostPlatform.isDarwin
+        then "libpython${cfg.python.package.pythonVersion}.dylib"
+        else "libpython${cfg.python.package.pythonVersion}.so";
     };
 
     contributions = map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {

@@ -21,6 +21,32 @@
       else null;
   };
 
+  launcher = executable: ''
+    #!${pkgs.runtimeShell}
+    has_cfgfile=0
+
+    ${optionalString (cfg.packages != [] && pkgs.stdenv.hostPlatform.isLinux) ''
+      # Community extensions and plug-ins may rely on libraries that are
+      # not discoverable through their own RPATHs. Keep the user's existing
+      # search paths after the declared Nix package libraries.
+      export LD_LIBRARY_PATH=${lib.escapeShellArg runtimeLibraryPath}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    ''}
+
+    for arg in "$@"; do
+      case "$arg" in
+        -cfgfile|--cfgfile|-cfgfile=*|--cfgfile=*)
+          has_cfgfile=1
+          ;;
+      esac
+    done
+
+    if [ "$has_cfgfile" -eq 1 ]; then
+      exec ${lib.escapeShellArg executable} "$@"
+    else
+      exec ${lib.escapeShellArg executable} -cfgfile ${lib.escapeShellArg "${cfg.configPath}/reaper.ini"} "$@"
+    fi
+  '';
+
   # Parallel Reaper hm-package that uses the home-managed configuration
   # directory by default
   homeWrappedReaperPackage = pkgs.symlinkJoin {
@@ -30,32 +56,34 @@
       mkdir -p "$out/bin"
       rm -f "$out/bin/reaper"
       cat > "$out/bin/reaper" <<'EOF'
-      #!${pkgs.runtimeShell}
-      has_cfgfile=0
-
-      ${optionalString (cfg.packages != []) ''
-        # Community extensions and plug-ins may rely on libraries that are
-        # not discoverable through their own RPATHs. Keep the user's existing
-        # search paths after the declared Nix package libraries.
-        export LD_LIBRARY_PATH=${lib.escapeShellArg runtimeLibraryPath}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-        export DYLD_LIBRARY_PATH=${lib.escapeShellArg runtimeLibraryPath}''${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}
-      ''}
-
-      for arg in "$@"; do
-        case "$arg" in
-          -cfgfile|--cfgfile|-cfgfile=*|--cfgfile=*)
-            has_cfgfile=1
-            ;;
-        esac
-      done
-
-      if [ "$has_cfgfile" -eq 1 ]; then
-        exec ${lib.escapeShellArg "${cfg.basePackage}/bin/reaper"} "$@"
-      else
-        exec ${lib.escapeShellArg "${cfg.basePackage}/bin/reaper"} -cfgfile ${lib.escapeShellArg "${cfg.configPath}/reaper.ini"} "$@"
-      fi
+      ${launcher "${cfg.basePackage}/bin/reaper"}
       EOF
       chmod +x "$out/bin/reaper"
+      ${optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+        rm -rf "$out/Applications/Reaper.app"
+        app="$out/Applications/REAPER Managed.app"
+        mkdir -p "$app/Contents/MacOS"
+        ln -s ${lib.escapeShellArg "${cfg.basePackage}/Applications/Reaper.app/Contents/Resources"} "$app/Contents/Resources"
+        ${pkgs.python3}/bin/python3 - ${lib.escapeShellArg "${cfg.basePackage}/Applications/Reaper.app/Contents/Info.plist"} "$app/Contents/Info.plist" <<'PY'
+        import plistlib
+        import sys
+
+        with open(sys.argv[1], "rb") as source:
+            info = plistlib.load(source)
+        info.update(
+            CFBundleIdentifier="com.cockos.reaper.reaper-flake",
+            CFBundleName="REAPER Managed",
+            CFBundleDisplayName="REAPER Managed",
+            CFBundleExecutable="REAPER",
+        )
+        with open(sys.argv[2], "wb") as target:
+            plistlib.dump(info, target)
+        PY
+        cat > "$app/Contents/MacOS/REAPER" <<'EOF'
+        ${launcher "${cfg.basePackage}/Applications/Reaper.app/Contents/MacOS/REAPER"}
+        EOF
+        chmod +x "$app/Contents/MacOS/REAPER"
+      ''}
     '';
     meta = cfg.basePackage.meta or {};
   };
@@ -127,13 +155,13 @@ in {
       default = [];
       example = literalExpression "[ pkgs.gtk3 pkgs.libpng ]";
       description = ''
-        Nix packages whose library directories are added to REAPER's dynamic
+        Linux-only: Nix packages whose library directories are added to REAPER's dynamic
         library search path by the installed wrapper. This is useful for
         community extensions and plug-ins that require libraries such as
         GTK or libpng but do not provide a usable RPATH themselves. Existing
-        `LD_LIBRARY_PATH` and `DYLD_LIBRARY_PATH` values are preserved after
+        `LD_LIBRARY_PATH` values are preserved after
         these libraries. The packages are not added to REAPER's executable
-        `PATH`.
+        `PATH`. This option is ignored on macOS.
       '';
     };
 

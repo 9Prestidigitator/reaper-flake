@@ -40,10 +40,9 @@ assert waylandSwellSupport -> swell-wayland != null; let
 
   pythonRuntimeInputs = lib.optional pythonSupport python3;
   pythonBinPath = lib.makeBinPath pythonRuntimeInputs;
-  pythonLibraryPath = lib.makeLibraryPath pythonRuntimeInputs;
   darwinPythonWrapperArgs =
     lib.optionalString pythonSupport
-    "--prefix PATH : ${lib.escapeShellArg pythonBinPath} --prefix DYLD_LIBRARY_PATH : ${lib.escapeShellArg pythonLibraryPath}";
+    "--prefix PATH : ${lib.escapeShellArg pythonBinPath}";
 
   wrapperPath = [xdg-utils] ++ pythonRuntimeInputs;
   wrapperLibraryPath =

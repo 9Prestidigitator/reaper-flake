@@ -158,7 +158,7 @@ The importer reads ReaPack repositories and preferences from `reapack.ini`. The 
 
 </details>
 
-Some community extensions and plug-ins expect libraries such as GTK or libpng to be available through the process environment. Add the required Nix packages to `programs.reaper.packages`; the REAPER wrapper adds their `lib` directories to the dynamic-library search path while preserving existing search-path variables:
+On Linux, some community extensions and plug-ins expect libraries such as GTK or libpng to be available through the process environment. Add the required Nix packages to `programs.reaper.packages`; the REAPER wrapper adds their `lib` directories to `LD_LIBRARY_PATH` while preserving its existing value. This option is ignored on macOS:
 
 ```nix
 # ReaImGui dependencies
@@ -175,6 +175,8 @@ programs.reaper.packages = with pkgs; [
 ```
 
 This option makes the libraries available to REAPER and its child processes; it does not add their executables to `PATH`. Prefer packages with compatible versions for the extension, since forcing a library search path can expose ABI incompatibilities.
+
+On macOS, the managed package provides `REAPER Managed.app` with its own bundle identifier and the base app's resources. Its launcher selects the managed `reaper.ini`, just like the CLI wrapper; an explicit `-cfgfile` overrides that default. Expose this bundle through Home Manager or nix-darwin's application integration to launch the managed configuration from Spotlight. The base app bundle is left unchanged.
 
 ## ReaPack example
 
