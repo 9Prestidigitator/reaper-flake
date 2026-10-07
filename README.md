@@ -284,7 +284,7 @@ programs.reaper.swell.colortheme = {
 
 | Package             | Version  | Description                                         |
 | ------------------- | -------- | --------------------------------------------------- |
-| `reaper`            | 7.79     | REAPER                                              |
+| `reaper`            | 7.82     | REAPER                                              |
 | `reapack` (patched) | 1.2.6    | ReaPack with the managed-package API                |
 | `sws`               | 2.14.0.7 | SWS/S&M Extension                                   |
 | `swell-wayland`     | 0.6.4    | Experimental native-Wayland SWELL library for Linux |
