@@ -61,7 +61,7 @@
       chmod +x "$out/bin/reaper"
       ${optionalString pkgs.stdenv.hostPlatform.isDarwin ''
         rm -rf "$out/Applications/Reaper.app"
-        app="$out/Applications/REAPER Managed.app"
+        app="$out/Applications/REAPER (flake).app"
         mkdir -p "$app/Contents/MacOS"
         ln -s ${lib.escapeShellArg "${cfg.basePackage}/Applications/Reaper.app/Contents/Resources"} "$app/Contents/Resources"
         ${pkgs.python3}/bin/python3 - ${lib.escapeShellArg "${cfg.basePackage}/Applications/Reaper.app/Contents/Info.plist"} "$app/Contents/Info.plist" <<'PY'
@@ -72,8 +72,8 @@
             info = plistlib.load(source)
         info.update(
             CFBundleIdentifier="com.cockos.reaper.reaper-flake",
-            CFBundleName="REAPER Managed",
-            CFBundleDisplayName="REAPER Managed",
+            CFBundleName="REAPER (flake)",
+            CFBundleDisplayName="REAPER (flake)",
             CFBundleExecutable="REAPER",
         )
         with open(sys.argv[2], "wb") as target:
