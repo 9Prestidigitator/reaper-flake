@@ -1,5 +1,6 @@
 {
   lib,
+  llvmPackages,
   boost,
   catch2_3,
   cmake,
@@ -29,12 +30,20 @@ stdenv.mkDerivation (finalAttrs: {
 
   strictDeps = true;
 
-  nativeBuildInputs = [
-    cmake
-    git
-    php
-    ruby
-  ];
+  NIX_CFLAGS_COMPILE =
+    lib.optionalString
+    stdenv.hostPlatform.isDarwin "-Wno-deprecated-declarations";
+
+  nativeBuildInputs =
+    [
+      cmake
+      git
+      php
+      ruby
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      llvmPackages.llvm
+    ];
 
   buildInputs = [
     boost
@@ -46,12 +55,19 @@ stdenv.mkDerivation (finalAttrs: {
     zlib
   ];
 
-  cmakeFlags = [
-    "-Wno-dev"
-    # Upstream requires C++17; newer compiler defaults enable C++20 lambda
-    # deprecation warnings that its -Werror turns into build failures.
-    "-DCMAKE_CXX_STANDARD=17"
-  ];
+  cmakeFlags =
+    [
+      "-Wno-dev"
+      # Upstream requires C++17; newer compiler defaults enable C++20 lambda
+      # deprecation warnings that its -Werror turns into build failures.
+      "-DCMAKE_CXX_STANDARD=17"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      "-DCMAKE_C_COMPILER_AR=${llvmPackages.llvm}/bin/llvm-ar"
+      "-DCMAKE_CXX_COMPILER_AR=${llvmPackages.llvm}/bin/llvm-ar"
+      "-DCMAKE_C_COMPILER_RANLIB=${llvmPackages.llvm}/bin/llvm-ranlib"
+      "-DCMAKE_CXX_COMPILER_RANLIB=${llvmPackages.llvm}/bin/llvm-ranlib"
+    ];
 
   # Building from source on every platform ensures the managed-package API is
   # present in both the Linux shared object and the macOS dylib.
