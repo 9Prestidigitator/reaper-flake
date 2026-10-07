@@ -10,7 +10,7 @@ class ManagedLauncherTests(unittest.TestCase):
         darwin = Path(os.environ["DARWIN_WRAPPER"])
         linux = Path(os.environ["LINUX_WRAPPER"])
         base = Path(os.environ["BASE_PACKAGE"])
-        app = darwin / "Applications/REAPER Managed.app"
+        app = darwin / "Applications/REAPER (flake).app"
         self.assertFalse((darwin / "Applications/Reaper.app").exists())
         self.assertEqual(list((darwin / "Applications").iterdir()), [app])
         self.assertFalse(app.is_symlink())

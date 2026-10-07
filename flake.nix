@@ -146,6 +146,7 @@
             pkgs.runCommand "reaper-schema-tests" {
               nativeBuildInputs = [pkgs.python3];
               REAPER_SCHEMA_PATH = reaperSchema;
+              REAPER_HOST_SYSTEM = system;
             } ''
               python3 ${./tests/test_schema.py} -v
               touch "$out"

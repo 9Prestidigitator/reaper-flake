@@ -5,9 +5,9 @@
   reaperLib,
   reaperPlugins,
   ...
-}:
-let
-  inherit (lib)
+}: let
+  inherit
+    (lib)
     mkOption
     optionals
     types
@@ -16,42 +16,65 @@ let
   inherit (reaperLib) reaperPreference;
 
   cfg = config.programs.reaper.preferences.plugIns;
-  clapPathKey = "clap_path_linux-${pkgs.stdenv.hostPlatform.qemuArch}";
+  isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
+  clapPathKey = "clap_path_${
+    if isDarwin
+    then "macos"
+    else "linux"
+  }-${pkgs.stdenv.hostPlatform.qemuArch}";
+  lv2PathKey =
+    if isDarwin
+    then "lv2path_mac"
+    else "lv2path_linux";
 
   nixClapPaths = optionals cfg.clap.enableNixPaths (
-    reaperPlugins.profilePaths config.home.username [ "clap" ]
+    reaperPlugins.profilePaths config.home.username ["clap"]
   );
 
   nixLv2Paths = optionals cfg.lv2.enableNixPaths (
-    reaperPlugins.profilePaths config.home.username [ "lv2" ]
+    reaperPlugins.profilePaths config.home.username ["lv2"]
   );
 
-  userClapPaths = optionals cfg.clap.enableUserPaths [
-    "/usr/local/lib/clap"
-    "/usr/lib/clap"
-    "~/.clap"
-    "%CLAP_PATH%"
-  ];
+  userClapPaths = optionals cfg.clap.enableUserPaths ((
+      if isDarwin
+      then [
+        "/Library/Audio/Plug-Ins/CLAP"
+        "~/Library/Audio/Plug-Ins/CLAP"
+      ]
+      else [
+        "/usr/local/lib/clap"
+        "/usr/lib/clap"
+        "~/.clap"
+      ]
+    )
+    ++ ["%CLAP_PATH%"]);
 
-  userLv2Paths = optionals cfg.lv2.enableUserPaths [
-    "/usr/lib/lv2"
-    "/usr/local/lib/lv2"
-    "~/.lv2"
-    "%LV2_PATH%"
-  ];
+  userLv2Paths = optionals cfg.lv2.enableUserPaths ((
+      if isDarwin
+      then [
+        "/Library/Audio/Plug-Ins/LV2"
+        "~/Library/Audio/Plug-Ins/LV2"
+      ]
+      else [
+        "/usr/lib/lv2"
+        "/usr/local/lib/lv2"
+        "~/.lv2"
+      ]
+    )
+    ++ ["%LV2_PATH%"]);
 
   clapSearchPaths = unique (cfg.clap.searchPaths ++ nixClapPaths ++ userClapPaths);
   lv2SearchPaths = unique (cfg.lv2.searchPaths ++ nixLv2Paths ++ userLv2Paths);
-in
-{
+in {
   options.programs.reaper.preferences.plugIns = {
     lv2 = {
       searchPaths = mkOption {
         type = types.listOf types.str;
-        default = [ ];
-        example = [ "~/.lv2" ];
+        default = [];
+        example = ["~/.lv2"];
         description = ''
-          Additional LV2 search paths written to `[reaper].lv2path_linux`.
+          Additional LV2 search paths written to `[reaper].lv2path_mac` on macOS
+          or `[reaper].lv2path_linux` on Linux.
           This key is always managed, but by default `mutable` is true,
           meaning paths added via REAPER's UI are preserved across
           activations by merging them with the computed list.
@@ -70,7 +93,7 @@ in
       enableUserPaths = mkOption {
         type = types.bool;
         default = true;
-        description = "Whether to append the conventional LV2 paths.";
+        description = "Whether to append the platform-specific LV2 paths (/Library/Audio/Plug-Ins/LV2 and ~/Library/Audio/Plug-Ins/LV2 on macOS), including %LV2_PATH%.";
       };
 
       mutable = mkOption {
@@ -89,10 +112,11 @@ in
     clap = {
       searchPaths = mkOption {
         type = types.listOf types.str;
-        default = [ ];
-        example = [ "~/.clap" ];
+        default = [];
+        example = ["~/.clap"];
         description = ''
-          Additional CLAP search paths written to REAPER's Linux CLAP path.
+          Additional CLAP search paths written to `[reaper].clap_path_macos-<arch>`
+          on macOS or `[reaper].clap_path_linux-<arch>` on Linux.
           This key is always managed, but by default `mutable` is true,
           meaning paths added via REAPER's UI are preserved across
           activations by merging them with the computed list.
@@ -111,7 +135,7 @@ in
       enableUserPaths = mkOption {
         type = types.bool;
         default = true;
-        description = "Whether to append the conventional CLAP paths.";
+        description = "Whether to append the platform-specific CLAP paths (/Library/Audio/Plug-Ins/CLAP and ~/Library/Audio/Plug-Ins/CLAP on macOS), including %CLAP_PATH%.";
       };
 
       mutable = mkOption {
@@ -144,7 +168,7 @@ in
       configured = true;
       mutable = cfg.lv2.mutable;
       section = "reaper";
-      key = "lv2path_linux";
+      key = lv2PathKey;
       codec = "list";
     }
   ];

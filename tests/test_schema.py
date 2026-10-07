@@ -64,10 +64,14 @@ class StaticSchemaTests(unittest.TestCase):
 
     def test_plugin_search_paths_use_list_codecs(self):
         options = {option["path"]: option for option in self.schema["options"]}
+        arch, platform = os.environ["REAPER_HOST_SYSTEM"].split("-", 1)
+        mac = platform == "darwin"
         expected = {
-            "preferences.plugIns.vst.searchPaths": "vstpath",
-            "preferences.plugIns.lv2.searchPaths": "lv2path_linux",
-            "preferences.plugIns.clap.searchPaths": "clap_path_linux-x86_64",
+            "preferences.plugIns.vst.searchPaths": (
+                ("vstpath_arm64" if arch == "aarch64" else "vstpath64") if mac else "vstpath"
+            ),
+            "preferences.plugIns.lv2.searchPaths": "lv2path_mac" if mac else "lv2path_linux",
+            "preferences.plugIns.clap.searchPaths": f"clap_path_{'macos' if mac else 'linux'}-{arch}",
         }
 
         for path, key in expected.items():

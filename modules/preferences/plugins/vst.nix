@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   reaperLib,
   reaperPlugins,
   ...
@@ -10,12 +11,31 @@
 
   cfg = config.programs.reaper.preferences.plugIns;
 
+  vstPathKey =
+    if pkgs.stdenv.hostPlatform.isDarwin
+    then
+      (
+        if pkgs.stdenv.hostPlatform.isAarch64
+        then "vstpath_arm64"
+        else "vstpath64"
+      )
+    else "vstpath";
+
   nixPaths = optionals cfg.vst.enableNixPaths (reaperPlugins.profilePaths config.home.username ["vst" "vst3"]);
 
-  userPaths = optionals cfg.vst.enableUserPaths [
-    "~/.vst"
-    "~/.vst3"
-  ];
+  userPaths = optionals cfg.vst.enableUserPaths (
+    if pkgs.stdenv.hostPlatform.isDarwin
+    then [
+      "/Library/Audio/Plug-Ins/VST"
+      "/Library/Audio/Plug-Ins/VST3"
+      "~/Library/Audio/Plug-Ins/VST"
+      "~/Library/Audio/Plug-Ins/VST3"
+    ]
+    else [
+      "~/.vst"
+      "~/.vst3"
+    ]
+  );
 
   searchPaths = unique (cfg.vst.searchPaths ++ nixPaths ++ userPaths);
 in {
@@ -25,7 +45,8 @@ in {
       default = [];
       example = ["~/Documents/vsts" "~/Downloads/vst3"];
       description = ''
-        Additional VST(3) search paths written to `[reaper].vstpath`.
+        Additional VST(3) search paths written to `[reaper].vstpath` on Linux,
+        `vstpath_arm64` on Apple Silicon, or `vstpath64` on Intel macOS.
         This key is always managed, but by default `mutable` is true,
         meaning paths added via REAPER's UI are preserved across
         activations by merging them with the computed list.
@@ -45,7 +66,9 @@ in {
       type = types.bool;
       default = true;
       description = ''
-        Whether to append the default `~/.vst` and `~/.vst3` paths.
+        Whether to append `~/.vst` and `~/.vst3` on Linux, or the VST and VST3
+        directories under `/Library/Audio/Plug-Ins` and `~/Library/Audio/Plug-Ins`
+        on macOS.
       '';
     };
 
@@ -68,7 +91,7 @@ in {
     configured = true;
     mutable = cfg.vst.mutable;
     section = "reaper";
-    key = "vstpath";
+    key = vstPathKey;
     codec = "list";
   };
 }

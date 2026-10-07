@@ -5681,7 +5681,8 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.clap\.enableNixPaths
 
-Whether to append CLAP directories from the per-user, user, and system Nix profiles\.
+Whether to append CLAP directories from the per-user, user, and system
+Nix profiles\.
 
 _Type:_
 boolean
@@ -5698,7 +5699,28 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.clap\.enableUserPaths
 
-Whether to append the conventional CLAP paths\.
+Whether to append the platform-specific CLAP paths (/Library/Audio/Plug-Ins/CLAP and ~/Library/Audio/Plug-Ins/CLAP on macOS), including %CLAP_PATH%\.
+
+_Type:_
+boolean
+
+_Default:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap.nix)
+
+## programs\.reaper\.preferences\.plugIns\.clap\.mutable
+
+Whether to merge the computed search paths with the existing on-disk
+value instead of replacing it\. When true, paths added via REAPER’s UI
+are preserved across activations\. When false, the INI key is
+overwritten on every activation\. Only supported for list-valued
+preferences\.
 
 _Type:_
 boolean
@@ -5715,7 +5737,11 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.clap\.searchPaths
 
-CLAP search paths written to REAPER’s Linux CLAP path before any enabled Nix and conventional user paths are appended\.
+Additional CLAP search paths written to `[reaper].clap_path_macos-<arch>`
+on macOS or `[reaper].clap_path_linux-<arch>` on Linux\.
+This key is always managed, but by default `mutable` is true,
+meaning paths added via REAPER’s UI are preserved across
+activations by merging them with the computed list\.
 
 _Type:_
 list of string
@@ -5809,7 +5835,8 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.lv2\.enableNixPaths
 
-Whether to append LV2 directories from the per-user, user, and system Nix profiles\.
+Whether to append LV2 directories from the per-user, user, and system
+Nix profiles\.
 
 _Type:_
 boolean
@@ -5826,7 +5853,28 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.lv2\.enableUserPaths
 
-Whether to append the conventional LV2 paths\.
+Whether to append the platform-specific LV2 paths (/Library/Audio/Plug-Ins/LV2 and ~/Library/Audio/Plug-Ins/LV2 on macOS), including %LV2_PATH%\.
+
+_Type:_
+boolean
+
+_Default:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/lv2Clap.nix)
+
+## programs\.reaper\.preferences\.plugIns\.lv2\.mutable
+
+Whether to merge the computed search paths with the existing on-disk
+value instead of replacing it\. When true, paths added via REAPER’s UI
+are preserved across activations\. When false, the INI key is
+overwritten on every activation\. Only supported for list-valued
+preferences\.
 
 _Type:_
 boolean
@@ -5843,7 +5891,11 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.lv2\.searchPaths
 
-LV2 search paths written to `[reaper].lv2path_linux` before any enabled Nix and conventional user paths are appended\.
+Additional LV2 search paths written to `[reaper].lv2path_mac` on macOS
+or `[reaper].lv2path_linux` on Linux\.
+This key is always managed, but by default `mutable` is true,
+meaning paths added via REAPER’s UI are preserved across
+activations by merging them with the computed list\.
 
 _Type:_
 list of string
@@ -6277,7 +6329,8 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.vst\.enableNixPaths
 
-Whether to append VST and VST3 directories from the per-user, user, and system Nix profiles\.
+Whether to append VST and VST3 directories from the per-user, user, and
+system Nix profiles\.
 
 _Type:_
 boolean
@@ -6294,7 +6347,30 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.vst\.enableUserPaths
 
-Whether to append the default `~/.vst` and `~/.vst3` paths\.
+Whether to append `~/.vst` and `~/.vst3` on Linux, or the VST and VST3
+directories under `/Library/Audio/Plug-Ins` and `~/Library/Audio/Plug-Ins`
+on macOS\.
+
+_Type:_
+boolean
+
+_Default:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/plugins/vst\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/plugins/vst.nix)
+
+## programs\.reaper\.preferences\.plugIns\.vst\.mutable
+
+Whether to merge the computed search paths with the existing on-disk
+value instead of replacing it\. When true, paths added via REAPER’s UI
+are preserved across activations\. When false, the INI key is
+overwritten on every activation\. Only supported for list-valued
+preferences\.
 
 _Type:_
 boolean
@@ -6311,7 +6387,11 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.plugIns\.vst\.searchPaths
 
-VST(3) search paths written to `[reaper].vstpath` before any enabled Nix and conventional user paths are appended\.
+Additional VST(3) search paths written to `[reaper].vstpath` on Linux,
+`vstpath_arm64` on Apple Silicon, or `vstpath64` on Intel macOS\.
+This key is always managed, but by default `mutable` is true,
+meaning paths added via REAPER’s UI are preserved across
+activations by merging them with the computed list\.
 
 _Type:_
 list of string
