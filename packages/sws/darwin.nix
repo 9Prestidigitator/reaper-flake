@@ -40,6 +40,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     })
   ];
 
+  sourceRoot = ".";
+
   unpackCmd = ''
     cp $curSrc $(stripHash $curSrc)
   '';
