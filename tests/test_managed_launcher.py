@@ -1,11 +1,27 @@
 import os
 from pathlib import Path
 import plistlib
+import shlex
 import subprocess
 import unittest
 
 
 class ManagedLauncherTests(unittest.TestCase):
+    def test_activation_uses_platform_pgrep(self):
+        for platform in ["DARWIN", "LINUX"]:
+            with self.subTest(platform=platform):
+                entry = Path(os.environ[f"{platform}_ACTIVATION"]).read_text()
+                command = shlex.split(entry)
+                self.assertEqual(command[0], "run")
+                script = Path(command[1]).read_text()
+                detector_line = next(line for line in script.splitlines() if "reaper-is-running.sh" in line)
+                if platform == "DARWIN":
+                    self.assertIn(" /usr/bin/pgrep;", detector_line)
+                    self.assertNotIn("procps", detector_line)
+                else:
+                    self.assertIn("-procps-", detector_line)
+                    self.assertIn("/bin/pgrep;", detector_line)
+
     def test_launchers(self):
         darwin = Path(os.environ["DARWIN_WRAPPER"])
         linux = Path(os.environ["LINUX_WRAPPER"])

@@ -94,6 +94,8 @@ in
       DARWIN_WRAPPER = darwin.package;
       LINUX_WRAPPER = linux.package;
       BASE_PACKAGE = fixture;
+      DARWIN_ACTIVATION = pkgs.writeText "darwin-reaper-activation" (evaluate true).config.home.activation.reaper.data;
+      LINUX_ACTIVATION = pkgs.writeText "linux-reaper-activation" (evaluate false).config.home.activation.reaper.data;
     } ''
       python3 ${./test_managed_launcher.py}
       touch "$out"

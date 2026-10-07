@@ -9,6 +9,11 @@
   cfg = config.programs.reaper;
   reaperLib = import ./lib {inherit lib;};
   runtimeLibraryPath = lib.makeLibraryPath cfg.packages;
+  # Darwin's procps package does not provide pgrep. Use the native BSD tool.
+  pgrepCommand =
+    if pkgs.stdenv.hostPlatform.isDarwin
+    then "/usr/bin/pgrep"
+    else lib.getExe' pkgs.procps "pgrep";
 
   # Base Reaper package that comes with this flake
   defaultBaseReaperPackage = pkgs.callPackage ../packages/reaper.nix {
@@ -248,7 +253,7 @@ in {
               if cfg.activation.allowRunning
               then "1"
               else "0"
-            } -eq 0 ] && ${pkgs.runtimeShell} ${../scripts/reaper-is-running.sh} ${pkgs.procps}/bin/pgrep; then
+            } -eq 0 ] && ${pkgs.runtimeShell} ${../scripts/reaper-is-running.sh} ${pgrepCommand}; then
               echo "Refusing to activate REAPER configuration while REAPER is running." >&2
               echo "Close REAPER and retry, or set programs.reaper.activation.allowRunning = true to override this safety check." >&2
               exit 1
