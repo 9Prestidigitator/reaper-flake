@@ -8,7 +8,7 @@ stdenvNoCC.mkDerivation {
 
   src = fetchzip {
     url = "https://github.com/Fleeesch/paRt/releases/download/v1.3.2/part_manual_install_v1.3.2.zip";
-    hash = "sha256-W/VYoG9SyMlTe7v9qPOZh+j16PTkJTaXhyz+vy2dykY=";
+    hash = "sha256-czNBXS2Y2zg3wC7RSbcD+ujL9BpkOshgoXxCWFKaLg0=";
     stripRoot = false;
   };
 
