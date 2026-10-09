@@ -121,13 +121,7 @@ The option names generally follow the labels in REAPER’s Preferences window. E
 `reaper2nix` turns settings from an existing REAPER resource directory into a nested, pasteable `programs.reaper` configuration. This provides a convenient starting point when REAPER has already been configured through its GUI:
 
 ```console
-nix run .#reaper2nix -- ~/.config/reaper-flake
-```
-
-The input may be a complete REAPER resource directory or one supported INI file. When running the app directly from GitHub instead of a local checkout, use:
-
-```console
-nix run github:9Prestidigitator/reaper-flake#reaper2nix -- ~/.config/reaper-flake
+nix run github:9Prestidigitator/reaper-flake#reaper2nix -- ~/.config/REAPER
 ```
 
 REAPER stores both durable configuration and mutable application state in its resource files. For that reason, `reaper2nix` is intentionally schema-driven: it emits only settings represented by public Nix options and semantic adapters. It does not convert every INI key, and it skips files for which the schema has no definition. Close REAPER before importing if you want its latest in-memory GUI changes to be written to disk first.
@@ -137,7 +131,7 @@ The semantic importers include actions and key bindings from `reaper-kb.ini`, me
 Generated output retains proper Nix nesting. To inspect only one option or subtree, pass its complete public path:
 
 ```console
-nix run .#reaper2nix -- --options programs.reaper.preferences ~/.config/reaper-flake
+nix run .#reaper2nix -- --options programs.reaper.preferences ~/.config/REAPER
 ```
 
 `--options` can be repeated to select multiple independent subtrees and can also target an exact leaf. Useful additional flags include:
@@ -150,13 +144,6 @@ nix run .#reaper2nix -- --options programs.reaper.preferences ~/.config/reaper-f
 The importer reads ReaPack repositories and preferences from `reapack.ini`. The patched ReaPack extension separately exports its installed-package registry into a versioned snapshot that `reaper2nix` can read without accessing ReaPack's SQLite database directly. Start REAPER once with the patched extension installed before importing ReaPack package state. See [docs/reapack.md](docs/reapack.md) for snapshot and version behavior, and [docs/internal.md](docs/internal.md) for schema and adapter details.
 
 ## Runtime libraries for extensions
-
-<details>
-<summary>See REAPER with ReaEQ and LSP Gate Mono</summary>
-
-[![ReaEQ and LSP Gate Mono open above a docked MIDI editor](docs/assets/sc4.png)](docs/assets/sc4.png)
-
-</details>
 
 On Linux, some community extensions and plug-ins expect libraries such as GTK or libpng to be available through the process environment. Add the required Nix packages to `programs.reaper.packages`; the REAPER wrapper adds their `lib` directories to `LD_LIBRARY_PATH` while preserving its existing value. This option is ignored on macOS:
 
