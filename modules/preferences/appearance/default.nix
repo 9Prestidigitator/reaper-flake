@@ -15,6 +15,7 @@
   cfg = config.programs.reaper.preferences.appearance;
 in {
   imports = [
+    ./media-items.nix
     ./ruler-grid.nix
     ./track-control-panels.nix
     ./zoom-scroll-offset.nix

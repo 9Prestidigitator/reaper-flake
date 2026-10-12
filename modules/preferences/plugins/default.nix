@@ -20,12 +20,10 @@ in {
   ];
 
   options.programs.reaper.preferences.plugIns = {
-    automaticallyResizeFxWindow.up = reaBool ''
-      Automatically resize FX window up.
-    '';
-    automaticallyResizeFxWindow.down = reaBool ''
-      Automatically resize FX window down.
-    '';
+    automaticallyResizeFxWindow = {
+      up = reaBool "Automatically resize FX window up.";
+      down = reaBool "Automatically resize FX window down.";
+    };
     autoFloatUiForFxCreatedViaFxBrowser = reaBool ''
       Auto-float UI for FX created via FX browser.
     '';

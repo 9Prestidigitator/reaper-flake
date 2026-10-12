@@ -5,48 +5,109 @@
   reaperLib,
   ...
 }: let
-  inherit (lib) mkOption optionalAttrs types;
-  inherit (reaperLib) reaperBitfield reaperTypes reaperPreference reaperCodecs;
+  inherit (lib) types;
+  inherit (reaperLib) reaperBitfield reaperPreference;
 
   cfg = config.programs.reaper.preferences.media;
+  prefix = ["programs" "reaper" "preferences" "media"];
 in {
+  imports = [
+    (lib.mkRenamedOptionModule (prefix ++ ["allowVideosToGoOffline"]) (prefix ++ ["allowVideosToGoOfflineSlow"]))
+    (lib.mkRenamedOptionModule (prefix ++ ["tailLengthWhenUsingApplyFxToItemMs"]) (prefix ++ ["tailLengthWhenUsingApplyFxToItems"]))
+    (lib.mkRenamedOptionModule (prefix ++ ["takeFxTailLengthMs"]) (prefix ++ ["takeFxTailLength"]))
+    (lib.mkRenamedOptionModule (prefix ++ ["duplicateTakeFxWhenSplittingItems"]) (prefix ++ ["duplicateTakeFxWhenSplittingItemsIncludingSplitsCausedByRecordingNewTakes"]))
+  ];
+
   options.programs.reaper.preferences.media = {
     setMediaItemsOfflineWhenApplicationIsNotActive = reaBool ''
-      Sets project media inactive when REAPER is inactive, so that other
-      programs can access/modify the media.
+      Set media items offline when application is not active, allowing other
+      programs to access or modify their media files.
     '';
-    allowVideosToGoOffline = reaBool ''
-      Allows video items (and certain items decoded by VLC/FFmpeg, and still
-      images) to be set offline, which can be slow to bring back online.
+    allowVideosToGoOfflineSlow = reaBool ''
+      Allow videos to go offline (slow). This also affects certain items decoded
+      by VLC/FFmpeg and still images. Bringing these items back online can be
+      slow. Only takes effect when "Set media items offline when application is
+      not active" is enabled; REAPER retains this setting when that is disabled.
     '';
     promptToConfirmFilenameOnOpenCopyInEditor = reaBool ''
-      Allow choosing the filename used when using 'open copy' action. If
-      unchecked, the default filename will be used.
+      Prompt to confirm filename on "open copy in editor". When disabled,
+      REAPER uses the default filename without prompting.
     '';
-
-    tailLengthWhenUsingApplyFxToItemMs = mkOption {
-      type = types.nullOr reaperTypes.number;
-      default = null;
-      example = 1250;
+    tailLengthWhenUsingApplyFxToItems = reaperPreference.option {
+      type = types.nullOr types.ints.unsigned;
+      example = 1000;
       description = ''
-        When using apply FX action, allow this much extra time at the end for
-        reverb tails, delay lines, etc.
+        Tail length when using Apply FX to items, in whole milliseconds.
+        Adds time after the item for effects such as reverb and delay.
+        Zero disables the extra tail.
       '';
     };
-    takeFxTailLengthMs = mkOption {
-      type = types.nullOr reaperTypes.number;
-      default = null;
-      example = 2500;
+    takeFxTailLength = reaperPreference.option {
+      type = types.nullOr types.ints.unsigned;
+      example = 2000;
       description = ''
-        When using the batch converter or various render/apply FX actions with
-        per-item/take FX, add this much time past the item end for tails.
+        Take FX tail length, in whole milliseconds. Adds time after the item
+        for per-item/take FX in the batch converter and render/apply FX actions.
+        Zero disables the extra tail.
       '';
     };
-
-    duplicateTakeFxWhenSplittingItems = reaBool ''
-      When using take FX, duplicate take FX when splitting (so that new split
-      items get copies of the FX). Caution, this can use a lot of RAM if you
-      aren't careful.
+    duplicateTakeFxWhenSplittingItemsIncludingSplitsCausedByRecordingNewTakes = reaBool ''
+      Duplicate take FX when splitting items (including splits caused by
+      recording new takes). New split items receive copies of the take FX,
+      which can increase memory usage.
     '';
   };
+
+  config.programs.reaper.ini.contributions =
+    reaperPreference.contributions [
+      {
+        path = "preferences.media.tailLengthWhenUsingApplyFxToItems";
+        gui = "Tail length when using Apply FX to items";
+        value = cfg.tailLengthWhenUsingApplyFxToItems;
+        section = "reaper";
+        key = "applyfxtail";
+        codec = "integer";
+      }
+      {
+        path = "preferences.media.takeFxTailLength";
+        gui = "Take FX tail length";
+        value = cfg.takeFxTailLength;
+        section = "reaper";
+        key = "itemfxtail";
+        codec = "integer";
+      }
+    ]
+    ++ map (entry: entry // {section = "reaper";}) (reaperBitfield.contributions {
+      offlineinact = [
+        {
+          optionPath = "preferences.media.setMediaItemsOfflineWhenApplicationIsNotActive";
+          gui = "Set media items offline when application is not active";
+          option = cfg.setMediaItemsOfflineWhenApplicationIsNotActive;
+          bit = 1;
+        }
+        {
+          optionPath = "preferences.media.allowVideosToGoOfflineSlow";
+          gui = "Allow videos to go offline (slow)";
+          option = cfg.allowVideosToGoOfflineSlow;
+          bit = 4;
+        }
+      ];
+      opencopyprompt = [
+        {
+          optionPath = "preferences.media.promptToConfirmFilenameOnOpenCopyInEditor";
+          gui = ''Prompt to confirm filename on "open copy in editor"'';
+          option = cfg.promptToConfirmFilenameOnOpenCopyInEditor;
+          bit = 1;
+        }
+      ];
+      relativeedges = [
+        {
+          optionPath = "preferences.media.duplicateTakeFxWhenSplittingItemsIncludingSplitsCausedByRecordingNewTakes";
+          gui = "Duplicate take FX when splitting items (including splits caused by recording new takes)";
+          option = cfg.duplicateTakeFxWhenSplittingItemsIncludingSplitsCausedByRecordingNewTakes;
+          bit = 8;
+          inverted = true;
+        }
+      ];
+    });
 }

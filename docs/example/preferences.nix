@@ -258,6 +258,28 @@
     };
 
     appearance = {
+      mediaItems = {
+        displayMediaItemTakeName = true;
+        displayMediaItemPitchPlayrateIfSet = true;
+        displayMediaItemGainIfSet = true;
+        drawLabelsOverSolidBackgroundForEasierReading = false;
+        showLabelsForItemsWhenItemEdgesAreNotVisible = true;
+        drawLabelsAboveTheItemWhenMediaItemHeightIsMoreThan = {
+          enable = true;
+          pixels = 28;
+        };
+        hideLabelsWhenMediaItemHeightIsLessThan = 28; # Pixels.
+        itemTakeRatePitch = "normalLabels";
+        automaticallyColorAnyRecordingPassThatAddsTakesOrLanes = true;
+        automaticallyColorAnyMediaItemsThatSharePooledMidiEvents = true;
+        fasterLessPreciseItemBackgroundDisplayRequiresThemeReload = true;
+        drawSelectionIndicatorOnItems = true;
+        maximumStretchMarkerHandleSize = {
+          pixels = 6;
+          percentOfTakeHeight = 12;
+        };
+      };
+
       tooltips = {
         uiElements = true;
         itemsEnvelopes = true;
@@ -387,9 +409,12 @@
 
     media = {
       setMediaItemsOfflineWhenApplicationIsNotActive = false;
-      duplicateTakeFxWhenSplittingItems = false;
-      tailLengthWhenUsingApplyFxToItemMs = 1000;
-      takeFxTailLengthMs = 2000;
+      allowVideosToGoOfflineSlow = false;
+      promptToConfirmFilenameOnOpenCopyInEditor = true;
+      duplicateTakeFxWhenSplittingItemsIncludingSplitsCausedByRecordingNewTakes = false;
+      # Whole milliseconds, as displayed on Preferences > Media.
+      tailLengthWhenUsingApplyFxToItems = 1000;
+      takeFxTailLength = 2000;
     };
 
     # Lua is built into REAPER; Python support enables the other major

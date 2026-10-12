@@ -389,6 +389,351 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/appearance](file:///home/max/Projects/reaper-flake/modules/preferences/appearance)
 
+## programs\.reaper\.preferences\.appearance\.mediaItems\.automaticallyColorAnyMediaItemsThatSharePooledMidiEvents
+
+Automatically color any media items that share pooled MIDI events\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.automaticallyColorAnyRecordingPassThatAddsTakesOrLanes
+
+Automatically color any recording pass that adds takes or lanes\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.displayMediaItemGainIfSet
+
+Display media item gain if set\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.displayMediaItemPitchPlayrateIfSet
+
+Display media item pitch/playrate if set\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.displayMediaItemTakeName
+
+Display media item take name\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.drawLabelsAboveTheItemWhenMediaItemHeightIsMoreThan\.enable
+
+Draw labels above the item when media item height is more than\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.drawLabelsAboveTheItemWhenMediaItemHeightIsMoreThan\.pixels
+
+Media item height threshold in pixels\. Retained independently of the enable checkbox; zero is allowed\.
+
+_Type:_
+null or (unsigned integer, meaning >=0)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+28
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.drawLabelsOverSolidBackgroundForEasierReading
+
+Draw labels over solid background for easier reading\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.drawSelectionIndicatorOnItems
+
+Draw selection indicator on items\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.fasterLessPreciseItemBackgroundDisplayRequiresThemeReload
+
+Faster/less precise item background display (requires theme reload)\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.hideLabelsWhenMediaItemHeightIsLessThan
+
+Hide labels below this media item height, in whole pixels\. Zero disables this height threshold\.
+
+_Type:_
+null or (unsigned integer, meaning >=0)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+28
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.itemTakeRatePitch
+
+Item take rate/pitch label format: Normal labels, Abbreviate, or Numbers only\.
+
+_Type:_
+null or one of “abbreviate”, “normalLabels”, “numbersOnly”
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+"normalLabels"
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.maximumStretchMarkerHandleSize\.percentOfTakeHeight
+
+Maximum stretch marker handle size as a whole percentage of take height, from 1 to 30\. REAPER also limits the size by the pixel maximum\.
+
+_Type:_
+null or integer between 1 and 30 (both inclusive)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+12
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.maximumStretchMarkerHandleSize\.pixels
+
+Maximum stretch marker handle size in whole pixels, from 1 to 100\. REAPER also limits the size by the percentage of take height\.
+
+_Type:_
+null or integer between 1 and 100 (both inclusive)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+6
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
+## programs\.reaper\.preferences\.appearance\.mediaItems\.showLabelsForItemsWhenItemEdgesAreNotVisible
+
+Show labels for items when item edges are not visible\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/appearance/media-items\.nix](file:///home/max/Projects/reaper-flake/modules/preferences/appearance/media-items.nix)
+
 ## programs\.reaper\.preferences\.appearance\.playCursorWidth
 
 Width of play cursor in pixels\.
@@ -5334,9 +5679,12 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
 
-## programs\.reaper\.preferences\.media\.allowVideosToGoOffline
+## programs\.reaper\.preferences\.media\.allowVideosToGoOfflineSlow
 
-Allows video items (and certain items decoded by VLC/FFmpeg, and still images) to be set offline, which can be slow to bring back online\.
+Allow videos to go offline (slow)\. This also affects certain items decoded
+by VLC/FFmpeg and still images\. Bringing these items back online can be
+slow\. Only takes effect when “Set media items offline when application is
+not active” is enabled; REAPER retains this setting when that is disabled\.
 
 _Type:_
 null or boolean
@@ -5357,9 +5705,11 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/media](file:///home/max/Projects/reaper-flake/modules/preferences/media)
 
-## programs\.reaper\.preferences\.media\.duplicateTakeFxWhenSplittingItems
+## programs\.reaper\.preferences\.media\.duplicateTakeFxWhenSplittingItemsIncludingSplitsCausedByRecordingNewTakes
 
-When using take FX, duplicate take FX when splitting (so that new split items get copies of the FX)\. Caution, this can use a lot of RAM if you aren’t careful\.
+Duplicate take FX when splitting items (including splits caused by
+recording new takes)\. New split items receive copies of the take FX,
+which can increase memory usage\.
 
 _Type:_
 null or boolean
@@ -5382,7 +5732,8 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.media\.promptToConfirmFilenameOnOpenCopyInEditor
 
-Allow choosing the filename used when using ‘open copy’ action\. If unchecked, the default filename will be used\.
+Prompt to confirm filename on “open copy in editor”\. When disabled,
+REAPER uses the default filename without prompting\.
 
 _Type:_
 null or boolean
@@ -5405,7 +5756,8 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.media\.setMediaItemsOfflineWhenApplicationIsNotActive
 
-Sets project media inactive when REAPER is inactive, so that other programs can access/modify the media\.
+Set media items offline when application is not active, allowing other
+programs to access or modify their media files\.
 
 _Type:_
 null or boolean
@@ -5426,12 +5778,14 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/media](file:///home/max/Projects/reaper-flake/modules/preferences/media)
 
-## programs\.reaper\.preferences\.media\.tailLengthWhenUsingApplyFxToItemMs
+## programs\.reaper\.preferences\.media\.tailLengthWhenUsingApplyFxToItems
 
-When using apply FX action, allow this much extra time at the end for reverb tails, delay lines, etc\.
+Tail length when using Apply FX to items, in whole milliseconds\.
+Adds time after the item for effects such as reverb and delay\.
+Zero disables the extra tail\.
 
 _Type:_
-null or signed integer or floating point number
+null or (unsigned integer, meaning >=0)
 
 _Default:_
 
@@ -5442,19 +5796,21 @@ null
 _Example:_
 
 ```nix
-1250
+1000
 ```
 
 _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/media](file:///home/max/Projects/reaper-flake/modules/preferences/media)
 
-## programs\.reaper\.preferences\.media\.takeFxTailLengthMs
+## programs\.reaper\.preferences\.media\.takeFxTailLength
 
-When using the batch converter or various render/apply FX actions with per-item/take FX, add this much time past the item end for tails\.
+Take FX tail length, in whole milliseconds\. Adds time after the item
+for per-item/take FX in the batch converter and render/apply FX actions\.
+Zero disables the extra tail\.
 
 _Type:_
-null or signed integer or floating point number
+null or (unsigned integer, meaning >=0)
 
 _Default:_
 
@@ -5465,7 +5821,7 @@ null
 _Example:_
 
 ```nix
-2500
+2000
 ```
 
 _Declared by:_
