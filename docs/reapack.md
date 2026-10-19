@@ -407,9 +407,10 @@ The files under `ReaPack/` have separate responsibilities:
 | `registry.db`           | ReaPack's authoritative installed-package registry. Never edited directly by the module. |
 | `cache/*.xml`           | Synchronized repository indexes owned by ReaPack.                                        |
 | `reaper-flake-state.json` | Versioned installed-package snapshot exported atomically for `reaper2nix`.              |
-| `.nix-sync-requested`   | One-shot synchronization request written by Home Manager.                                |
+| `.nix-sync-requested`   | Synchronization request retained until a successful transaction.                                |
 | `.nix-package-request`  | Desired package transaction waiting for REAPER startup.                                  |
 | `.nix-managed-packages` | Identities successfully adopted by declarative package management.                       |
+| `reaper-flake-startup.log` | Errors from the latest automatic startup attempt, including native download failures. |
 
 Nix declares desired state and schedules work. ReaPack remains responsible for downloads, checksums, file placement, action registration, upgrades, rollback, its SQLite registry, and removals.
 
@@ -425,8 +426,9 @@ The patch in `packages/reapack/managed-packages-api.patch` adds narrow ReaScript
 - queue removal of an installed package identity;
 - inspect installed package versions and flags;
 - atomically export a versioned installed-package snapshot;
-- report whether a transaction is still running;
-- permit noninteractive transactions without the completion report dialog.
+- report whether a transaction is still running and whether it succeeded;
+- queue automatic synchronization without invoking the interactive action;
+- log automatic transaction errors without opening the completion/error report dialog.
 
 The generated startup script combines these APIs with upstream's existing `ReaPack_ProcessQueue` function. The same patched source is compiled into the Linux shared object and macOS dylib.
 
@@ -452,17 +454,28 @@ The exact `version` is absent from the current repository index. Inspect the pac
 
 If the startup dialog lists `ReaPack_ExportState`,
 `ReaPack_GetInstalledPackageInfo`, `ReaPack_IsBusy`,
+`ReaPack_QueueSynchronization`, `ReaPack_LastTransactionSucceeded`,
 `ReaPack_QueuePackage`, or `ReaPack_QueueUninstallPackage`, the configured
 extension is an unpatched upstream build. Remove the `package` override or
 select this flake's `packages.${pkgs.system}.reapack` output.
 
-### A rejected request reappears at every startup
+### Offline startup or failed automatic requests
 
-The package request is deliberately retained after a lookup, queueing,
-transaction, or post-transaction verification error. ReaPack shows its native
-error report for download and installation failures, followed by a concise list
-of desired entries that remain unsatisfied. Correct the reported issue and
-restart REAPER to retry. A verified transaction removes the request.
+Automatic synchronization and package failures are logged to
+`ReaPack/reaper-flake-startup.log` inside the REAPER resource directory instead
+of opening error dialogs at every startup. This includes lookup failures and
+native download errors. The log is replaced at the start of each pending attempt
+so repeated offline starts do not grow it indefinitely.
+
+Requests remain pending and retry on the next REAPER startup. A failed or
+cancelled synchronization retains both requests and defers package changes;
+successful synchronization clears its marker, and verified package state clears
+the package request. Reconnect and restart REAPER to retry, or inspect the log
+for configuration errors that need correcting.
+
+Manually invoked ReaPack actions retain their normal reports. A missing or
+outdated managed-package API still produces a startup dialog because it
+requires installing the matching patched extension.
 
 ### A package was not removed
 

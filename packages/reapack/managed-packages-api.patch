@@ -1,16 +1,20 @@
 diff --git a/src/api.hpp b/src/api.hpp
-index 5e8dabc..fdca930 100644
 --- a/src/api.hpp
 +++ b/src/api.hpp
-@@ -48,5 +48,7 @@ namespace API {
+@@ -46,6 +46,10 @@
+   // api_misc.cpp
    extern APIFunc BrowsePackages;
    extern APIFunc CompareVersions;
 +  extern APIFunc ExportState;
 +  extern APIFunc IsBusy;
++  extern APIFunc QueueSynchronization;
++  extern APIFunc LastTransactionSucceeded;
    extern APIFunc ProcessQueue;
 
    // api_package.cpp
-@@ -57,4 +58,7 @@ namespace API {
+@@ -53,7 +57,10 @@
+   extern APIFunc EnumOwnedFiles;
+   extern APIFunc FreeEntry;
    extern APIFunc GetEntryInfo;
 +  extern APIFunc GetInstalledPackageInfo;
    extern APIFunc GetOwner;
@@ -18,11 +22,19 @@ index 5e8dabc..fdca930 100644
 +  extern APIFunc QueueUninstallPackage;
 
    // api_repo.cpp
+   extern APIFunc AboutRepository;
 diff --git a/src/api_misc.cpp b/src/api_misc.cpp
-index b5c8120..57f8ae1 100644
 --- a/src/api_misc.cpp
 +++ b/src/api_misc.cpp
-@@ -44,6 +44,20 @@ R"(Returns 0 if both versions are equal, a positive value if ver1 is higher tha
+@@ -20,6 +20,7 @@
+
+ #include "browser.hpp"
+ #include "reapack.hpp"
++#include "transaction.hpp"
+
+ DEFINE_API(void, BrowsePackages, ((const char*, filter)),
+ R"(Opens the package browser with the given filter string.)",
+@@ -44,6 +45,42 @@
    return a.compare(b);
  });
 
@@ -38,6 +50,28 @@ index b5c8120..57f8ae1 100644
 +{
 +  (void)unused;
 +  return g_reapack->isBusy();
++});
++
++DEFINE_API(bool, QueueSynchronization, ((bool, unused)),
++R"(Queue synchronization of enabled repositories without a report dialog.
++Call ReaPack_ProcessQueue(false), wait until ReaPack_IsBusy(false) is false,
++then inspect ReaPack_LastTransactionSucceeded(false). Errors are written to
++ReaPack/reaper-flake-startup.log.)",
++{
++  (void)unused;
++  Transaction *tx = g_reapack->setupTransaction(false);
++  if(!tx)
++    return false;
++  for(const Remote &remote : g_reapack->config()->remotes.getEnabled())
++    tx->synchronize(remote);
++  return true;
++});
++
++DEFINE_API(bool, LastTransactionSucceeded, ((bool, unused)),
++R"(Return whether the most recently completed transaction succeeded without errors or cancellation.)",
++{
++  (void)unused;
++  return g_reapack->lastTransactionSucceeded();
 +});
 +
  DEFINE_API(void, ProcessQueue, ((bool, refreshUI)),
@@ -233,17 +267,18 @@ index cd184b9..09d542f 100644
    Statement *m_getOwner;
 
 diff --git a/src/reapack.cpp b/src/reapack.cpp
-index a14e0ce..632db99 100644
 --- a/src/reapack.cpp
 +++ b/src/reapack.cpp
-@@ -35,5 +35,6 @@
+@@ -34,6 +34,8 @@
+ #include "win32.hpp"
 
  #include <cassert>
++#include <fstream>
 +#include <sstream>
 
  #include <reaper_plugin_functions.h>
 
-@@ -93,6 +94,8 @@ ReaPack::ReaPack(REAPER_PLUGIN_HINSTANCE instance, HWND mainWindow)
+@@ -93,6 +95,8 @@
    if(m_config.isFirstRun())
      manageRemotes();
 
@@ -252,10 +287,12 @@ index a14e0ce..632db99 100644
  #ifdef _WIN32
    CleanupTempFiles();
  #endif
-@@ -105,6 +108,75 @@ ReaPack::~ReaPack()
-   s_instance = nullptr;
- }
+@@ -103,6 +107,75 @@
+   DownloadContext::GlobalCleanup();
 
+   s_instance = nullptr;
++}
++
 +static std::string jsonString(const std::string &input)
 +{
 +  static const char hex[] = "0123456789abcdef";
@@ -323,26 +360,28 @@ index a14e0ce..632db99 100644
 +  catch(const reapack_error &) {
 +    return false;
 +  }
-+}
-+
+ }
+
  void ReaPack::setupActions()
- {
-   m_actions.add("REAPACK_SYNC", "ReaPack: Synchronize packages",
-@@ -137,7 +209,12 @@ void ReaPack::setupAPI()
+@@ -136,9 +209,16 @@
+   m_api.emplace_back(&API::EnumOwnedFiles);
+   m_api.emplace_back(&API::FreeEntry);
    m_api.emplace_back(&API::GetEntryInfo);
 +  m_api.emplace_back(&API::GetInstalledPackageInfo);
    m_api.emplace_back(&API::GetOwner);
    m_api.emplace_back(&API::GetRepositoryInfo);
 +  m_api.emplace_back(&API::ExportState);
 +  m_api.emplace_back(&API::IsBusy);
++  m_api.emplace_back(&API::QueueSynchronization);
++  m_api.emplace_back(&API::LastTransactionSucceeded);
    m_api.emplace_back(&API::ProcessQueue);
 +  m_api.emplace_back(&API::QueuePackage);
 +  m_api.emplace_back(&API::QueueUninstallPackage);
  }
 
  void ReaPack::synchronizeAll()
-@@ -272,7 +349,7 @@ void ReaPack::aboutSelf()
-   about(remote("ReaPack"));
+@@ -269,13 +349,15 @@
+   return m_browser.get();
  }
 
 -Transaction *ReaPack::setupTransaction()
@@ -350,38 +389,60 @@ index a14e0ce..632db99 100644
  {
    if(m_progress && m_progress->isVisible())
      m_progress->setFocus();
-@@ -296,7 +373,8 @@ Transaction *ReaPack::setupTransaction()
+
+   if(m_tx)
+     return m_tx;
++
++  m_lastTransactionSucceeded = false;
+
+   try {
+     m_tx = new Transaction;
+@@ -295,7 +377,15 @@
    m_tx->onFinish >> [=] {
      m_progress.reset();
 
 -    if(!m_tx->isCancelled() && !m_tx->receipt()->empty()) {
-+    if((showReport || m_tx->receipt()->test(Receipt::ErrorFlag)) &&
-+        !m_tx->isCancelled() && !m_tx->receipt()->empty()) {
++    m_lastTransactionSucceeded = !m_tx->isCancelled() &&
++      !m_tx->receipt()->test(Receipt::ErrorFlag);
++    if(!showReport && m_tx->receipt()->test(Receipt::ErrorFlag)) {
++      std::ofstream log((Path::DATA + "reaper-flake-startup.log").prependRoot().join(),
++        std::ios::app);
++      log << m_tx->receipt()->errorPage().contents() << '\n';
++    }
++
++    if(showReport && !m_tx->isCancelled() && !m_tx->receipt()->empty()) {
        LockDialog managerLock(m_manager.get());
        LockDialog browserLock(m_browser.get());
 
-@@ -323,6 +401,8 @@ void ReaPack::teardownTransaction()
+@@ -324,6 +414,8 @@
+
    delete m_tx;
    m_tx = nullptr;
-
-+  exportState();
 +
++  exportState();
+
    // Update the browser only after the transaction is deleted because
    // it must be able to start a new one to load the indexes
-   if(needRefresh)
 diff --git a/src/reapack.hpp b/src/reapack.hpp
-index 3a78042..9cd5a82 100644
 --- a/src/reapack.hpp
 +++ b/src/reapack.hpp
-@@ -64,5 +64,7 @@ public:
+@@ -65,11 +65,15 @@
+   void addSetRemote(const Remote &);
+   Remote remote(const std::string &name) const;
+
 -  Transaction *setupTransaction();
 +  Transaction *setupTransaction(bool showReport = true);
    void commitConfig(bool refresh = true);
    Config *config() { return &m_config; }
 +  bool exportState();
 +  bool isBusy() const { return m_tx != nullptr; }
++  bool lastTransactionSucceeded() const { return m_lastTransactionSucceeded; }
 
  private:
++  bool m_lastTransactionSucceeded = false;
+   static ReaPack *s_instance;
+
+   void createDirectories();
 diff --git a/src/transaction.hpp b/src/transaction.hpp
 index c634923..311fbd9 100644
 --- a/src/transaction.hpp

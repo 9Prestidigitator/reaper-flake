@@ -182,6 +182,19 @@
       return
     end
 
+    -- Keep automatic retries non-modal, including failures while offline.
+    -- Replace the previous attempt's log so repeated starts cannot grow it forever.
+    local log_path = resource_path .. "/ReaPack/reaper-flake-startup.log"
+    local log = io.open(log_path, "w")
+    if log then log:close() end
+    local function log_error(message)
+      local file = io.open(log_path, "a")
+      if file then
+        file:write(message, "\n")
+        file:close()
+      end
+    end
+
     local attempts = 0
     local start
     local function wait_for_api()
@@ -190,6 +203,8 @@
         "ReaPack_ExportState",
         "ReaPack_GetInstalledPackageInfo",
         "ReaPack_IsBusy",
+        "ReaPack_QueueSynchronization",
+        "ReaPack_LastTransactionSucceeded",
         "ReaPack_QueuePackage",
         "ReaPack_QueueUninstallPackage",
       }
@@ -295,20 +310,16 @@
         reaper.defer(wait_for_package_transaction)
       else
         if not reaper.ReaPack_ExportState(false) then
-          reaper.ShowMessageBox(
-            "The package transaction completed, but ReaPack could not export " ..
-              "the reaper2nix package snapshot.",
-            "reaper-flake: ReaPack state export failed", 0)
+          log_error("The package transaction completed, but ReaPack could not export " ..
+            "the reaper2nix package snapshot.")
         end
         local errors = verify_packages()
         if #errors == 0 then
           write_managed()
         else
-          reaper.ShowMessageBox(
-            "ReaPack did not apply the requested package state. " ..
-              "The request was retained and will be retried next startup.\n\n" ..
-              table.concat(errors, "\n"),
-            "reaper-flake: ReaPack package transaction failed", 0)
+          log_error("ReaPack did not apply the requested package state. " ..
+            "The request was retained and will be retried next startup.\n\n" ..
+            table.concat(errors, "\n"))
         end
       end
     end
@@ -342,8 +353,7 @@
       reaper.ReaPack_ProcessQueue(false)
 
       if #errors > 0 then
-        reaper.ShowMessageBox(table.concat(errors, "\n"),
-          "reaper-flake: ReaPack package errors", 0)
+        log_error(table.concat(errors, "\n"))
       else
         wait_for_package_transaction()
       end
@@ -352,18 +362,25 @@
     local function wait_for_synchronize()
       if reaper.ReaPack_IsBusy(false) then
         reaper.defer(wait_for_synchronize)
-      else
+      elseif reaper.ReaPack_LastTransactionSucceeded(false) then
+        os.remove(sync_request)
         apply_packages()
+      else
+        log_error("ReaPack synchronization failed or was cancelled. " ..
+          "Requests were retained and will be retried next startup.")
       end
     end
 
     start = function()
-      if synchronize_requested then
-        local command = reaper.NamedCommandLookup("_REAPACK_SYNC")
-        if command and command ~= 0 then
-          os.remove(sync_request)
-          reaper.Main_OnCommand(command, 0)
+      -- Do not join an interactive transaction or inherit its report dialog.
+      if reaper.ReaPack_IsBusy(false) then
+        reaper.defer(start)
+      elseif synchronize_requested then
+        if reaper.ReaPack_QueueSynchronization(false) then
+          reaper.ReaPack_ProcessQueue(false)
           wait_for_synchronize()
+        else
+          log_error("Could not queue ReaPack synchronization. Request retained.")
         end
       else
         apply_packages()
