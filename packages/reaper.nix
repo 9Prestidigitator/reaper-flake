@@ -60,17 +60,17 @@ assert waylandSwellSupport -> swell-wayland != null; let
 in
   stdenv.mkDerivation (finalAttrs: {
     pname = "reaper";
-    version = "7.82";
+    version = "7.83";
 
     src = fetchurl {
       url = urlForPlatform finalAttrs.version stdenv.hostPlatform.qemuArch;
       hash =
         if hostPlatform.isDarwin
-        then "sha256-J7H/YD1ueUHxWOHqbj6ACeTYRHhX4G3wAkGQDEL/BJE="
+        then "sha256-JX0OaRR9DfBYM+ag79CXxjBlzRb1gnjSIT04FMCPRlM="
         else
           {
-            x86_64-linux = "sha256-pKqWFTTyKuWukQ5OwMIA3LRHbJ91VoBv4JqXQ81YJWM=";
-            aarch64-linux = "sha256-51OsK4odLGlLqV79C3wSvQ8xX5sznUVruQlxBFn9qho=";
+            x86_64-linux = "sha256-dsSZcP2VILK+q/ZIXjrhzL5DS8k1xoqm5aFDsOCrZZQ=";
+            aarch64-linux = "sha256-Y3rSbk+wrJ8L4JoGo2yEVqp1ENxyBNreb7XnogeU4OQ=";
           }
         .${
             hostPlatform.system
@@ -110,6 +110,23 @@ in
 
     dontBuild = true;
     dontStrip = true;
+
+    # Leave enough space for the expanded dynamic table and Nix RPATHs.
+    # With 4 KiB alignment, patchelf can overlap the writable header segment
+    # with REAPER's executable segment; the loader then faults writing DT_DEBUG.
+    patchelfFlags = lib.optionals (hostPlatform.isLinux && hostPlatform.isx86_64) [
+      "--page-size"
+      "65536"
+    ];
+
+    doInstallCheck = hostPlatform.isLinux && stdenv.buildPlatform.canExecute hostPlatform;
+    installCheckPhase = ''
+      runHook preInstallCheck
+      binary="$out/opt/REAPER/.reaper-wrapped"
+      # Exercise the loader without opening a display or reading user settings.
+      "$(patchelf --print-interpreter "$binary")" --list "$binary" > /dev/null
+      runHook postInstallCheck
+    '';
 
     installPhase =
       if hostPlatform.isDarwin
