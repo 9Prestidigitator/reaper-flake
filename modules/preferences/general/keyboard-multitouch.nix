@@ -8,7 +8,7 @@
   inherit (lib) mkOption types;
   inherit (reaperLib) reaperBitfield reaperPreference reaperTypes;
   cfg = config.programs.reaper.preferences.general.keyboardMultitouch;
-  gestureGearing = types.addCheck reaperTypes.number (value: value >= 1.0);
+  gestureGearing = types.addCheck reaperTypes.number (value: value >= 0);
 in {
   options.programs.reaper.preferences.general.keyboardMultitouch = {
     commitChangesToEditFieldsAfterOneSecond = reaBool ''
@@ -37,9 +37,7 @@ in {
       type = types.nullOr types.ints.positive;
       default = null;
       example = 1000;
-      description = ''
-        Timeout for momentary keyboard-section overrides, in milliseconds.
-      '';
+      description = "Timeout for momentary keyboard-section overrides, in milliseconds.";
     };
 
     multitouch = {
