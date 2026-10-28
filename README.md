@@ -276,11 +276,11 @@ programs.reaper.swell.colortheme = {
 | `reaper`            | 7.83     | REAPER                                              |
 | `reapack` (patched) | 1.2.6    | ReaPack with the managed-package API                |
 | `sws`               | 2.14.0.7 | SWS/S&M Extension                                   |
-| `swell-wayland`     | 0.6.4    | Experimental native-Wayland SWELL library for Linux |
+| `swell-wayland`     | 0.6.6    | Experimental native-Wayland SWELL library for Linux |
 
 The flake’s package outputs target `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`, and `aarch64-darwin` where the upstream package supports them. REAPER is proprietary software; enable unfree packages in the Nixpkgs configuration used to build it.
 
-The SWELL Wayland package is experimental. It includes the X11 bridge needed for X11-based plugin windows, but plugin GUI compatibility depends on the plugin, Wine/bridge stack, graphics driver, and compositor. Version 0.6.4 improves XWayland swapchain handling, window reparenting, floating/unfloating FX placement, and Kontakt library-window handling; see the [upstream release notes](https://github.com/GoranKovac/WDL/releases/tag/0.6.4).
+The SWELL Wayland package is experimental. It includes the X11 bridge needed for X11-based plugin windows, but plugin GUI compatibility depends on the plugin, Wine/bridge stack, graphics driver, and compositor. See the [upstream release notes](https://github.com/GoranKovac/WDL/releases/tag/0.6.6) for version-specific changes.
 
 | Themes                       | Version    | Included themes and resources                        |
 | ---------------------------- | ---------- | ---------------------------------------------------- |
