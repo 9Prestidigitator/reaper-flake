@@ -81,6 +81,7 @@
         falseValue = bitfield.falseValue;
         trueValue = bitfield.trueValue;
         inherit valueType;
+        importDefault = spec.importDefault or null;
       }
       // lib.optionalAttrs (spec ? optionPath) {inherit (spec) optionPath;}
       // lib.optionalAttrs (spec ? gui) {inherit (spec) gui;}

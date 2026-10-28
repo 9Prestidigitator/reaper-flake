@@ -13,6 +13,19 @@
     fileNameAndFullPath = 3;
   };
 
+  dialogWindowScaling = {
+    small = 768;
+    default = 0;
+    larger = 256;
+    extraLarge = 512;
+  };
+
+  displayUpdates = {
+    automatic = 0;
+    disableOptimizedDrawing = -1;
+    forceClassicDrawing = 1;
+  };
+
   modalWindowPositioning = {
     lastWindowPosition = 0;
     centerOnCurrentScreen = 1;

@@ -371,6 +371,13 @@ nix run .#reaper2nix -- \
   /path/to/reaper.ini
 ```
 
+Contributions can declare an encoded `importDefault` for keys REAPER omits
+when they hold their default value. This affects reverse import only; it does
+not make an unset Nix option own or write that key. Without this metadata,
+missing keys remain unimported. The macOS Advanced UI/system mappings use zero
+defaults in Darwin schemas, including the inverted Retina bit. Dark mode uses
+macOS preferences domains and is deliberately excluded from the INI schema.
+
 The importer emits supported declarations and diagnostics when a schema-backed value cannot be decoded. Unmapped keys are silent because the schema is intentionally a proper subset of REAPER's state-bearing files. Pass `--show-unmapped` when developing new mappings and you need those keys reported.
 
 VST, LV2, and CLAP search paths use the schema's list codec. Each effective path value consists of the explicit `searchPaths` list followed by paths enabled through that plug-in type's `enableNixPaths` and `enableUserPaths` options. Nix paths cover `/etc/profiles/per-user/<username>/lib`, `~/.nix-profile/lib`, and `/run/current-system/sw/lib`, with the plug-in format appended to each root. `reaper2nix` emits the effective semicolon-separated INI value as `searchPaths` without classifying its entries. The two convenience toggles are module policy rather than REAPER state and are therefore not emitted by the importer.

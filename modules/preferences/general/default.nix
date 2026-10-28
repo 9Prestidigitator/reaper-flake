@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   reaBool,
   reaEnum,
   reaperLib,
@@ -15,6 +16,11 @@
   recentProjectList = cfg.recentProjectList;
   filenameAutoIncrement = cfg.filenameAutoIncrement;
   advancedUiSystemTweaks = cfg.advancedUiSystemTweaks;
+  # REAPER omits zero-valued macOS settings. Only infer them in Darwin schemas.
+  macosImportDefault =
+    if pkgs.stdenv.hostPlatform.isDarwin
+    then "0"
+    else null;
 
   reaperBitfieldContributions = reaperBitfield.contributions {
     multinst = [
@@ -251,14 +257,16 @@ in {
         description = "Custom splash screen image path for REAPER startup.";
       };
 
+      autoHideDockWhenFullscreen = reaBool "Auto-hide dock when in fullscreen mode. Only affects macOS.";
+
       uiScale = mkOption {
         type = types.nullOr reaperLib.reaperTypes.general.uiScale;
         default = null;
         example = 1.25;
         description = ''
           Scale UI elements of track/mixer panels, transport, etc. The REAPER
-          checkbox is enabled when this is set; leave null to omit `uiscale`,
-          which REAPER reads as unchecked.
+          checkbox is enabled when this is set. Null leaves the setting unmanaged;
+          an absent `uiscale` key is read by REAPER as unchecked.
         '';
       };
 
@@ -271,13 +279,39 @@ in {
         '';
       };
 
-      allowSnapGridRoutingWindowsToStayOpen = reaBool ''
-        Whether snap/grid/routing windows are allowed to stay open.
-      '';
+      allowSnapGridRoutingWindowsToStayOpen = reaBool "Whether snap/grid/routing windows are allowed to stay open.";
 
       allowKeyboardCommandsEvenWhenMouseEditing = reaBool ''
         Whether keyboard commands are allowed even when mouse-editing.
       '';
+
+      roundedMacosButtons = reaBool "Rounded macOS buttons. Only affects macOS.";
+      useLargerListViewMarginsOnBigSur = reaBool "Use larger listview margins on Big Sur. Only affects macOS.";
+
+      dialogWindowScaling = reaEnum {
+        enum = reaperLib.reaperGeneral.dialogWindowScaling;
+        coerce = "names";
+        example = "default";
+        description = "Dialog window scaling on macOS. Named constants are available from reaperGeneral.dialogWindowScaling.";
+      };
+
+      mainWindowFullscreenButtonUsesReaperNativeFullscreen = reaBool "Main window fullscreen button activates REAPER-native fullscreen. Only affects macOS.";
+      allowRetinaDrawing = reaBool "Allow retina drawing of user interfaces. Only affects macOS.";
+      allowMacosDarkMode = reaBool ''
+        Allow 10.14+ dark mode if enabled. On Darwin, writes the inverted
+        NSRequiresAquaSystemAppearance preference for both com.cockos.reaper
+        (CLI/base app) and com.cockos.reaper.reaper-flake (managed app).
+        Requires REAPER to restart and optimized/Metal drawing to be enabled;
+        does not change displayUpdates. Null leaves both domains untouched,
+        including any previously managed value. Has no effect on other systems.
+      '';
+
+      displayUpdates = reaEnum {
+        enum = reaperLib.reaperGeneral.displayUpdates;
+        coerce = "names";
+        example = "automatic";
+        description = "Display updates on macOS. Named constants are available from reaperGeneral.displayUpdates.";
+      };
 
       modalWindowPositioning = reaEnum {
         enum = reaperLib.reaperGeneral.modalWindowPositioning;
@@ -288,14 +322,10 @@ in {
         '';
       };
 
-      useLargeNonToolWindowFrames = reaBool ''
-        Whether REAPER uses large, non-tool window frames for windows.
-      '';
+      useLargeNonToolWindowFrames = reaBool "Whether REAPER uses large, non-tool window frames for windows.";
 
       cpuAffinity = {
-        enable = reaBool ''
-          Whether REAPER is restricted to the configured CPU indexes.
-        '';
+        enable = reaBool "Whether REAPER is restricted to the configured CPU indexes.";
 
         cpuIndexes = mkOption {
           type = types.nullOr (types.listOf (types.ints.between 0 31));
@@ -329,6 +359,12 @@ in {
           example = 0;
           description = "Maximum process working-set size passed to REAPER.";
         };
+      };
+
+      throttleMouseEvents = {
+        wheel = reaBool "Throttle mouse-events: Wheel. Only affects macOS.";
+        swipe = reaBool "Throttle mouse-events: Swipe. Only affects macOS.";
+        move = reaBool "Throttle mouse-events: Move. Only affects macOS.";
       };
     };
   };
@@ -395,6 +431,24 @@ in {
         codec = "identity";
       }
       {
+        path = "preferences.general.advancedUiSystemTweaks.autoHideDockWhenFullscreen";
+        importDefault = macosImportDefault;
+        gui = "Auto-hide dock when in fullscreen mode";
+        value = advancedUiSystemTweaks.autoHideDockWhenFullscreen;
+        section = "reaper";
+        key = "fsautohidedock";
+        codec = "bool";
+      }
+      {
+        path = "preferences.general.advancedUiSystemTweaks.displayUpdates";
+        importDefault = macosImportDefault;
+        gui = "Display updates";
+        value = advancedUiSystemTweaks.displayUpdates;
+        section = "reaper";
+        key = "osxnomiddlemancocoa";
+        codec = reaperCodecs.enum reaperLib.reaperGeneral.displayUpdates;
+      }
+      {
         path = "preferences.general.advancedUiSystemTweaks.customSplashScreenImage";
         value = advancedUiSystemTweaks.customSplashScreenImage;
         section = "reaper";
@@ -434,6 +488,7 @@ in {
       }
       {
         path = "preferences.general.advancedUiSystemTweaks.modalWindowPositioning";
+        importDefault = macosImportDefault;
         value = advancedUiSystemTweaks.modalWindowPositioning;
         section = "reaper";
         key = "windowflags";
@@ -497,6 +552,69 @@ in {
             gui = "Do not allow the OS to relocate worker threads to different CPUs";
             option = advancedUiSystemTweaks.cpuAffinity.preventOsRelocatingWorkerThreads;
             bit = 2;
+          }
+        ];
+        osx_style = [
+          {
+            optionPath = "preferences.general.advancedUiSystemTweaks.roundedMacosButtons";
+            importDefault = macosImportDefault;
+            gui = "Rounded macOS buttons";
+            option = advancedUiSystemTweaks.roundedMacosButtons;
+            bit = 1;
+          }
+          {
+            optionPath = "preferences.general.advancedUiSystemTweaks.useLargerListViewMarginsOnBigSur";
+            importDefault = macosImportDefault;
+            gui = "Use larger listview margins on Big Sur";
+            option = advancedUiSystemTweaks.useLargerListViewMarginsOnBigSur;
+            bit = 2;
+          }
+          {
+            optionPath = "preferences.general.advancedUiSystemTweaks.dialogWindowScaling";
+            importDefault = macosImportDefault;
+            gui = "Dialog window scaling";
+            option = advancedUiSystemTweaks.dialogWindowScaling;
+            mask = 768;
+            valueFor = value: reaperLib.reaperGeneral.dialogWindowScaling.${value};
+            importValues = reaperLib.reaperGeneral.dialogWindowScaling;
+          }
+        ];
+        osxdisplayoptions = [
+          {
+            optionPath = "preferences.general.advancedUiSystemTweaks.mainWindowFullscreenButtonUsesReaperNativeFullscreen";
+            importDefault = macosImportDefault;
+            gui = "Main window fullscreen button activates REAPER-native fullscreen";
+            option = advancedUiSystemTweaks.mainWindowFullscreenButtonUsesReaperNativeFullscreen;
+            bit = 32;
+          }
+          {
+            optionPath = "preferences.general.advancedUiSystemTweaks.allowRetinaDrawing";
+            importDefault = macosImportDefault;
+            gui = "Allow retina drawing of user interfaces";
+            option = advancedUiSystemTweaks.allowRetinaDrawing;
+            bit = 2;
+            inverted = true;
+          }
+          {
+            optionPath = "preferences.general.advancedUiSystemTweaks.throttleMouseEvents.wheel";
+            importDefault = macosImportDefault;
+            gui = "Throttle mouse-events: Wheel";
+            option = advancedUiSystemTweaks.throttleMouseEvents.wheel;
+            bit = 64;
+          }
+          {
+            optionPath = "preferences.general.advancedUiSystemTweaks.throttleMouseEvents.swipe";
+            importDefault = macosImportDefault;
+            gui = "Throttle mouse-events: Swipe";
+            option = advancedUiSystemTweaks.throttleMouseEvents.swipe;
+            bit = 128;
+          }
+          {
+            optionPath = "preferences.general.advancedUiSystemTweaks.throttleMouseEvents.move";
+            importDefault = macosImportDefault;
+            gui = "Throttle mouse-events: Move";
+            option = advancedUiSystemTweaks.throttleMouseEvents.move;
+            bit = 256;
           }
         ];
       });

@@ -4,6 +4,58 @@
   runCommand,
 }: let
   reaperLib = import ../modules/lib {inherit lib;};
+  evaluateMacos = settings:
+    (lib.evalModules {
+      specialArgs =
+        reaperLib
+        // {
+          inherit reaperLib;
+          pkgs = pkgs // {stdenv = pkgs.stdenv // {hostPlatform = pkgs.stdenv.hostPlatform // {isDarwin = true;};};};
+        };
+      modules = [
+        ../modules/ini.nix
+        ../modules/preferences/general
+        {
+          options.assertions = lib.mkOption {
+            type = lib.types.listOf lib.types.unspecified;
+            default = [];
+          };
+          options.programs.reaper.configPath = lib.mkOption {
+            type = lib.types.str;
+            default = "/tmp/reaper-macos-check";
+          };
+          config.programs.reaper.preferences.general.advancedUiSystemTweaks = settings;
+        }
+      ];
+    }).config.programs.reaper.ini;
+  macosSettings = enabled: {
+    autoHideDockWhenFullscreen = enabled;
+    roundedMacosButtons = enabled;
+    useLargerListViewMarginsOnBigSur = enabled;
+    mainWindowFullscreenButtonUsesReaperNativeFullscreen = enabled;
+    allowRetinaDrawing = enabled;
+    throttleMouseEvents = {
+      wheel = enabled;
+      swipe = enabled;
+      move = enabled;
+    };
+    allowMacosDarkMode = enabled;
+  };
+  macosCases = lib.imap0 (i: scale: let
+    values =
+      (macosSettings (i != 0))
+      // {
+        dialogWindowScaling = scale;
+        displayUpdates = builtins.elemAt ["automatic" "disableOptimizedDrawing" "forceClassicDrawing" "automatic"] i;
+        modalWindowPositioning = i;
+      };
+    evaluated = evaluateMacos values;
+  in {
+    inherit values;
+    payload = evaluated.generatedPayloadFiles."reaper.ini";
+  }) ["small" "default" "larger" "extraLarge"];
+  macosUnset = evaluateMacos {};
+  macosPartial = evaluateMacos {allowRetinaDrawing = false;};
 
   evaluate = useAliases:
     lib.evalModules {
@@ -449,6 +501,19 @@ in
     mask = 524287;
     value = 387475;
   };
-    runCommand "reaper-preference-schema-tests" {} ''
+  assert macosUnset.sections == {} && macosUnset.bitfields == {};
+  assert macosPartial.bitfields.reaper.osxdisplayoptions
+  == {
+    mask = 2;
+    value = 2;
+  };
+    runCommand "reaper-preference-schema-tests" {
+      nativeBuildInputs = [pkgs.python3];
+      MACOS_SCHEMA = macosUnset.generatedSchemaFile;
+      MACOS_CASES = pkgs.writeText "macos-preferences-cases.json" (builtins.toJSON macosCases);
+      MACOS_WRITER = ../scripts/write_config.py;
+      MACOS_IMPORTER = ../scripts/reaper2nix.py;
+    } ''
+      python3 ${./test_schema.py}
       touch "$out"
     ''

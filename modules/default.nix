@@ -259,6 +259,12 @@ in {
               exit 1
             fi
 
+            ${optionalString (pkgs.stdenv.hostPlatform.isDarwin && cfg.preferences.general.advancedUiSystemTweaks.allowMacosDarkMode != null) ''
+              # Apply to both CLI/base-app and Finder/Spotlight launches.
+              /usr/bin/defaults write com.cockos.reaper NSRequiresAquaSystemAppearance -bool ${lib.boolToString (!cfg.preferences.general.advancedUiSystemTweaks.allowMacosDarkMode)}
+              /usr/bin/defaults write com.cockos.reaper.reaper-flake NSRequiresAquaSystemAppearance -bool ${lib.boolToString (!cfg.preferences.general.advancedUiSystemTweaks.allowMacosDarkMode)}
+            ''}
+
             mkdir -p "$reaper_resource_path"
             mkdir -p "$reaper_resource_path/.nix-managed"
             install -m 0644 ${lib.escapeShellArg cfg.ini.generatedSchemaFile} "$reaper_resource_path/.nix-managed/reaper-flake-schema.json"

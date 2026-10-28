@@ -1,5 +1,9 @@
 import json
 import os
+import configparser
+import subprocess
+import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -513,6 +517,64 @@ class StaticSchemaTests(unittest.TestCase):
             if option["kind"] == "bitfield" and option["valueType"] is None
         ]
         self.assertEqual(incomplete, [])
+
+
+@unittest.skipUnless(os.environ.get("MACOS_SCHEMA"), "macOS mapping fixtures required")
+class MacosAdvancedUiTests(unittest.TestCase):
+    def test_masks_values_and_import_round_trip(self):
+        schema = json.loads(Path(os.environ["MACOS_SCHEMA"]).read_text())
+        prefix = "preferences.general.advancedUiSystemTweaks."
+        options = {o["path"][len(prefix):]: o for o in schema["options"] if o["path"].startswith(prefix)}
+        self.assertNotIn("allowMacosDarkMode", options)
+        for name, key, mask, true_value in [
+            ("roundedMacosButtons", "osx_style", 1, 1),
+            ("useLargerListViewMarginsOnBigSur", "osx_style", 2, 2),
+            ("mainWindowFullscreenButtonUsesReaperNativeFullscreen", "osxdisplayoptions", 32, 32),
+            ("allowRetinaDrawing", "osxdisplayoptions", 2, 0),
+            ("throttleMouseEvents.wheel", "osxdisplayoptions", 64, 64),
+            ("throttleMouseEvents.swipe", "osxdisplayoptions", 128, 128),
+            ("throttleMouseEvents.move", "osxdisplayoptions", 256, 256),
+        ]:
+            self.assertEqual(options[name]["key"], key)
+            self.assertEqual(options[name]["mask"], mask)
+            self.assertEqual(options[name]["trueValue"], true_value)
+            self.assertEqual(options[name]["falseValue"], mask ^ true_value)
+        self.assertEqual(options["dialogWindowScaling"]["mask"], 768)
+
+        cases = json.loads(Path(os.environ["MACOS_CASES"]).read_text())
+        for i, case in enumerate(cases):
+            with self.subTest(case=i), tempfile.TemporaryDirectory() as directory:
+                target = Path(directory) / "reaper.ini"
+                target.write_text("[reaper]\nosx_style=65535\nosxdisplayoptions=65535\n")
+                subprocess.run([sys.executable, os.environ["MACOS_WRITER"], str(target),
+                                directory + "/state.json", case["payload"]], check=True)
+                ini = configparser.ConfigParser(); ini.read(target)
+                self.assertEqual(int(ini["reaper"]["osx_style"]), (65535 & ~771) | [768, 3, 259, 515][i])
+                self.assertEqual(int(ini["reaper"]["osxdisplayoptions"]), (65535 & ~482) | (2 if i == 0 else 480))
+                self.assertEqual(int(ini["reaper"]["fsautohidedock"]), int(i != 0))
+                self.assertEqual(int(ini["reaper"]["osxnomiddlemancocoa"]), [0, -1, 1, 0][i])
+                self.assertEqual(int(ini["reaper"]["windowflags"]), i)
+                output = subprocess.check_output([sys.executable, os.environ["MACOS_IMPORTER"], str(target),
+                    "--schema", os.environ["MACOS_SCHEMA"], "--options", "programs.reaper." + prefix[:-1]], text=True)
+                for key, value in case["values"].items():
+                    if key == "allowMacosDarkMode": continue
+                    entries = value.items() if isinstance(value, dict) else [(key, value)]
+                    for name, val in entries:
+                        encoded = str(val).lower() if isinstance(val, bool) else json.dumps(val)
+                        self.assertIn(f"{name} = {encoded};", output)
+
+    def test_omitted_macos_keys_import_zero_defaults(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "reaper.ini"; target.write_text("[reaper]\n")
+            output = subprocess.check_output([sys.executable, os.environ["MACOS_IMPORTER"], str(target),
+                "--schema", os.environ["MACOS_SCHEMA"], "--options",
+                "programs.reaper.preferences.general.advancedUiSystemTweaks"], text=True)
+            for expected in ['dialogWindowScaling = "default";', 'displayUpdates = "automatic";',
+                             'allowRetinaDrawing = true;', 'roundedMacosButtons = false;',
+                             'autoHideDockWhenFullscreen = false;', 'modalWindowPositioning = 0;']:
+                self.assertIn(expected, output)
+            self.assertNotIn("allowMacosDarkMode", output)
+            self.assertNotIn("uiScale =", output)
 
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@
   '';
   # Exercise both module branches with runnable fixtures on the build host.
   # This checks bundle construction and launcher behavior without running REAPER.
-  evaluate = darwin:
+  evaluate = darwin: darkMode:
     lib.evalModules {
       specialArgs = {
         pkgs =
@@ -74,6 +74,7 @@
 
           config.programs.reaper = {
             enable = true;
+            preferences.general.advancedUiSystemTweaks.allowMacosDarkMode = darkMode;
             basePackage = fixture;
             configPath = "/tmp/managed reaper's config";
             packages = [fixture];
@@ -82,8 +83,8 @@
         }
       ];
     };
-  darwin = (evaluate true).config.programs.reaper;
-  linux = (evaluate false).config.programs.reaper;
+  darwin = (evaluate true null).config.programs.reaper;
+  linux = (evaluate false true).config.programs.reaper;
 in
   assert darwin.ini.sections.reaper.pythonlibdll64 == "libpython${pkgs.python3.pythonVersion}.dylib";
   assert linux.ini.sections.reaper.pythonlibdll64 == "libpython${pkgs.python3.pythonVersion}.so";
@@ -94,8 +95,10 @@ in
       DARWIN_WRAPPER = darwin.package;
       LINUX_WRAPPER = linux.package;
       BASE_PACKAGE = fixture;
-      DARWIN_ACTIVATION = pkgs.writeText "darwin-reaper-activation" (evaluate true).config.home.activation.reaper.data;
-      LINUX_ACTIVATION = pkgs.writeText "linux-reaper-activation" (evaluate false).config.home.activation.reaper.data;
+      DARWIN_DARK = pkgs.writeText "darwin-dark" (evaluate true true).config.home.activation.reaper.data;
+      DARWIN_LIGHT = pkgs.writeText "darwin-light" (evaluate true false).config.home.activation.reaper.data;
+      DARWIN_ACTIVATION = pkgs.writeText "darwin-reaper-activation" (evaluate true null).config.home.activation.reaper.data;
+      LINUX_ACTIVATION = pkgs.writeText "linux-reaper-activation" (evaluate false true).config.home.activation.reaper.data;
     } ''
       python3 ${./test_managed_launcher.py}
       touch "$out"

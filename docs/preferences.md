@@ -3988,9 +3988,83 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
 
+## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.allowMacosDarkMode
+
+Allow 10\.14+ dark mode if enabled\. On Darwin, writes the inverted
+NSRequiresAquaSystemAppearance preference for both com\.cockos\.reaper
+(CLI/base app) and com\.cockos\.reaper\.reaper-flake (managed app)\.
+Requires REAPER to restart and optimized/Metal drawing to be enabled;
+does not change displayUpdates\. Null leaves both domains untouched,
+including any previously managed value\. Has no effect on other systems\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
+## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.allowRetinaDrawing
+
+Allow retina drawing of user interfaces\. Only affects macOS\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
 ## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.allowSnapGridRoutingWindowsToStayOpen
 
 Whether snap/grid/routing windows are allowed to stay open\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
+## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.autoHideDockWhenFullscreen
+
+Auto-hide dock when in fullscreen mode\. Only affects macOS\.
 
 _Type:_
 null or boolean
@@ -4036,7 +4110,8 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.cpuAffinity\.cpuIndexes
 
-CPU indexes REAPER may use\. REAPER supports indexes 0 through 31 in this setting\.
+CPU indexes REAPER may use\. REAPER supports indexes 0 through 31 in
+this setting\.
 
 _Type:_
 null or (list of integer between 0 and 31 (both inclusive))
@@ -4064,7 +4139,8 @@ _Declared by:_
 
 ## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.cpuAffinity\.preventOsRelocatingWorkerThreads
 
-Whether REAPER prevents the OS from relocating worker threads between CPUs\.
+Whether REAPER prevents the OS from relocating worker threads between
+CPUs\.
 
 _Type:_
 null or boolean
@@ -4108,6 +4184,52 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
 
+## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.dialogWindowScaling
+
+Dialog window scaling on macOS\. Named constants are available from reaperGeneral\.dialogWindowScaling\.
+
+_Type:_
+null or ((one of “default”, “extraLarge”, “larger”, “small”) or (one of 0, 512, 256, 768) convertible to it)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+"default"
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
+## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.displayUpdates
+
+Display updates on macOS\. Named constants are available from reaperGeneral\.displayUpdates\.
+
+_Type:_
+null or ((one of “automatic”, “disableOptimizedDrawing”, “forceClassicDrawing”) or (one of 0, -1, 1) convertible to it)
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+"automatic"
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
 ## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.fontSizeAdjustment
 
 Font size adjustment for theme, arrange view, and ruler text\.
@@ -4125,6 +4247,29 @@ _Example:_
 
 ```nix
 1.0
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
+## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.mainWindowFullscreenButtonUsesReaperNativeFullscreen
+
+Main window fullscreen button activates REAPER-native fullscreen\. Only affects macOS\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
 ```
 
 _Declared by:_
@@ -4224,11 +4369,103 @@ _Declared by:_
 
 - [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
 
+## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.roundedMacosButtons
+
+Rounded macOS buttons\. Only affects macOS\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
+## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.throttleMouseEvents\.move
+
+Throttle mouse-events: Move\. Only affects macOS\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
+## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.throttleMouseEvents\.swipe
+
+Throttle mouse-events: Swipe\. Only affects macOS\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
+## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.throttleMouseEvents\.wheel
+
+Throttle mouse-events: Wheel\. Only affects macOS\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
 ## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.uiScale
 
 Scale UI elements of track/mixer panels, transport, etc\. The REAPER
-checkbox is enabled when this is set; leave null to omit `uiscale`,
-which REAPER reads as unchecked\.
+checkbox is enabled when this is set\. Null leaves the setting unmanaged;
+an absent `uiscale` key is read by REAPER as unchecked\.
 
 _Type:_
 null or UI scale between 0\.3 and 3
@@ -4252,6 +4489,29 @@ _Declared by:_
 ## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.useLargeNonToolWindowFrames
 
 Whether REAPER uses large, non-tool window frames for windows\.
+
+_Type:_
+null or boolean
+
+_Default:_
+
+```nix
+null
+```
+
+_Example:_
+
+```nix
+true
+```
+
+_Declared by:_
+
+- [/home/max/Projects/reaper-flake/modules/preferences/general](file:///home/max/Projects/reaper-flake/modules/preferences/general)
+
+## programs\.reaper\.preferences\.general\.advancedUiSystemTweaks\.useLargerListViewMarginsOnBigSur
+
+Use larger listview margins on Big Sur\. Only affects macOS\.
 
 _Type:_
 null or boolean

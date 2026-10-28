@@ -107,6 +107,12 @@
           Encoded bitfield values that mean the public option remains unset.
         '';
       };
+      importDefault = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        internal = true;
+        description = "Encoded value to import when REAPER omits a default-valued INI key.";
+      };
       codec = mkOption {
         type = types.anything;
         default = "identity";
@@ -359,6 +365,7 @@
         key = contribution.key;
         mask = contribution.mask;
         codec = contribution.codec;
+        importDefault = contribution.importDefault;
         gui = contribution.gui;
         valueType = contribution.valueType;
         trueValue = contribution.trueValue;

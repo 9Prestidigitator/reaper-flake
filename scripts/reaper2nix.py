@@ -1072,9 +1072,12 @@ def main() -> int:
             continue
         section = option["section"]
         key = option["key"]
-        if not current_ini.has_section(section) or not current_ini.has_option(section, key):
-            continue
-        raw = current_ini.get(section, key)
+        if current_ini.has_section(section) and current_ini.has_option(section, key):
+            raw = current_ini.get(section, key)
+        else:
+            raw = option.get("importDefault")
+            if raw is None:
+                continue
         identity = (file_name, section, key)
 
         if option["kind"] == "bitfield":

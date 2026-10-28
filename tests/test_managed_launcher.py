@@ -22,6 +22,18 @@ class ManagedLauncherTests(unittest.TestCase):
                     self.assertIn("-procps-", detector_line)
                     self.assertIn("/bin/pgrep;", detector_line)
 
+    def test_macos_dark_mode_domains_and_nullable_platform_behavior(self):
+        def script(name):
+            command = shlex.split(Path(os.environ[name]).read_text())
+            return Path(command[1]).read_text()
+        for name, encoded in [("DARWIN_DARK", "false"), ("DARWIN_LIGHT", "true")]:
+            text = script(name)
+            for domain in ["com.cockos.reaper", "com.cockos.reaper.reaper-flake"]:
+                self.assertIn(f"/usr/bin/defaults write {domain} NSRequiresAquaSystemAppearance -bool {encoded}", text)
+            self.assertLess(text.index("Refusing to activate"), text.index("/usr/bin/defaults"))
+        self.assertNotIn("/usr/bin/defaults", script("DARWIN_ACTIVATION"))
+        self.assertNotIn("/usr/bin/defaults", script("LINUX_ACTIVATION"))
+
     def test_launchers(self):
         darwin = Path(os.environ["DARWIN_WRAPPER"])
         linux = Path(os.environ["LINUX_WRAPPER"])

@@ -36,6 +36,22 @@
       };
 
       advancedUiSystemTweaks = {
+        # macOS controls; INI settings have no effect on other platforms.
+        autoHideDockWhenFullscreen = true;
+        roundedMacosButtons = true;
+        useLargerListViewMarginsOnBigSur = true;
+        dialogWindowScaling = reaperGeneral.dialogWindowScaling.larger;
+        mainWindowFullscreenButtonUsesReaperNativeFullscreen = true;
+        allowRetinaDrawing = true;
+        displayUpdates = reaperGeneral.displayUpdates.automatic;
+        throttleMouseEvents = {
+          wheel = true;
+          swipe = true;
+          move = false;
+        };
+        # Darwin only: configures both app preference domains; requires relaunch.
+        allowMacosDarkMode = true;
+
         uiScale = 1.0;
         fontSizeAdjustment = 1.0;
         allowSnapGridRoutingWindowsToStayOpen = true;

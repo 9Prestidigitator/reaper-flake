@@ -23,6 +23,7 @@
       codec = spec.codec or "identity";
       optionPath = spec.path;
       gui = spec.gui or null;
+      importDefault = spec.importDefault or null;
     }
   ];
 
