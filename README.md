@@ -6,7 +6,7 @@
 
 Declarative REAPER packages and Home Manager configuration with Nix.
 
-[![REAPER 7.85](https://img.shields.io/badge/REAPER-7.85-informational)](https://www.reaper.fm/)
+[![REAPER 7.86](https://img.shields.io/badge/REAPER-7.86-informational)](https://www.reaper.fm/)
 [![ReaPack 1.2.6](https://img.shields.io/badge/ReaPack-1.2.6-informational)](https://reapack.com/)
 [![SWS 2.14.0.7](https://img.shields.io/badge/SWS-2.14.0.7-informational)](https://www.sws-extension.org/)
 
@@ -273,10 +273,10 @@ programs.reaper.swell.colortheme = {
 
 | Package             | Version  | Description                                         |
 | ------------------- | -------- | --------------------------------------------------- |
-| `reaper`            | 7.85     | REAPER                                              |
+| `reaper`            | 7.86     | REAPER                                              |
 | `reapack` (patched) | 1.2.6    | ReaPack with the managed-package API                |
 | `sws`               | 2.14.0.7 | SWS/S&M Extension                                   |
-| `swell-wayland`     | 0.6.6    | Experimental native-Wayland SWELL library for Linux |
+| `swell-wayland`     | 0.9.1    | Experimental native-Wayland SWELL library for Linux |
 
 The flake’s package outputs target `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`, and `aarch64-darwin` where the upstream package supports them. REAPER is proprietary software; enable unfree packages in the Nixpkgs configuration used to build it.
 
