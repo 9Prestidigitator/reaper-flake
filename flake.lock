@@ -46,11 +46,11 @@
     "wdl": {
       "flake": false,
       "locked": {
-        "lastModified": 1794950809,
-        "narHash": "sha256-lcVMeWbBDrWCZqgNx57Rd9L86Khi9/kAcKb4Plg+Alc=",
+        "lastModified": 1795032078,
+        "narHash": "sha256-dE7Z9ReEqxUai+2jzrlq0/lzoeYMqEkxnrcMa8xUBys=",
         "owner": "justinfrankel",
         "repo": "WDL",
-        "rev": "6602212225b662981133004861ea742279af85bb",
+        "rev": "61cdf1d91c719dee4e2934becd95285198f62d81",
         "type": "github"
       },
       "original": {
