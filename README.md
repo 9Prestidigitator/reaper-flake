@@ -276,11 +276,26 @@ programs.reaper.swell.colortheme = {
 | `reaper`            | 7.86     | REAPER                                              |
 | `reapack` (patched) | 1.2.6    | ReaPack with the managed-package API                |
 | `sws`               | 2.14.0.7 | SWS/S&M Extension                                   |
-| `swell-wayland`     | 0.9.1    | Experimental native-Wayland SWELL library for Linux |
+| `swell-wayland`     | Locked WDL PR #40 merge | Experimental native-Wayland SWELL library for Linux (upstream WDL + PR #40) |
+
+SWELL uses the non-flake `wdl` input, tracking GitHub's `pull/40/merge` test
+merge of PR #40 into upstream `main`. Its revision and hash are pinned in
+`flake.lock`. Update and validate it with:
+
+```sh
+nix flake update wdl
+nix build .#swell-wayland
+```
+
+`nix flake update` also updates WDL along with the other inputs. The package
+version is derived automatically from the locked source. GitHub maintains the
+merge ref while the PR is open and mergeable; after it is merged, change the
+input to upstream `main`. Updating the lock does not validate compilation or
+plugin compatibility, so build and test REAPER after updating.
 
 The flake’s package outputs target `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`, and `aarch64-darwin` where the upstream package supports them. REAPER is proprietary software; enable unfree packages in the Nixpkgs configuration used to build it.
 
-The SWELL Wayland package is experimental. It includes the X11 bridge needed for X11-based plugin windows, but plugin GUI compatibility depends on the plugin, Wine/bridge stack, graphics driver, and compositor. See the [upstream release notes](https://github.com/GoranKovac/WDL/releases/tag/0.6.6) for version-specific changes.
+The SWELL Wayland package is experimental. It includes the X11 bridge needed for X11-based plugin windows, but plugin GUI compatibility depends on the plugin, Wine/bridge stack, graphics driver, and compositor. See [upstream WDL PR #40](https://github.com/justinfrankel/WDL/pull/40) for implementation details and ongoing changes.
 
 | Themes                       | Version    | Included themes and resources                        |
 | ---------------------------- | ---------- | ---------------------------------------------------- |

@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-readonly derivation="$(dirname "$0")/reaper.nix"
+readonly derivation="$(dirname "$0")/../packages/reaper.nix"
 readonly download_page="https://www.reaper.fm/download.php"
 
 reaper_version="$({

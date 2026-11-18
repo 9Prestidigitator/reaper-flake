@@ -7,6 +7,11 @@
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
+
+    wdl = {
+      url = "github:justinfrankel/WDL/pull/40/merge";
+      flake = false;
+    };
   };
 
   outputs = inputs @ {
@@ -21,7 +26,7 @@
           inherit system;
           config.allowUnfree = true;
         };
-        swellWayland = pkgs.callPackage ./packages/swell-wayland.nix {};
+        swellWayland = pkgs.callPackage ./packages/swell-wayland.nix {wdlSource = inputs.wdl;};
         reapackPackage = pkgs.callPackage ./packages/reapack {};
         generatePreferencesDocs = pkgs.writeShellApplication {
           name = "generate-preferences-docs";
@@ -176,6 +181,9 @@
         };
       };
 
-      flake.homeModules.reaper = ./modules;
+      flake.homeModules.reaper = {
+        imports = [./modules];
+        _module.args.wdlSource = inputs.wdl;
+      };
     };
 }

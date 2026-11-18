@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  wdlSource,
   ...
 }: let
   inherit (lib) concatStringsSep mapAttrsToList mkEnableOption mkIf mkMerge mkOption literalExpression types optional hm optionalString;
@@ -22,7 +23,7 @@
     waylandSwellSupport = cfg.experimental.swell-wayland.enable;
     swell-wayland =
       if pkgs.stdenv.hostPlatform.isLinux
-      then pkgs.callPackage ../packages/swell-wayland.nix {}
+      then pkgs.callPackage ../packages/swell-wayland.nix {inherit wdlSource;}
       else null;
   };
 

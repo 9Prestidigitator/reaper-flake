@@ -172,7 +172,7 @@ in
         runHook postInstall
       '';
 
-    passthru.updateScript = ./updater.sh;
+    passthru.updateScript = ../scripts/update_reaper.sh;
 
     meta = {
       description = "Digital audio workstation";

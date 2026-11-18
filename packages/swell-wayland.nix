@@ -1,7 +1,7 @@
 {
   lib,
   stdenv,
-  fetchFromGitHub,
+  wdlSource,
   pkg-config,
   cairo,
   fontconfig,
@@ -11,38 +11,31 @@
   libepoxy,
   gtk3,
   libX11,
-  libXcomposite,
-  libXfixes,
-  libXtst,
+  libdecor,
+  libxkbcommon,
   libxcb,
   wayland,
+  wayland-protocols,
+  wayland-scanner,
   xcbutilimage,
   xcbutilkeysyms,
   xcbutilrenderutil,
   xcbutilwm,
   xwayland,
 }:
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "swell-wayland";
-  version = "0.9.1";
+  version = "unstable-${lib.substring 0 8 wdlSource.lastModifiedDate}-${wdlSource.shortRev}";
 
-  src = fetchFromGitHub {
-    owner = "GoranKovac";
-    repo = "WDL";
-    rev = version;
-    hash = "sha256-9sA3gRcSSMBzYa1fmPOnUf4Xf6p1KuGtBIZp20AZ+EM=";
-  };
-
-  sourceRoot = "source/WDL/swell";
+  # GitHub's PR test merge, pinned and hashed by flake.lock.
+  src = wdlSource;
 
   postPatch = ''
-    substituteInPlace swell-xwayland-bridge.cpp \
-      --replace-fail "/usr/bin/Xwayland" "${xwayland}/bin/Xwayland"
-    substituteInPlace Makefile \
-      --replace-fail "gtk+-3.0)" "gtk+-3.0 gio-unix-2.0)"
+    substituteInPlace WDL/swell/swell-xwayland-bridge.cpp \
+      --replace-fail '"Xwayland", server_name' '"${xwayland}/bin/Xwayland", server_name'
   '';
 
-  nativeBuildInputs = [pkg-config];
+  nativeBuildInputs = [pkg-config wayland-scanner];
   buildInputs = [
     cairo
     fontconfig
@@ -52,11 +45,11 @@ stdenv.mkDerivation rec {
     libepoxy
     libxcb
     libX11
-    libXcomposite
-    libXfixes
-    libXtst
+    libdecor
+    libxkbcommon
     gtk3
     wayland
+    wayland-protocols
     xcbutilimage
     xcbutilkeysyms
     xcbutilrenderutil
@@ -64,21 +57,22 @@ stdenv.mkDerivation rec {
   ];
 
   makeFlags = [
-    "SWELL_SUPPORT_GTK=1"
+    "-C"
+    "WDL/swell"
     "WAYLAND=1"
   ];
 
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib
-    cp libSwell.so $out/lib/
+    cp WDL/swell/libSwell.so $out/lib/
     runHook postInstall
   '';
 
   meta = {
     description = "Experimental native-Wayland SWELL library for REAPER";
-    homepage = "https://github.com/GoranKovac/WDL";
-    changelog = "https://github.com/GoranKovac/WDL/releases/tag/${version}";
+    homepage = "https://github.com/justinfrankel/WDL";
+    changelog = "https://github.com/justinfrankel/WDL/pull/40";
     platforms = lib.platforms.linux;
   };
 }
