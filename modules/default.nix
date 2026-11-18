@@ -20,7 +20,7 @@
   defaultBaseReaperPackage = pkgs.callPackage ../packages/reaper.nix {
     pythonSupport = cfg.preferences.plugIns.reascript.python.enable;
     python3 = cfg.preferences.plugIns.reascript.python.package;
-    waylandSwellSupport = cfg.experimental.swell-wayland.enable;
+    waylandSwellSupport = pkgs.stdenv.hostPlatform.isLinux && cfg.experimental.swell-wayland.enable;
     swell-wayland =
       if pkgs.stdenv.hostPlatform.isLinux
       then pkgs.callPackage ../packages/swell-wayland.nix {inherit wdlSource;}
@@ -207,7 +207,7 @@ in {
       '';
     };
 
-    experimental.swell-wayland.enable = mkEnableOption "EXTREMELY EXPERIMENTAL AND BROKEN: Reaper on native wayland.";
+    experimental.swell-wayland.enable = mkEnableOption "experimental native-Wayland SWELL support on Linux";
   };
 
   config = mkMerge [
@@ -234,13 +234,6 @@ in {
       _module.args.reaperControlOscWeb = reaperLib.reaperControlOscWeb;
     }
     (mkIf cfg.enable {
-      assertions = [
-        {
-          assertion = !cfg.experimental.swell-wayland.enable || pkgs.stdenv.hostPlatform.isLinux;
-          message = "Swell on wayland is a Linux only feature.";
-        }
-      ];
-
       home = {
         packages = optional cfg.installPackage cfg.package;
 

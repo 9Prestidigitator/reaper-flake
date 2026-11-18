@@ -17,7 +17,7 @@ Declarative REAPER packages and Home Manager configuration with Nix.
   <a href="#option-coverage">Option coverage</a>
 </p>
 
-reaper-flake provides a Home Manager module for configuring REAPER on NixOS, other Linux systems, and macOS. It also packages REAPER, ReaPack, SWS, themes, and the experimental [Wayland SWELL library](https://forum.cockos.com/showthread.php?p=2953586).
+reaper-flake provides a Home Manager module for configuring REAPER on NixOS, other Linux systems, and macOS. It also packages REAPER, ReaPack, SWS, themes, and the experimental [Wayland SWELL library](#native-wayland-swell).
 
 The module updates only the values declared in Nix. REAPER remains free to manage its other settings and runtime state, so you can continue using the GUI for options that are not yet exposed.
 
@@ -278,24 +278,25 @@ programs.reaper.swell.colortheme = {
 | `sws`               | 2.14.0.7 | SWS/S&M Extension                                   |
 | `swell-wayland`     | Locked WDL PR #40 merge | Experimental native-Wayland SWELL library for Linux (upstream WDL + PR #40) |
 
-SWELL uses the non-flake `wdl` input, tracking GitHub's `pull/40/merge` test
-merge of PR #40 into upstream `main`. Its revision and hash are pinned in
-`flake.lock`. Update and validate it with:
+The flake’s package outputs target `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`, and `aarch64-darwin` where the upstream package supports them. REAPER is proprietary software; enable unfree packages in the Nixpkgs configuration used to build it.
+
+### Native Wayland SWELL
+
+Enable the experimental native Wayland UI on Linux, with Xwayland support for X11 plugins:
+
+```nix
+programs.reaper.experimental.swell-wayland.enable = true;
+```
+
+The `wdl` input pins upstream WDL with [PR #40](https://github.com/justinfrankel/WDL/pull/40)
+via `pull/40/merge`. Update and build from this repository:
 
 ```sh
 nix flake update wdl
 nix build .#swell-wayland
 ```
 
-`nix flake update` also updates WDL along with the other inputs. The package
-version is derived automatically from the locked source. GitHub maintains the
-merge ref while the PR is open and mergeable; after it is merged, change the
-input to upstream `main`. Updating the lock does not validate compilation or
-plugin compatibility, so build and test REAPER after updating.
-
-The flake’s package outputs target `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`, and `aarch64-darwin` where the upstream package supports them. REAPER is proprietary software; enable unfree packages in the Nixpkgs configuration used to build it.
-
-The SWELL Wayland package is experimental. It includes the X11 bridge needed for X11-based plugin windows, but plugin GUI compatibility depends on the plugin, Wine/bridge stack, graphics driver, and compositor. See [upstream WDL PR #40](https://github.com/justinfrankel/WDL/pull/40) for implementation details and ongoing changes.
+### Theme packages
 
 | Themes                       | Version    | Included themes and resources                        |
 | ---------------------------- | ---------- | ---------------------------------------------------- |
@@ -340,7 +341,6 @@ names and defaults, or open the [full options diagram](docs/assets/options.svg).
 - The individual ReaPack package feature requires the patched ReaPack package supplied by this flake. Replacing it with an unmodified upstream binary removes the managed-package API.
 - ReaPack package changes are queued during activation and take effect when REAPER next starts.
 - MIDI control-surface device indexes are native zero-based indexes; they are not stable across all hardware or desktop-session changes.
-- Native Wayland support is experimental and may show blank or incompatible third-party plugin windows. X11 REAPER remains the recommended configuration for production use.
 - REAPER must be closed during activation unless the safety guard is explicitly overridden.
 
 ## Why this exists

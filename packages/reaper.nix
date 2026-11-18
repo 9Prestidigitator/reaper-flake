@@ -27,7 +27,7 @@
   waylandSwellSupport ? false,
   swell-wayland ? null,
 }:
-assert waylandSwellSupport -> swell-wayland != null; let
+assert (stdenv.hostPlatform.isLinux && waylandSwellSupport) -> swell-wayland != null; let
   inherit (stdenv) hostPlatform;
   urlForPlatform = version: arch: let
     majorVersion = lib.versions.major version;
