@@ -32,7 +32,7 @@ stdenv.mkDerivation {
 
   postPatch = ''
     substituteInPlace WDL/swell/swell-xwayland-bridge.cpp \
-      --replace-fail '"Xwayland", server_name' '"${xwayland}/bin/Xwayland", server_name'
+      --replace-fail '"Xwayland", socket_path.name' '"${xwayland}/bin/Xwayland", socket_path.name'
   '';
 
   nativeBuildInputs = [pkg-config wayland-scanner];
